@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- TITLE: держи <title> РОВНО равным названию в консоли (урок модерации п.5.1.3) -->
+<title>Тёплый Аквариум</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<script>
+  window.__inIframe = true;
+  try{ window.__inIframe = window.top !== window.self; }catch(e){ window.__inIframe = true; }
+  if(!window.__inIframe){ window.__noSDK = true; }
+  else {
+    var __sdkS = document.createElement('script');
+    __sdkS.src = 'https://yandex.ru/games/sdk/v2';
+    __sdkS.onerror = function(){ window.__noSDK = true; if(window.__onSdkScriptDone) window.__onSdkScriptDone(); };
+    __sdkS.onload  = function(){ if(window.__onSdkScriptDone) window.__onSdkScriptDone(); };
+    document.head.appendChild(__sdkS);
+  }
+</script>
+<script src="sfx.js"></script>
+<style>
+  :root{
+    /* ── Токены под тему «подводный аквариум» (бумажный HUD + чернильный контур серии) ── */
+    --ink:#233A4E; --ink-soft:#6E8A9C; --line:#2B4358;
+    --paper:#FBF6E9;
+    --accent:#FF9E5A; --accent-deep:#E87A38;
+    --gold:#F2C14E; --mint:#7FD1AE; --lav:#B9A3E3; --sky:#5B9BD5;
+    --bg:#2C7FA6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);position:fixed;inset:0;background:var(--bg)}
+  #cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:block}
+  #hud{position:absolute;inset:0;pointer-events:none;display:flex;flex-direction:column;
+       padding:calc(10px + env(safe-area-inset-top)) 12px calc(12px + env(safe-area-inset-bottom));
+       max-width:560px;margin:0 auto}
+  .top{display:flex;gap:8px;align-items:flex-start}
+  .chip{background:var(--paper);border:2.5px solid var(--line);border-radius:16px;padding:6px 12px 6px 8px;
+        display:flex;gap:8px;align-items:center;box-shadow:0 3px 0 rgba(35,58,78,.28)}
+  .chip .ic{width:26px;height:26px;flex:none}
+  .chip .tx{display:flex;flex-direction:column;gap:1px}
+  .chip .v{font-weight:900;font-size:17px;line-height:1}
+  .chip .l{font-size:10px;font-weight:800;color:var(--ink-soft);letter-spacing:.3px}
+  .spacer{flex:1}
+  #side{position:absolute;right:max(12px,calc(50% - 268px));top:118px;display:flex;flex-direction:column;gap:12px;pointer-events:auto}
+  .rbtn{width:52px;height:52px;border-radius:50%;background:var(--paper);border:2.5px solid var(--line);
+        box-shadow:0 3px 0 rgba(35,58,78,.28);display:flex;align-items:center;justify-content:center;
+        cursor:pointer;transition:transform .08s,box-shadow .08s;padding:0}
+  .rbtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(35,58,78,.28)}
+  .rbtn svg{width:27px;height:27px;display:block}
+  .bottom{display:flex;gap:10px;pointer-events:auto}
+  .abtn{flex:1;background:var(--paper);border:2.5px solid var(--line);border-radius:16px;padding:10px 8px;
+        font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 3px 0 rgba(35,58,78,.28);
+        transition:transform .08s,box-shadow .08s;display:flex;flex-direction:column;align-items:center;gap:2px;color:#fff}
+  .abtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(35,58,78,.28)}
+  .abtn .bt{font-size:15px;line-height:1.05}
+  .abtn .bs{font-size:11px;font-weight:800;opacity:.92;display:flex;align-items:center;gap:3px}
+  .abtn .bs svg{width:12px;height:12px}
+  .abtn.main{background:var(--accent);border-color:var(--accent-deep)}
+  .abtn.blue{background:var(--sky);border-color:#3E77AD}
+  .abtn.lav{background:var(--lav);border-color:#8E76C0}
+  .abtn.off{filter:grayscale(.55) brightness(.92)}
+  /* ── модалка (магазин/апгрейды/коллекция) ── */
+  #modal{position:absolute;inset:0;background:rgba(20,40,58,.55);display:flex;align-items:flex-end;
+         justify-content:center;pointer-events:auto;z-index:5;transition:opacity .2s}
+  #modal.hidden{opacity:0;pointer-events:none}
+  .sheet{position:relative;background:linear-gradient(180deg,#FFFDF5,#FBF1DA);width:100%;max-width:560px;
+         border:3px solid var(--line);border-bottom:none;border-radius:24px 24px 0 0;
+         padding:16px 14px calc(16px + env(safe-area-inset-bottom));max-height:85%;
+         display:flex;flex-direction:column;box-shadow:0 -6px 24px rgba(20,40,58,.3)}
+  #mScroll{overflow-y:auto;overflow-x:hidden}
+  #mTitle{font-weight:900;font-size:20px;text-align:center;margin:2px 44px 12px;color:var(--ink)}
+  #mClose{position:absolute;top:10px;right:12px;width:38px;height:38px;border-radius:50%;z-index:2;
+          background:var(--paper);border:2.5px solid var(--line);font-size:21px;font-weight:900;
+          color:var(--ink);cursor:pointer;box-shadow:0 3px 0 rgba(35,58,78,.28)}
+  #mClose:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(35,58,78,.28)}
+  .row{display:flex;align-items:center;gap:10px;background:#FFF8E6;border:2.5px solid var(--line);
+       border-radius:16px;padding:9px 10px;margin-bottom:9px;box-shadow:0 2px 0 rgba(35,58,78,.18)}
+  .row .thumb{width:52px;height:44px;flex:none;background:#EAF4F7;border:2px solid var(--line);border-radius:11px}
+  .row .info{flex:1;min-width:0}
+  .row .nm{font-weight:900;font-size:15px;line-height:1.1}
+  .row .ds{font-size:11.5px;font-weight:800;color:var(--ink-soft);margin-top:1px}
+  .buy{border:2.5px solid var(--accent-deep);background:var(--accent);color:#fff;font-weight:900;
+       font-size:13px;padding:8px 12px;border-radius:12px;cursor:pointer;white-space:nowrap;
+       box-shadow:0 2px 0 rgba(35,58,78,.25);flex:none}
+  .buy:active{transform:translateY(1px)}
+  .buy.can-not{background:#CFC7B4;border-color:#B3AB98;color:#7C7462}
+  .buy.owned{background:var(--mint);border-color:#5FB893}
+  .coll{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+  .card{background:#FFF8E6;border:2.5px solid var(--line);border-radius:14px;padding:8px 4px 6px;
+        text-align:center;box-shadow:0 2px 0 rgba(35,58,78,.18)}
+  .card canvas{width:78px;height:56px;display:block;margin:0 auto}
+  .card .cn{font-weight:900;font-size:12px;margin-top:3px}
+  .card.locked{opacity:.72}
+  .card .qm{font-weight:900;font-size:30px;color:var(--ink-soft);height:56px;line-height:56px}
+  #toast{position:absolute;left:50%;bottom:104px;transform:translateX(-50%) translateY(20px);
+         background:var(--ink);color:#fff;font-weight:800;font-size:14px;padding:9px 16px;border-radius:99px;
+         opacity:0;transition:.25s;pointer-events:none;z-index:8;text-align:center}
+  #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body oncontextmenu="return false">
+<canvas id="cv"></canvas>
+<div id="hud">
+  <div class="top">
+    <div class="chip">
+      <svg class="ic" viewBox="0 0 26 26"><circle cx="13" cy="13" r="9" fill="#F7EAB0" stroke="#233A4E" stroke-width="2.5"/><ellipse cx="10.5" cy="10" rx="2.6" ry="3.4" fill="#fff" opacity=".85"/></svg>
+      <span class="tx"><span class="v" id="coinsV">0</span><span class="l" id="coinsL">ЖЕМЧУГ</span></span>
+    </div>
+    <div class="chip">
+      <svg class="ic" viewBox="0 0 26 26"><path d="M6 15c3-4 5 3 8-1s4 2 6-2" fill="none" stroke="#5B9BD5" stroke-width="2.6" stroke-linecap="round"/><circle cx="19" cy="8" r="2.2" fill="#7FD1AE" stroke="#233A4E" stroke-width="1.6"/></svg>
+      <span class="tx"><span class="v" id="ipsV">0/с</span><span class="l" id="ipsL">ДОХОД</span></span>
+    </div>
+    <div class="spacer"></div>
+  </div>
+  <div class="spacer"></div>
+  <div class="bottom">
+    <button class="abtn main" id="tapBtn"><span class="bt" id="tapT">Покормить</span></button>
+    <button class="abtn blue" id="giftBtn"><span class="bt" id="giftT">Подарок</span><span class="bs"><svg viewBox="0 0 12 12"><path d="M2 4h8v6H2z" fill="none" stroke="#fff" stroke-width="1.4"/><path d="M6 2v8M2 4l4 0 4 0" stroke="#fff" stroke-width="1.4"/></svg><span id="giftS">+50</span></span></button>
+    <button class="abtn lav" id="x2Btn"><span class="bt" id="x2T">Доход ×2</span><span class="bs"><svg viewBox="0 0 12 12"><path d="M3 2l7 4-7 4z" fill="#fff"/></svg><span id="x2S">5 мин</span></span></button>
+  </div>
+</div>
+<div id="side">
+  <button class="rbtn" id="fishBtn" aria-label="Рыбки">
+    <svg viewBox="0 0 27 27"><path d="M4 13.5c4-6 12-6 16 0-4 6-12 6-16 0z" fill="#FF9E5A" stroke="#233A4E" stroke-width="2.2"/><path d="M20 13.5l4-3v6z" fill="#FF9E5A" stroke="#233A4E" stroke-width="2.2" stroke-linejoin="round"/><circle cx="9" cy="12.5" r="1.5" fill="#233A4E"/></svg>
+  </button>
+  <button class="rbtn" id="upBtn" aria-label="Улучшения">
+    <svg viewBox="0 0 27 27"><path d="M13.5 4l2.3 4.9 5.2.6-3.9 3.6 1.1 5.2-4.7-2.7-4.7 2.7 1.1-5.2L6 9.5l5.2-.6z" fill="#F2C14E" stroke="#233A4E" stroke-width="2.1" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="rbtn" id="collBtn" aria-label="Коллекция">
+    <svg viewBox="0 0 27 27"><rect x="4.5" y="4.5" width="8" height="8" rx="2" fill="#7FD1AE" stroke="#233A4E" stroke-width="2.1"/><rect x="14.5" y="4.5" width="8" height="8" rx="2" fill="#B9A3E3" stroke="#233A4E" stroke-width="2.1"/><rect x="4.5" y="14.5" width="8" height="8" rx="2" fill="#5B9BD5" stroke="#233A4E" stroke-width="2.1"/><rect x="14.5" y="14.5" width="8" height="8" rx="2" fill="#FF9E5A" stroke="#233A4E" stroke-width="2.1"/></svg>
+  </button>
+</div>
+<div id="modal" class="hidden"><div class="sheet"><button id="mClose">×</button><div id="mTitle"></div><div id="mScroll"><div id="mBody"></div></div></div></div>
+<div id="toast"></div>
+<script>
+'use strict';
+// ============================================================
+//  Тёплый Аквариум / Cozy Aquarium — idle-коллекционер про уютный аквариум
+//  Петля: покормить (тап-доход) -> накопить жемчуг -> завести новую рыбку
+//  (плавает, даёт пассивный доход) -> апгрейды. Живой подводный мир.
+// ============================================================
+const SAVE_KEY = "cozy_aquarium_v1";        // GAME: уникальный ключ сейва
+const LB_NAME  = "species";                  // техимя лидерборда (рекорд = число видов)
+let ysdk=null, player=null, lb=null, saveT=0, booted=false;
+
+// ---------- i18n (авто-язык через SDK, урок модерации п.2.14) ----------
+function lang(){
+  try{ if(ysdk&&ysdk.environment&&ysdk.environment.i18n&&ysdk.environment.i18n.lang)
+    return ysdk.environment.i18n.lang==="ru"?"ru":"en"; }catch(e){}
+  return (navigator.language||"ru").slice(0,2)==="ru"?"ru":"en";
+}
+const STR = {
+  coins:{ru:"ЖЕМЧУГ",en:"PEARLS"}, income:{ru:"ДОХОД",en:"INCOME"},
+  feed:{ru:"Покормить",en:"Feed"},
+  gift:{ru:"Подарок",en:"Gift"},
+  x2:{ru:"Доход ×2",en:"Income ×2"}, x2on:{ru:"×2 идёт",en:"×2 active"},
+  need:{ru:"Не хватает жемчуга",en:"Not enough pearls"},
+  fishTitle:{ru:"Завести рыбку",en:"Add a fish"},
+  upTitle:{ru:"Улучшения аквариума",en:"Aquarium upgrades"},
+  collTitle:{ru:"Коллекция рыб",en:"Fish collection"},
+  buy:{ru:"Завести",en:"Add"}, owned:{ru:"В доме",en:"Owned"},
+  lvl:{ru:"Ур.",en:"Lv."},
+  upFeed:{ru:"Сытный корм",en:"Rich food"}, upFeedD:{ru:"+1 жемчуг за кормление",en:"+1 pearl per feed"},
+  upAer:{ru:"Аэратор",en:"Aerator"}, upAerD:{ru:"+25% к пассивному доходу",en:"+25% passive income"},
+  upPlant:{ru:"Водоросли",en:"Water plants"}, upPlantD:{ru:"−5% к цене новых рыбок",en:"−5% new fish price"},
+  ipsUnit:{ru:"ж/с",en:"p/s"},
+  daily:{ru:"Ежедневный подарок:",en:"Daily gift:"},
+  x2got:{ru:"Доход удвоен на 5 минут!",en:"Income doubled for 5 min!"},
+  giftGot:{ru:"Подарок:",en:"Gift:"},
+  cooldown:{ru:"Ещё рано — подожди",en:"Not ready yet"},
+  newFish:{ru:"Новый житель:",en:"New resident:"},
+  allFish:{ru:"Все рыбки заведены!",en:"All fish collected!"},
+};
+const T = k => (STR[k]||{})[lang()] || (STR[k]||{}).ru || k;
+const nm = sp => lang()==="ru"? sp.ru : sp.en;
+
+// ---------- Виды рыб (0-й — стартовый, заведён сразу) ----------
+const SPECIES = [
+  {id:'guppy', ru:'Пузырик', en:'Bubbly',   c1:'#F2A65A', c2:'#FFDDAF', shape:'guppy',  ips:1,    cost:0},
+  {id:'gold',  ru:'Персик',  en:'Peachy',   c1:'#FF8C42', c2:'#FFC38A', shape:'gold',   ips:3,    cost:30},
+  {id:'neon',  ru:'Нео',     en:'Neo',      c1:'#3BA7D6', c2:'#F25C69', shape:'neon',   ips:9,    cost:150},
+  {id:'clown', ru:'Пятныш',  en:'Spotty',   c1:'#FF7A2E', c2:'#FFFFFF', shape:'clown',  ips:24,   cost:560},
+  {id:'molly', ru:'Уголёк',  en:'Ember',    c1:'#4A4A57', c2:'#9AA0AC', shape:'molly',  ips:60,   cost:1800},
+  {id:'tang',  ru:'Небо',    en:'Sky',      c1:'#3E7CC4', c2:'#F2C14E', shape:'tang',   ips:140,  cost:5200},
+  {id:'cat',   ru:'Уса',     en:'Whiskers', c1:'#8A7358', c2:'#CBB89B', shape:'cat',    ips:320,  cost:15000},
+  {id:'angel', ru:'Королёк', en:'Regal',    c1:'#F0E6C4', c2:'#4A6377', shape:'angel',  ips:720,  cost:44000},
+  {id:'puffer',ru:'Пуфик',   en:'Puffy',    c1:'#C7D66B', c2:'#EEF5C6', shape:'puffer', ips:1600, cost:120000},
+];
+const SP = id => SPECIES.find(s=>s.id===id);
+
+// ---------- Состояние ----------
+function fresh(){ return {
+  v:1, coins:0,
+  fish:['guppy'], seen:['guppy'],          // заведённые виды / обнаруженные для коллекции
+  feed:0, aer:0, plant:0,                   // уровни апгрейдов
+  best:1,                                   // рекорд числа видов (лидерборд)
+  x2Until:0, lastGift:0, lastDaily:"",      // таймеры rewarded / ежедневки
+  time:Date.now()
+};}
+let S = fresh();
+
+// ---------- Экономика ----------
+const x2On     = () => Date.now() < S.x2Until;
+const tapGain  = () => 1 + S.feed;
+const aerMult  = () => 1 + 0.25*S.aer;
+const ipsBase  = () => S.fish.reduce((a,id)=>a + SP(id).ips, 0);
+const ips      = () => Math.floor(ipsBase() * aerMult() * (x2On()?2:1));
+const priceMult= () => Math.max(0.5, 1 - 0.05*S.plant);
+const fishCost = sp => Math.max(1, Math.floor(sp.cost * priceMult()));
+const nextFish = () => SPECIES.find(s=> !S.fish.includes(s.id));
+const feedCost = () => Math.floor(20 * Math.pow(1.6, S.feed));
+const aerCost  = () => Math.floor(60 * Math.pow(1.7, S.aer));
+const plantCost= () => Math.floor(100 * Math.pow(1.9, S.plant));
+// для базового тест-хука: lvl = число видов, upCost = цена следующей рыбки
+const upCost   = () => { const n=nextFish(); return n? fishCost(n) : 0; };
+
+// ---------- Сейвы (throttle + облако, фолбэк localStorage) ----------
+function persist(force){
+  const now=Date.now();
+  if(!force && now-saveT<10000) return;
+  saveT=now;
+  const raw=JSON.stringify(S);
+  try{ localStorage.setItem(SAVE_KEY,raw); }catch(e){}
+  if(player){ try{ player.setData({save:raw}); }catch(e){} }
+}
+function restore(raw){
+  if(!raw) return;
+  try{ const d=(typeof raw==="string")?JSON.parse(raw):(raw.save?JSON.parse(raw.save):raw);
+       if(d&&typeof d==="object") S=Object.assign(fresh(),d); }catch(e){}
+  // подчистка на случай старых сейвов
+  if(!Array.isArray(S.fish)||!S.fish.length) S.fish=['guppy'];
+  if(!Array.isArray(S.seen)) S.seen=S.fish.slice();
+  S.fish.forEach(id=>{ if(!S.seen.includes(id)) S.seen.push(id); });
+}
+
+// ---------- Реклама (no-op вне платформы; награда всегда выдаётся) ----------
+let lastAd=0;
+function maybeInterstitial(){
+  if(!ysdk) return;
+  if(Date.now()-lastAd < 180000) return;
+  lastAd=Date.now();
+  try{ ysdk.adv.showFullscreenAdv({}); }catch(e){}
+}
+function showRewarded(onReward){
+  if(!ysdk){ onReward(); return; }
+  try{ ysdk.adv.showRewardedVideo({callbacks:{ onRewarded:onReward, onError:onReward, onClose:()=>{} }}); }
+  catch(e){ onReward(); }
+}
+
+// ---------- Лидерборд ----------
+function submitScore(v){ try{ if(lb&&LB_NAME) lb.setLeaderboardScore(LB_NAME, Math.floor(v)); }catch(e){} }
+
+// ---------- HUD ----------
+const $ = id => document.getElementById(id);
+const fmt = n => n>=1e6 ? (n/1e6).toFixed(2)+"M" : n>=1e4 ? (n/1e3).toFixed(1)+"K" : Math.floor(n).toString();
+function refreshHud(){
+  $("coinsV").textContent = fmt(S.coins);
+  $("ipsV").textContent   = fmt(ips())+"/"+(lang()==="ru"?"с":"s");
+  $("coinsL").textContent = T("coins");
+  $("ipsL").textContent   = T("income");
+  $("tapT").textContent   = T("feed");
+  $("giftT").textContent  = T("gift");
+  $("giftS").textContent  = "+"+fmt(giftAmt());
+  const on=x2On();
+  $("x2T").textContent    = on? T("x2on") : T("x2");
+  $("x2S").textContent    = on? Math.ceil((S.x2Until-Date.now())/60000)+(lang()==="ru"?" мин":" min") : (lang()==="ru"?"5 мин":"5 min");
+  $("x2Btn").classList.toggle("off", on);
+  if(modalOpen) buildModal(modalOpen); // живое обновление цен в открытой панели
+}
+let toastT;
+function toast(msg){ const el=$("toast"); el.textContent=msg; el.classList.add("on");
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("on"),1600); }
+
+// ---------- Награды ----------
+const giftAmt = () => Math.max(50, Math.floor(ips()*45));
+
+// ---------- Действия ----------
+function doFeed(x){
+  S.coins += tapGain();
+  spawnFood(x);
+  refreshHud(); persist(); sfx("tap");
+}
+function buyFish(id){
+  const sp=SP(id); if(!sp || S.fish.includes(id)) return false;
+  const c=fishCost(sp);
+  if(S.coins<c){ toast(T("need")); sfx("error"); return false; }
+  S.coins-=c; S.fish.push(id);
+  if(!S.seen.includes(id)) S.seen.push(id);
+  S.best=Math.max(S.best,S.fish.length);
+  spawnSwimmer(sp); refreshHud(); persist(true); submitScore(S.best); maybeInterstitial(); sfx("buy");
+  toast(T("newFish")+" "+nm(sp)); return true;
+}
+function buyUp(key){
+  const map={feed:feedCost,aer:aerCost,plant:plantCost};
+  const c=map[key](); if(S.coins<c){ toast(T("need")); sfx("error"); return false; }
+  S.coins-=c; S[key]++; refreshHud(); persist(true); sfx("buy"); return true;
+}
+function claimGift(){
+  showRewarded(()=>{ const g=giftAmt(); S.coins+=g; refreshHud(); persist(true); sfx("coin");
+    toast(T("giftGot")+" +"+fmt(g)); });
+}
+function claimX2(){
+  if(x2On()){ toast(T("x2on")); return; }
+  showRewarded(()=>{ S.x2Until=Date.now()+300000; refreshHud(); persist(true); sfx("buy");
+    toast(T("x2got")); });
+}
+function checkDaily(){
+  const today=new Date().toISOString().slice(0,10);
+  if(S.lastDaily!==today){
+    S.lastDaily=today; const g=Math.max(60, Math.floor(ips()*60));
+    S.coins+=g; persist(true);
+    setTimeout(()=>toast(T("daily")+" +"+fmt(g)), 700);
+  }
+}
+
+// ---------- Модалки: магазин / апгрейды / коллекция ----------
+let modalOpen=null;
+function openModal(kind){ modalOpen=kind; buildModal(kind); $("modal").classList.remove("hidden"); }
+function closeModal(){ modalOpen=null; $("modal").classList.add("hidden"); }
+function fishThumb(sp){
+  const c=document.createElement('canvas'); c.width=104; c.height=88;
+  const g=c.getContext('2d'); drawFish(g,sp,52,46,1.15,1,0); return c;
+}
+function buildModal(kind){
+  const body=$("mBody"); const can=(cost)=>S.coins>=cost;
+  if(kind==='fish'){
+    $("mTitle").textContent=T("fishTitle"); body.innerHTML="";
+    SPECIES.forEach(sp=>{
+      const owned=S.fish.includes(sp.id);
+      const row=document.createElement('div'); row.className="row";
+      const th=fishThumb(sp); th.className="thumb"; row.appendChild(th);
+      const info=document.createElement('div'); info.className="info";
+      info.innerHTML='<div class="nm">'+nm(sp)+'</div><div class="ds">+'+fmt(sp.ips)+' '+T("ipsUnit")+'</div>';
+      row.appendChild(info);
+      const b=document.createElement('button');
+      if(owned){ b.className="buy owned"; b.textContent=T("owned"); }
+      else{ const c=fishCost(sp); b.className="buy"+(can(c)?"":" can-not");
+        b.textContent=T("buy")+" · "+fmt(c);
+        b.onclick=()=>{ if(buyFish(sp.id)) buildModal('fish'); }; }
+      row.appendChild(b); body.appendChild(row);
+    });
+  } else if(kind==='up'){
+    $("mTitle").textContent=T("upTitle"); body.innerHTML="";
+    const ups=[
+      {k:'feed', ic:'<circle cx="26" cy="22" r="10" fill="#FF9E5A" stroke="#233A4E" stroke-width="2.5"/><circle cx="22" cy="19" r="2" fill="#fff"/>', c:feedCost()},
+      {k:'aer',  ic:'<path d="M18 30c3-4 5 2 8-2s3 3 6-1" fill="none" stroke="#5B9BD5" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="14" r="3" fill="#7FD1AE" stroke="#233A4E" stroke-width="2"/><circle cx="20" cy="12" r="2.4" fill="#7FD1AE" stroke="#233A4E" stroke-width="1.8"/>', c:aerCost()},
+      {k:'plant',ic:'<path d="M26 34c-6-4-8-12-6-20 3 4 4 10 6 14 2-4 3-10 6-14 2 8 0 16-6 20z" fill="#7FD1AE" stroke="#233A4E" stroke-width="2.4" stroke-linejoin="round"/>', c:plantCost()},
+    ];
+    ups.forEach(u=>{
+      const row=document.createElement('div'); row.className="row";
+      const th=document.createElement('div'); th.className="thumb";
+      th.innerHTML='<svg viewBox="0 0 52 44" width="52" height="44">'+u.ic+'</svg>'; row.appendChild(th);
+      const info=document.createElement('div'); info.className="info";
+      info.innerHTML='<div class="nm">'+T('up'+u.k.charAt(0).toUpperCase()+u.k.slice(1))+' · '+T("lvl")+(S[u.k]+1)+'</div>'
+        +'<div class="ds">'+T('up'+u.k.charAt(0).toUpperCase()+u.k.slice(1)+'D')+'</div>';
+      row.appendChild(info);
+      const b=document.createElement('button'); b.className="buy"+(can(u.c)?"":" can-not");
+      b.textContent=fmt(u.c);
+      b.onclick=()=>{ if(buyUp(u.k)) buildModal('up'); };
+      row.appendChild(b); body.appendChild(row);
+    });
+  } else if(kind==='coll'){
+    $("mTitle").textContent=T("collTitle")+" ("+S.seen.length+"/"+SPECIES.length+")"; body.innerHTML="";
+    const grid=document.createElement('div'); grid.className="coll";
+    SPECIES.forEach(sp=>{
+      const seen=S.seen.includes(sp.id);
+      const card=document.createElement('div'); card.className="card"+(seen?"":" locked");
+      if(seen){
+        const th=fishThumb(sp); card.appendChild(th);
+        const n=document.createElement('div'); n.className="cn"; n.textContent=nm(sp); card.appendChild(n);
+      } else {
+        const q=document.createElement('div'); q.className="qm"; q.textContent="?"; card.appendChild(q);
+        const n=document.createElement('div'); n.className="cn"; n.textContent="—"; card.appendChild(n);
+      }
+      grid.appendChild(card);
+    });
+    body.appendChild(grid);
+  }
+}
+
+// ---------- Canvas ----------
+const cv=$("cv"), ctx=cv.getContext("2d");
+let W=0,H=0,DPR=1, sandY=0;
+const cssVar = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+let INK="#233A4E", PAPER="#FBF6E9";
+let bgCan=null;
+function resize(){
+  DPR=Math.min(devicePixelRatio||1,2); W=innerWidth; H=innerHeight;
+  cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0);
+  sandY=H*0.84;
+  INK=cssVar("--ink")||INK; PAPER=cssVar("--paper")||PAPER;
+  buildScenery(); buildBg();
+}
+addEventListener("resize",resize);
+
+// ---------- Живой мир: декор, пузыри, водоросли, медуза, краб ----------
+let weeds=[], bubbles=[], rocks=[], shells=[], jelly=null, crab=null;
+function rr(a,b){ return a+(b-a)*Math.random(); }
+function buildScenery(){
+  weeds=[]; const n=Math.max(4, Math.round(W/95));
+  for(let i=0;i<n;i++) weeds.push({ x:rr(20,W-20), h:rr(H*0.10,H*0.22), w:rr(7,12),
+    hue:i%2?'#4FA98A':'#6FC3A0', ph:rr(0,6.28), seg:5 });
+  bubbles=[]; for(let i=0;i<26;i++) bubbles.push({ x:rr(0,W), y:rr(0,H), r:rr(2,5.5), sp:rr(14,34), dr:rr(-8,8) });
+  rocks=[]; const rn=Math.max(3,Math.round(W/220));
+  for(let i=0;i<rn;i++){ const rw=rr(46,90); rocks.push({ x:rr(rw,W-rw), rw:rw, rh:rr(20,34), tone:i%2?'#3B5566':'#47657A' }); }
+  shells=[]; for(let i=0;i<Math.max(3,Math.round(W/260));i++) shells.push({ x:rr(30,W-30), s:rr(9,15), t:Math.random()<0.5?'shell':'star', hue:Math.random()<0.5?'#F2C14E':'#E88BA0' });
+  jelly={ x:rr(0,W), y:rr(H*0.28,H*0.5), dir:Math.random()<0.5?1:-1, sp:rr(9,16), ph:0 };
+  crab={ x:rr(60,W-60), dir:Math.random()<0.5?1:-1, sp:rr(10,18), ph:0 };
+}
+function buildBg(){
+  bgCan=document.createElement('canvas'); bgCan.width=Math.max(1,W*DPR); bgCan.height=Math.max(1,H*DPR);
+  const g=bgCan.getContext('2d'); g.setTransform(DPR,0,0,DPR,0,0);
+  // вода — вертикальный градиент (светлее сверху, глубокая синь снизу)
+  const wg=g.createLinearGradient(0,0,0,H);
+  wg.addColorStop(0,'#7FCBDD'); wg.addColorStop(0.35,'#3E96BC'); wg.addColorStop(0.7,'#256E96'); wg.addColorStop(1,'#123E5E');
+  g.fillStyle=wg; g.fillRect(0,0,W,H);
+  // мягкое солнечное свечение сверху
+  const sun=g.createRadialGradient(W*0.7,-H*0.1,10,W*0.7,-H*0.1,H*0.75);
+  sun.addColorStop(0,'rgba(255,255,245,.35)'); sun.addColorStop(1,'rgba(255,255,245,0)');
+  g.fillStyle=sun; g.fillRect(0,0,W,H);
+  // задний план — тёмная толща у дна
+  const dg=g.createLinearGradient(0,sandY-70,0,sandY);
+  dg.addColorStop(0,'rgba(10,40,60,0)'); dg.addColorStop(1,'rgba(10,40,60,.35)');
+  g.fillStyle=dg; g.fillRect(0,sandY-70,W,70);
+  // камни на дне
+  rocks.forEach(r=>{ g.fillStyle=r.tone; g.strokeStyle=INK; g.lineWidth=3;
+    g.beginPath(); g.ellipse(r.x, sandY-2, r.rw, r.rh, 0, Math.PI, 0); g.closePath(); g.fill(); g.stroke();
+    g.fillStyle='rgba(255,255,255,.10)'; g.beginPath(); g.ellipse(r.x-r.rw*0.3, sandY-r.rh*0.6, r.rw*0.4, r.rh*0.4,0,0,6.28); g.fill(); });
+  // песчаное дно — тёплая волнистая насыпь с чернильным верхним контуром
+  g.beginPath(); g.moveTo(0,H); g.lineTo(0,sandY);
+  for(let x=0;x<=W;x+=40){ const y=sandY + Math.sin(x*0.03)*6; g.lineTo(x,y); }
+  g.lineTo(W,H); g.closePath();
+  const sg=g.createLinearGradient(0,sandY-10,0,H); sg.addColorStop(0,'#EAD7A6'); sg.addColorStop(1,'#CDA86E');
+  g.fillStyle=sg; g.fill();
+  g.strokeStyle=INK; g.lineWidth=3.5; g.beginPath();
+  for(let x=0;x<=W;x+=40){ const y=sandY + Math.sin(x*0.03)*6; x===0?g.moveTo(x,y):g.lineTo(x,y); } g.stroke();
+  // ракушки/морские звёзды на песке
+  shells.forEach(sh=>{ g.save(); g.translate(sh.x, sandY+8); g.strokeStyle=INK; g.lineWidth=2; g.fillStyle=sh.hue;
+    if(sh.t==='star'){ g.beginPath(); for(let i=0;i<10;i++){ const a=Math.PI/5*i-Math.PI/2, rad=i%2?sh.s*0.45:sh.s; const px=Math.cos(a)*rad, py=Math.sin(a)*rad*0.7; i?g.lineTo(px,py):g.moveTo(px,py);} g.closePath(); g.fill(); g.stroke(); }
+    else { g.beginPath(); g.arc(0,0,sh.s,Math.PI,0); g.closePath(); g.fill(); g.stroke();
+      g.beginPath(); for(let k=-2;k<=2;k++){ g.moveTo(0,0); g.lineTo(Math.sin(k*0.5)*sh.s*0.9,-Math.cos(k*0.5)*sh.s*0.9);} g.stroke(); }
+    g.restore(); });
+  // тонкая внутренняя рамка «стекла аквариума»
+  g.strokeStyle='rgba(255,255,255,.16)'; g.lineWidth=6; g.strokeRect(3,3,W-6,H-6);
+}
+function drawBackground(){ if(bgCan) ctx.drawImage(bgCan,0,0,W,H); }
+
+// лучи света (мерцают), водоросли (колышутся), пузыри, медуза, краб
+function drawRays(t){
+  ctx.save(); ctx.globalCompositeOperation='lighter';
+  for(let i=0;i<3;i++){
+    const x=W*(0.2+0.3*i), a=0.05+0.035*Math.sin(t*0.6+i);
+    ctx.fillStyle='rgba(255,255,240,'+a.toFixed(3)+')';
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x+70,0); ctx.lineTo(x+170,H); ctx.lineTo(x+40,H); ctx.closePath(); ctx.fill();
+  }
+  ctx.restore();
+}
+function drawWeeds(t){
+  weeds.forEach(w=>{
+    ctx.strokeStyle=w.hue; ctx.lineWidth=w.w; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(w.x, sandY);
+    let px=w.x, py=sandY;
+    for(let s=1;s<=w.seg;s++){
+      const yy=sandY - (w.h/w.seg)*s;
+      const xx=w.x + Math.sin(t*1.1 + w.ph + s*0.6)*(6+s*2.2);
+      ctx.quadraticCurveTo((px+xx)/2, (py+yy)/2, xx, yy); px=xx; py=yy;
+    }
+    ctx.stroke();
+    ctx.strokeStyle='rgba(20,50,40,.25)'; ctx.lineWidth=2;
+    ctx.stroke();
+  });
+}
+function drawBubbles(t,dt){
+  ctx.lineWidth=1.5;
+  bubbles.forEach(b=>{
+    b.y-=b.sp*dt; b.x+=Math.sin(t*2+b.y*0.05)*b.dr*dt;
+    if(b.y< -10){ b.y=H+rr(0,40); b.x=rr(0,W); }
+    ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,6.28);
+    ctx.fillStyle='rgba(230,248,255,.30)'; ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.5)'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(b.x-b.r*0.3,b.y-b.r*0.3,b.r*0.3,0,6.28); ctx.fillStyle='rgba(255,255,255,.7)'; ctx.fill();
+  });
+}
+function drawJelly(t,dt){
+  const j=jelly; j.x+=j.dir*j.sp*dt; j.ph=t;
+  if(j.x>W+50) j.dir=-1; if(j.x< -50) j.dir=1;
+  const y=j.y + Math.sin(t*0.9)*10, bell=26, sq=1+0.08*Math.sin(t*2);
+  ctx.save(); ctx.translate(j.x,y);
+  // щупальца
+  ctx.strokeStyle='rgba(200,160,220,.75)'; ctx.lineWidth=3; ctx.lineCap='round';
+  for(let i=-3;i<=3;i++){ ctx.beginPath(); ctx.moveTo(i*5, bell*0.5);
+    ctx.quadraticCurveTo(i*5+Math.sin(t*3+i)*6, bell*1.3, i*5+Math.sin(t*3+i)*10, bell*2.1); ctx.stroke(); }
+  // купол
+  ctx.beginPath(); ctx.ellipse(0,0,bell*sq,bell*0.8/sq,0,Math.PI,0); ctx.closePath();
+  ctx.fillStyle='rgba(190,150,225,.55)'; ctx.fill();
+  ctx.strokeStyle='rgba(120,80,150,.6)'; ctx.lineWidth=2.5; ctx.stroke();
+  ctx.restore();
+}
+function drawCrab(t,dt){
+  const c=crab; c.x+=c.dir*c.sp*dt; if(c.x>W-40) c.dir=-1; if(c.x<40) c.dir=1;
+  const y=sandY+6+Math.abs(Math.sin(t*6))*2;
+  ctx.save(); ctx.translate(c.x,y); ctx.scale(c.dir,1);
+  ctx.fillStyle='#E06A4C'; ctx.strokeStyle=INK; ctx.lineWidth=2.5; ctx.lineCap='round';
+  // лапки
+  for(let i=-1;i<=1;i++){ ctx.strokeStyle=INK; ctx.beginPath(); ctx.moveTo(i*7,3); ctx.lineTo(i*10-6,10+Math.sin(t*6+i)*2); ctx.stroke(); ctx.beginPath(); ctx.moveTo(i*7,3); ctx.lineTo(i*10+6,10+Math.cos(t*6+i)*2); ctx.stroke(); }
+  // клешни
+  ctx.fillStyle='#E06A4C'; ctx.strokeStyle=INK;
+  ctx.beginPath(); ctx.arc(-16,-1,5,0,6.28); ctx.fill(); ctx.stroke();
+  ctx.beginPath(); ctx.arc(16,-1,5,0,6.28); ctx.fill(); ctx.stroke();
+  // тело
+  ctx.beginPath(); ctx.ellipse(0,0,14,9,0,0,6.28); ctx.fill(); ctx.stroke();
+  // глазки
+  ctx.fillStyle='#fff'; ctx.beginPath(); ctx.arc(-4,-7,2.6,0,6.28); ctx.arc(4,-7,2.6,0,6.28); ctx.fill(); ctx.stroke();
+  ctx.fillStyle=INK; ctx.beginPath(); ctx.arc(-4,-7,1.1,0,6.28); ctx.arc(4,-7,1.1,0,6.28); ctx.fill();
+  ctx.restore();
+}
+
+// ---------- Рыбки (векторные модельки) ----------
+let swimmers=[];
+function spawnSwimmer(sp){ swimmers.push({ sp, x:rr(W*0.2,W*0.8), y:rr(H*0.28,sandY-40),
+  vx:rr(-1,1)<0?-1:1, tvy:0, dir:Math.random()<0.5?1:-1, spd:rr(26,44), phase:rr(0,6.28), target:null, eat:0 }); }
+function rebuildSwimmers(){ swimmers=[]; S.fish.forEach(id=>spawnSwimmer(SP(id))); }
+
+let food=[];   // хлопья корма (визуально тонут; монеты уже начислены при тапе)
+function spawnFood(x){ const fx=(x==null)?rr(W*0.2,W*0.8):x; for(let i=0;i<3;i++) food.push({ x:fx+rr(-16,16), y:rr(60,90), vy:rr(18,30), life:1 }); ripple.push({x:fx,y:70,r:4,life:1}); }
+let ripple=[];
+
+function updateWorld(t,dt){
+  // корм тонет
+  for(let i=food.length-1;i>=0;i--){ const f=food[i]; f.y+=f.vy*dt; if(f.y>sandY-6){ f.life-=dt*1.5; if(f.life<=0) food.splice(i,1); } }
+  // рыбки плавают + идут к ближайшему корму
+  swimmers.forEach(s=>{
+    s.phase+=dt*6;
+    let tx=null,ty=null,best=1e9;
+    if(food.length){ food.forEach(f=>{ const d=(f.x-s.x)**2+(f.y-s.y)**2; if(d<best){best=d; tx=f.x; ty=f.y;} }); }
+    if(tx!=null && best<340*340){ // плывёт к корму
+      const dx=tx-s.x, dy=ty-s.y, L=Math.hypot(dx,dy)||1;
+      s.x+=dx/L*s.spd*1.6*dt; s.y+=dy/L*s.spd*1.6*dt; s.dir=dx<0?-1:1;
+      if(L<16){ for(let i=food.length-1;i>=0;i--){ if(Math.abs(food[i].x-tx)<1&&Math.abs(food[i].y-ty)<1){ food.splice(i,1); break; } } s.eat=1; sparkle(s.x,s.y); }
+    } else { // спокойное блуждание
+      s.x+=s.dir*s.spd*dt*0.5;
+      s.y+=Math.sin(t*1.3+s.phase)*8*dt;
+      if(s.x>W*0.9){ s.dir=-1; } if(s.x<W*0.1){ s.dir=1; }
+      s.y=Math.max(H*0.24, Math.min(sandY-34, s.y));
+    }
+    if(s.eat>0) s.eat=Math.max(0,s.eat-dt*2);
+  });
+  for(let i=ripple.length-1;i>=0;i--){ const r=ripple[i]; r.r+=40*dt; r.life-=dt*2; if(r.life<=0) ripple.splice(i,1); }
+  for(let i=sparks.length-1;i>=0;i--){ const s=sparks[i]; s.y-=20*dt; s.life-=dt*1.6; if(s.life<=0) sparks.splice(i,1); }
+}
+let sparks=[];
+function sparkle(x,y){ for(let i=0;i<4;i++) sparks.push({x:x+rr(-8,8),y:y+rr(-8,8),life:1}); }
+
+// универсальная отрисовка рыбки: g — контекст, sp — вид, (cx,cy) центр, scale, dir, wag[-1..1]
+function drawFish(g, sp, cx, cy, scale, dir, wag){
+  g.save(); g.translate(cx,cy); g.scale(dir*scale, scale);
+  const ink=INK; g.lineJoin='round';
+  const bw = sp.shape==='cat'?30 : sp.shape==='puffer'?21 : sp.shape==='angel'?18 : 22;
+  const bh = sp.shape==='cat'?14 : sp.shape==='puffer'?21 : sp.shape==='tang'?21 : sp.shape==='angel'?24 : 15;
+  // хвост (машет)
+  g.save(); g.translate(-bw+3,0); g.rotate(wag*0.35);
+  g.fillStyle=sp.c1; g.strokeStyle=ink; g.lineWidth=3;
+  const tl = sp.shape==='gold'? 20 : 13, th = sp.shape==='gold'? 16 : 12;
+  g.beginPath(); g.moveTo(0,0); g.lineTo(-tl,-th); g.quadraticCurveTo(-tl*0.6,0,-tl,th); g.closePath(); g.fill(); g.stroke();
+  g.restore();
+  // спинной плавник
+  g.fillStyle=sp.c2; g.strokeStyle=ink; g.lineWidth=3;
+  if(sp.shape==='angel'){ g.beginPath(); g.moveTo(-4,-bh); g.lineTo(6,-bh-10); g.lineTo(10,-4); g.closePath(); g.fill(); g.stroke();
+    g.beginPath(); g.moveTo(-4,bh); g.lineTo(6,bh+10); g.lineTo(10,4); g.closePath(); g.fill(); g.stroke(); }
+  else { g.beginPath(); g.moveTo(-6,-bh+2); g.quadraticCurveTo(2,-bh-8,10,-bh+3); g.closePath(); g.fill(); g.stroke(); }
+  // тело
+  g.fillStyle=sp.c1; g.strokeStyle=ink; g.lineWidth=3.2;
+  g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.fill();
+  // шипы иглобрюха
+  if(sp.shape==='puffer'){ g.save(); g.strokeStyle=ink; g.lineWidth=2.4; for(let a=0;a<12;a++){ const an=a/12*6.28; g.beginPath(); g.moveTo(Math.cos(an)*bw*0.85,Math.sin(an)*bh*0.85); g.lineTo(Math.cos(an)*(bw+6),Math.sin(an)*(bh+6)); g.stroke(); } g.restore(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); }
+  g.stroke();
+  // светлое брюшко
+  g.save(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.clip();
+  g.fillStyle='rgba(255,255,255,.32)'; g.beginPath(); g.ellipse(2,bh*0.45,bw*0.9,bh*0.55,0,0,6.28); g.fill();
+  // узоры по видам
+  if(sp.shape==='clown'){ g.fillStyle=sp.c2; g.strokeStyle=ink; g.lineWidth=2.4;
+    [-6,6].forEach(px=>{ g.beginPath(); g.ellipse(px,0,3.4,bh,0,0,6.28); g.fill(); g.stroke(); }); }
+  if(sp.shape==='neon'){ g.fillStyle='#2FE0E0'; g.fillRect(-bw,-2.5,bw*2,3.2); g.fillStyle=sp.c2; g.fillRect(-2,0,bw,3); }
+  if(sp.shape==='tang'){ g.fillStyle='rgba(20,40,70,.35)'; g.beginPath(); g.moveTo(4,-bh); g.quadraticCurveTo(-10,0,4,bh); g.lineTo(-2,bh); g.quadraticCurveTo(-16,0,-2,-bh); g.closePath(); g.fill(); }
+  if(sp.shape==='gold'){ g.fillStyle='rgba(255,255,255,.25)'; g.beginPath(); g.arc(-4,-3,bw*0.6,0,6.28); g.fill(); }
+  g.restore();
+  // грудной плавник
+  g.fillStyle=sp.c2; g.strokeStyle=ink; g.lineWidth=2.6;
+  g.save(); g.translate(2,3); g.rotate(0.2+wag*0.15);
+  g.beginPath(); g.ellipse(0,0,7,4,0,0,6.28); g.fill(); g.stroke(); g.restore();
+  // усики сомика
+  if(sp.shape==='cat'){ g.strokeStyle=ink; g.lineWidth=2; g.lineCap='round';
+    g.beginPath(); g.moveTo(bw-2,4); g.quadraticCurveTo(bw+8,8,bw+12,5); g.stroke();
+    g.beginPath(); g.moveTo(bw-2,6); g.quadraticCurveTo(bw+8,12,bw+14,10); g.stroke(); }
+  // глаз
+  const ex=bw*0.55;
+  g.fillStyle='#fff'; g.strokeStyle=ink; g.lineWidth=2;
+  g.beginPath(); g.arc(ex,-bh*0.25,4.2,0,6.28); g.fill(); g.stroke();
+  g.fillStyle=ink; g.beginPath(); g.arc(ex+1,-bh*0.25,2,0,6.28); g.fill();
+  g.fillStyle='#fff'; g.beginPath(); g.arc(ex+0.2,-bh*0.25-0.8,0.8,0,6.28); g.fill();
+  // ротик
+  g.strokeStyle=ink; g.lineWidth=2; g.beginPath(); g.arc(bw-1,bh*0.12,2.4,-0.5,0.9); g.stroke();
+  g.restore();
+}
+function drawSwimmers(t){
+  swimmers.forEach(s=>{
+    const wag=Math.sin(s.phase);
+    const sc=0.9+(s.eat>0?0.06*Math.sin(t*30):0);
+    drawFish(ctx, s.sp, s.x, s.y, sc, s.dir, wag);
+    // именная плашка над рыбкой (бумажный чип + чернильный контур)
+    const label=nm(s.sp);
+    ctx.font='800 12px Nunito, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    const wpx=ctx.measureText(label).width+16, ny=s.y-30;
+    ctx.fillStyle=PAPER; ctx.strokeStyle=INK; ctx.lineWidth=2;
+    roundRect(ctx, s.x-wpx/2, ny-10, wpx, 20, 8); ctx.fill(); ctx.stroke();
+    ctx.fillStyle=INK; ctx.fillText(label, s.x, ny);
+  });
+}
+function roundRect(g,x,y,w,h,r){ g.beginPath(); g.moveTo(x+r,y); g.arcTo(x+w,y,x+w,y+h,r); g.arcTo(x+w,y+h,x,y+h,r); g.arcTo(x,y+h,x,y,r); g.arcTo(x,y,x+w,y,r); g.closePath(); }
+
+function drawFood(){
+  ctx.fillStyle='#C98A3E'; ctx.strokeStyle=INK; ctx.lineWidth=1.5;
+  food.forEach(f=>{ ctx.globalAlpha=Math.max(0,f.life); ctx.beginPath(); ctx.arc(f.x,f.y,2.6,0,6.28); ctx.fill(); ctx.stroke(); ctx.globalAlpha=1; });
+  ripple.forEach(r=>{ ctx.globalAlpha=Math.max(0,r.life)*0.6; ctx.strokeStyle='rgba(255,255,255,.8)'; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(r.x,r.y,r.r,0,6.28); ctx.stroke(); ctx.globalAlpha=1; });
+  sparks.forEach(s=>{ ctx.globalAlpha=Math.max(0,s.life); ctx.fillStyle='#F7EAB0'; ctx.beginPath(); ctx.arc(s.x,s.y,2.2,0,6.28); ctx.fill(); ctx.globalAlpha=1; });
+}
+
+// ---------- Главный цикл ----------
+let lastT=performance.now(), acc=0, tSec=0;
+function frame(now){
+  let dt=Math.max(0,Math.min(0.05,(now-lastT)/1000)); lastT=now; tSec+=dt;
+  acc+=dt;
+  if(acc>=1){ const t=Math.floor(acc); acc-=t; if(ips()>0){ S.coins+=ips()*t; refreshHud(); persist(); } }
+  ctx.clearRect(0,0,W,H);
+  drawBackground();
+  drawRays(tSec);
+  drawWeeds(tSec);
+  drawJelly(tSec,dt);
+  updateWorld(tSec,dt);
+  drawSwimmers(tSec);
+  drawFood();
+  drawBubbles(tSec,dt);
+  drawCrab(tSec,dt);
+  requestAnimationFrame(frame);
+}
+
+// ---------- Тест-хуки ----------
+window.render_game_to_text = () => JSON.stringify({
+  coins:Math.floor(S.coins), lvl:S.fish.length, ips:ips(), upCost:upCost(),
+  fish:S.fish.length, seen:S.seen.length, feed:S.feed, aer:S.aer, plant:S.plant,
+  tapGain:tapGain(), best:S.best, x2:x2On()
+});
+window.advanceTime = ms => { S.coins += ips()*(ms/1000); refreshHud(); };
+window.__grant = n => { S.coins+=n; refreshHud(); };
+window.__buyNextFish = () => { const n=nextFish(); return n? buyFish(n.id) : false; };
+window.__buyUp = k => buyUp(k);
+window.__feed = () => doFeed();
+
+// ---------- Boot ----------
+function boot(raw){
+  if(booted) return; booted=true;
+  restore(raw);
+  resize(); rebuildSwimmers(); refreshHud();
+  $("tapBtn").onclick   = ()=>doFeed();
+  $("giftBtn").onclick  = claimGift;
+  $("x2Btn").onclick    = claimX2;
+  $("fishBtn").onclick  = ()=>openModal('fish');
+  $("upBtn").onclick    = ()=>openModal('up');
+  $("collBtn").onclick  = ()=>openModal('coll');
+  $("mClose").onclick   = closeModal;
+  $("modal").addEventListener('pointerdown', e=>{ if(e.target.id==='modal') closeModal(); });
+  // тап по воде = кормление в точке касания
+  cv.addEventListener('pointerdown', e=>{ if(modalOpen) return; doFeed(e.clientX); });
+  checkDaily();
+  startMusic();
+  setInterval(()=>refreshHud(), 1000); // обновляет таймер ×2 и цены
+  requestAnimationFrame(frame);
+}
+(function initSDK(){
+  let localRaw=null; try{ localRaw=localStorage.getItem(SAVE_KEY); }catch(e){}
+  function start(){
+    if(window.YaGames && !window.__noSDK){
+      YaGames.init().then(sdk=>{
+        ysdk=sdk;
+        try{ sdk.features.LoadingAPI && sdk.features.LoadingAPI.ready(); }catch(e){}
+        const pReady = sdk.getPlayer({scopes:false}).then(p=>{player=p;return p.getData(["save"]);})
+          .then(d=>boot(d&&d.save?d.save:localRaw)).catch(()=>boot(localRaw));
+        try{ lb = sdk.leaderboards; }catch(e){}
+        return pReady;
+      }).catch(()=>boot(localRaw));
+      setTimeout(()=>boot(localRaw),4000);
+    } else boot(localRaw);
+  }
+  if(window.__noSDK || window.YaGames) start();
+  else window.__onSdkScriptDone = start;
+})();
+</script>
+</body>
+</html>
