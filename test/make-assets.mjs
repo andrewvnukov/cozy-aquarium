@@ -36,7 +36,7 @@ const CONFIG = {
   accent: '#FF9E5A', bg: '#2C7FA6', ink: '#233A4E',
   // характерные экраны: [имя файла, скрипт подготовки состояния через хуки]
   shots: [
-    ['d1-start',      async p => { for(let i=0;i<10;i++) await p.click('#tapBtn'); }],
+    ['d1-start',      async p => { for(let i=0;i<10;i++) await p.evaluate(()=>window.__feed()); }],
     ['d2-feeding',    async p => { await p.evaluate(()=>window.__grant(30000));
                                    for(let i=0;i<3;i++) await p.evaluate(()=>window.__buyNextFish());
                                    for(let i=0;i<24;i++){ await p.mouse.click(960, 380+(i%4)*45); } }],

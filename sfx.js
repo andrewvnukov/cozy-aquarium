@@ -92,17 +92,41 @@ function sfx(name){ try{ zzfx(...SFX[name]); }catch(e){} }
 // ---------- GAME: короткий эмбиент-луп (2 пэда внахлёст, бесшовно зациклен) ----------
 // Подбери frequency двух нот под тональность игры (терция/квинта друг от друга).
 let musicSrc=null;
+// Фоновая музыка — генеративный подводный эмбиент-луп (~27 c, ля-минор, 72 BPM):
+// пэд-аккорды Am–F–C–G, мягкий бас и редкие «капельные» колокольчики с эхом.
+// Композиция один раз рендерится в буфер из нот ZzFX и крутится бесшовным лупом.
+const NOTE_HZ = m => 440*Math.pow(2,(m-69)/12); // midi -> Гц
+function mixInto(mix, samples, offset, gain){
+  for(let i=0;i<samples.length;i++){ const j=offset+i; if(j<mix.length) mix[j]+=samples[i]*gain; }
+}
+function buildSong(){
+  const sr=audioDefaultSampleRate, beat=60/72, BEATS=32;
+  const mix=new Float32Array(Math.round(BEATS*beat*sr));
+  const at=(b,arr,gain)=>mixInto(mix,arr,Math.round(b*beat*sr),gain);
+  // пэды по 4 доли: Am — F — C — G (два круга)
+  const pads=[[45,48,52],[41,45,48],[48,52,55],[43,47,50]];
+  for(let bar=0;bar<8;bar++){
+    const ch=pads[bar%4];
+    ch.forEach((m,i)=> at(bar*4, zzfxG(.5,0,NOTE_HZ(m),.9,beat*2.8,1.4,0,1,0,0,0,0,0,0,0,0,0,.7,.12), .16-i*.02));
+    at(bar*4, zzfxG(.55,0,NOTE_HZ(ch[0]-12),.08,beat*1.6,.6,1,1.2,0,0,0,0,0,0,0,0,0,.7,.08), .17); // мягкий бас
+  }
+  // редкая «капельная» мелодия пентатоникой ля-минора, с эхом — подводное настроение
+  const mel=[[0,76,2],[3,74,1],[4,72,2],[7,69,1],
+             [8,74,2],[11,72,1],[12,69,3],
+             [16,76,2],[19,79,1],[20,81,2],[23,79,1],
+             [24,76,2],[26,74,1],[27,72,1],[28,69,4]];
+  mel.forEach(p=> at(p[0], zzfxG(.5,0,NOTE_HZ(p[1]),.02,beat*p[2]*.4,.9,0,1.5,0,0,0,0,0,0,0,0,.15,.55,.12), .13));
+  // пузырьковый акцент раз в круг
+  at(14, zzfxG(.4,0,NOTE_HZ(88),.01,.03,.3,0,2,6,0,0,0,0,0,0,0,.12,.5,.05), .07);
+  at(30, zzfxG(.4,0,NOTE_HZ(86),.01,.03,.3,0,2,6,0,0,0,0,0,0,0,.12,.5,.05), .07);
+  // нормализация с запасом от клиппинга
+  let peak=0; for(let i=0;i<mix.length;i++){ const a=Math.abs(mix[i]); if(a>peak) peak=a; }
+  if(peak>0){ const k=.8/peak; for(let i=0;i<mix.length;i++) mix[i]*=k; }
+  return mix;
+}
 function startMusic(){
   if(musicSrc) return;
   const ctx=ensureAudio(); if(!ctx) return;
-  try{
-    // GAME: спокойный подводный эмбиент — тёплая мажорная терция (A2 + C#3), мягкая атака
-    const a=zzfxG(.24,0,110,1.2,4,4,0,1,0,0,0,0,0,0,0,0,.35,.9,1);   // низкий пэд (A2)
-    const b=zzfxG(.16,0,138.6,1.2,4,4,0,1,0,0,0,0,0,0,0,0,.35,.85,1); // тёплая терция сверху (C#3)
-    const len=Math.max(a.length,b.length);
-    const mix=new Float32Array(len);
-    for(let i=0;i<len;i++) mix[i]=(a[i]||0)+(b[i]||0);
-    musicSrc=playBuffer(mix, .35, true);
-  }catch(e){}
+  try{ musicSrc=playBuffer(buildSong(), .38, true); }catch(e){}
 }
 function stopMusic(){ if(musicSrc){ try{ musicSrc.stop(); }catch(e){} musicSrc=null; } }

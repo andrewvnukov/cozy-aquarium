@@ -50,6 +50,7 @@
         cursor:pointer;transition:transform .08s,box-shadow .08s;padding:0}
   .rbtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(35,58,78,.28)}
   .rbtn svg{width:27px;height:27px;display:block}
+  .rbtn.lang{font-family:'Nunito',system-ui,sans-serif;font-weight:900;font-size:14px;letter-spacing:.5px;color:var(--ink)}
   .bottom{display:flex;gap:10px;pointer-events:auto}
   .abtn{flex:1;background:var(--paper);border:2.5px solid var(--line);border-radius:16px;padding:10px 8px;
         font-weight:900;font-size:15px;cursor:pointer;box-shadow:0 3px 0 rgba(35,58,78,.28);
@@ -117,7 +118,6 @@
   </div>
   <div class="spacer"></div>
   <div class="bottom">
-    <button class="abtn main" id="tapBtn"><span class="bt" id="tapT">Покормить</span></button>
     <button class="abtn blue" id="giftBtn"><span class="bt" id="giftT">Подарок</span><span class="bs"><svg viewBox="0 0 12 12"><path d="M2 4h8v6H2z" fill="none" stroke="#fff" stroke-width="1.4"/><path d="M6 2v8M2 4l4 0 4 0" stroke="#fff" stroke-width="1.4"/></svg><span id="giftS">+50</span></span></button>
     <button class="abtn lav" id="x2Btn"><span class="bt" id="x2T">Доход ×2</span><span class="bs"><svg viewBox="0 0 12 12"><path d="M3 2l7 4-7 4z" fill="#fff"/></svg><span id="x2S">5 мин</span></span></button>
   </div>
@@ -132,6 +132,7 @@
   <button class="rbtn" id="collBtn" aria-label="Коллекция">
     <svg viewBox="0 0 27 27"><rect x="4.5" y="4.5" width="8" height="8" rx="2" fill="#7FD1AE" stroke="#233A4E" stroke-width="2.1"/><rect x="14.5" y="4.5" width="8" height="8" rx="2" fill="#B9A3E3" stroke="#233A4E" stroke-width="2.1"/><rect x="4.5" y="14.5" width="8" height="8" rx="2" fill="#5B9BD5" stroke="#233A4E" stroke-width="2.1"/><rect x="14.5" y="14.5" width="8" height="8" rx="2" fill="#FF9E5A" stroke="#233A4E" stroke-width="2.1"/></svg>
   </button>
+  <button class="rbtn lang" id="langBtn" aria-label="Язык / Language">RU</button>
 </div>
 <div id="modal" class="hidden"><div class="sheet"><button id="mClose">×</button><div id="mTitle"></div><div id="mScroll"><div id="mBody"></div></div></div></div>
 <div id="toast"></div>
@@ -148,13 +149,19 @@ let ysdk=null, player=null, lb=null, saveT=0, booted=false;
 
 // ---------- i18n (авто-язык через SDK, урок модерации п.2.14) ----------
 function lang(){
+  try{ if(S && (S.lang==="ru"||S.lang==="en")) return S.lang; }catch(e){} // ручной выбор игрока
   try{ if(ysdk&&ysdk.environment&&ysdk.environment.i18n&&ysdk.environment.i18n.lang)
     return ysdk.environment.i18n.lang==="ru"?"ru":"en"; }catch(e){}
   return (navigator.language||"ru").slice(0,2)==="ru"?"ru":"en";
 }
+function toggleLang(){
+  S.lang = lang()==="ru" ? "en" : "ru";
+  document.documentElement.setAttribute("lang", S.lang);
+  refreshHud(); persist(true); sfx("tap");
+}
 const STR = {
   coins:{ru:"ЖЕМЧУГ",en:"PEARLS"}, income:{ru:"ДОХОД",en:"INCOME"},
-  feed:{ru:"Покормить",en:"Feed"},
+  tapHint:{ru:"Тапни по воде, чтобы покормить рыбок",en:"Tap the water to feed your fish"},
   gift:{ru:"Подарок",en:"Gift"},
   x2:{ru:"Доход ×2",en:"Income ×2"}, x2on:{ru:"×2 идёт",en:"×2 active"},
   need:{ru:"Не хватает жемчуга",en:"Not enough pearls"},
@@ -198,6 +205,7 @@ function fresh(){ return {
   feed:0, aer:0, plant:0,                   // уровни апгрейдов
   best:1,                                   // рекорд числа видов (лидерборд)
   x2Until:0, lastGift:0, lastDaily:"",      // таймеры rewarded / ежедневки
+  lang:null,                                // ручной выбор языка (null = авто)
   time:Date.now()
 };}
 let S = fresh();
@@ -261,13 +269,13 @@ function refreshHud(){
   $("ipsV").textContent   = fmt(ips())+"/"+(lang()==="ru"?"с":"s");
   $("coinsL").textContent = T("coins");
   $("ipsL").textContent   = T("income");
-  $("tapT").textContent   = T("feed");
   $("giftT").textContent  = T("gift");
   $("giftS").textContent  = "+"+fmt(giftAmt());
   const on=x2On();
   $("x2T").textContent    = on? T("x2on") : T("x2");
   $("x2S").textContent    = on? Math.ceil((S.x2Until-Date.now())/60000)+(lang()==="ru"?" мин":" min") : (lang()==="ru"?"5 мин":"5 min");
   $("x2Btn").classList.toggle("off", on);
+  $("langBtn").textContent = lang().toUpperCase();
   if(modalOpen) buildModal(modalOpen); // живое обновление цен в открытой панели
 }
 let toastT;
@@ -1075,17 +1083,20 @@ window.__feed = () => doFeed();
 function boot(raw){
   if(booted) return; booted=true;
   restore(raw);
+  document.documentElement.setAttribute("lang", lang());
   resize(); rebuildSwimmers(); refreshHud();
-  $("tapBtn").onclick   = ()=>doFeed();
   $("giftBtn").onclick  = claimGift;
   $("x2Btn").onclick    = claimX2;
   $("fishBtn").onclick  = ()=>openModal('fish');
   $("upBtn").onclick    = ()=>openModal('up');
   $("collBtn").onclick  = ()=>openModal('coll');
+  $("langBtn").onclick  = toggleLang;
   $("mClose").onclick   = closeModal;
   $("modal").addEventListener('pointerdown', e=>{ if(e.target.id==='modal') closeModal(); });
   // тап по воде = кормление в точке касания
   cv.addEventListener('pointerdown', e=>{ if(modalOpen) return; doFeed(e.clientX); });
+  // подсказка новичку: кормление — это тап по воде (кнопки «Покормить» нет)
+  if(S.fish.length===1 && S.coins<60) setTimeout(()=>toast(T("tapHint")), 2600);
   checkDaily();
   startMusic();
   setInterval(()=>refreshHud(), 1000); // обновляет таймер ×2 и цены

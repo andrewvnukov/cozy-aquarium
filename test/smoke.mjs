@@ -29,15 +29,15 @@ assert(s0.lvl === 1 && s0.fish === 1, 'starts with 1 fish (guppy)');
 assert(s0.seen === 1, 'collection seeded with starter');
 assert(s0.ips >= 1, 'starter fish gives passive income');
 
-// кормление добавляет жемчуг (тап-доход)
-await page.click('#tapBtn');
+// кормление добавляет жемчуг (тап-доход): хук __feed()
+await page.evaluate(() => window.__feed());
 let s1 = await state();
-assert(s1.coins > s0.coins, 'feed (tap) increases pearls');
+assert(s1.coins > s0.coins, 'feed (hook) increases pearls');
 
-// тап по воде (canvas) тоже кормит
+// тап по воде (canvas) — основной способ кормления (кнопки нет)
 await page.mouse.click(240, 450);
 let s1b = await state();
-assert(s1b.coins > s1.coins, 'tap on water feeds too');
+assert(s1b.coins > s1.coins, 'tap on water feeds');
 
 // пассивный доход через хук времени
 await page.evaluate(() => window.advanceTime(10000));
@@ -103,7 +103,7 @@ await page.click('#mClose');
 // сейв переживает перезагрузку
 let pre = await state();
 await page.evaluate(() => window.__grant(0)); // форс-persist через действие
-await page.click('#tapBtn');
+await page.mouse.click(240, 450);
 await page.waitForTimeout(50);
 await page.reload();
 await page.waitForFunction(() => typeof window.render_game_to_text === 'function', { timeout: 8000 });
