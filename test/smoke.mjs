@@ -27,22 +27,43 @@ let s0 = await state();
 assert(typeof s0.coins === 'number', 'render_game_to_text returns state');
 assert(s0.lvl === 1 && s0.fish === 1, 'starts with 1 fish (guppy)');
 assert(s0.seen === 1, 'collection seeded with starter');
-assert(s0.ips >= 1, 'starter fish gives passive income');
+assert(s0.ips > 0, 'starter fish gives (slow) passive income');
+assert(s0.tut === 0, 'tutorial starts at step 1 on a fresh save');
 
-// кормление добавляет жемчуг (тап-доход): хук __feed()
-await page.evaluate(() => window.__feed());
+// тап собирает жемчуг со всех рыбок: хук __tap() и тап по canvas
+await page.evaluate(() => window.__tap());
 let s1 = await state();
-assert(s1.coins > s0.coins, 'feed (hook) increases pearls');
-
-// тап по воде (canvas) — основной способ кормления (кнопки нет)
+assert(s1.coins > s0.coins, 'tap collects pearls from fish');
 await page.mouse.click(240, 450);
 let s1b = await state();
-assert(s1b.coins > s1.coins, 'tap on water feeds');
+assert(s1b.coins > s1.coins, 'tap on water collects too');
 
-// пассивный доход через хук времени
-await page.evaluate(() => window.advanceTime(10000));
-let s2 = await state();
-assert(s2.coins >= s1b.coins + s1b.ips * 9, 'passive income accrues over time');
+// обучение: 3 тапа -> шаг 2
+await page.evaluate(() => window.__tap());
+let sT = await state();
+assert(sT.tut === 1, 'tutorial advances after 3 taps');
+
+// кормление — платное действие
+await page.evaluate(() => window.__grant(1000));
+let bf = await state();
+await page.evaluate(() => window.__feed());
+let af = await state();
+assert(af.coins === bf.coins - bf.foodCost, 'feeding costs pearls');
+assert(af.tut === 2, 'tutorial advances after feeding');
+
+// сытая рыбка даёт ровно x2 за тап
+await page.evaluate(() => window.__sate(0));
+let hungry = await state();
+await page.evaluate(() => window.__sate(1));
+let sated = await state();
+assert(sated.tapGain === hungry.tapGain * 2, 'fully fed fish pays x2 per tap');
+assert(sated.satMin === 1 && hungry.satMin === 0, 'satiety is tracked per fish');
+
+// пассивный доход через хук времени (медленный, но капает)
+let sp0 = await state();
+await page.evaluate(() => window.advanceTime(60000));
+let sp1 = await state();
+assert(sp1.coins >= sp0.coins + 5, 'passive income accrues over time');
 
 // покупка новой рыбки -> растут виды, коллекция и доход
 await page.evaluate(() => window.__grant(2000));
@@ -56,13 +77,13 @@ assert(after.seen === before.seen + 1, 'collection grows on new fish');
 assert(after.ips > before.ips, 'new fish raises passive income');
 assert(after.best >= after.fish, 'best (leaderboard) tracks species');
 
-// апгрейд «корм» повышает тап-доход
+// апгрейд «корм» делает корм сытнее
 await page.evaluate(() => window.__grant(100000));
 let bF = await state();
 let okF = await page.evaluate(() => window.__buyUp('feed'));
 let aF = await state();
 assert(okF && aF.feed === bF.feed + 1, 'feed upgrade applies');
-assert(aF.tapGain > bF.tapGain, 'feed upgrade raises tap gain');
+assert(aF.feedFill > bF.feedFill, 'feed upgrade makes food more filling');
 
 // апгрейд «аэратор» повышает пассивный доход
 let bA = await state();
@@ -84,7 +105,7 @@ await page.evaluate(() => window.__grant(0));
 await page.click('#x2Btn');
 let ax = await state();
 assert(ax.x2 === true, 'income ×2 reward activates');
-assert(ax.ips >= bx.ips * 2, 'income doubled while ×2 active');
+assert(ax.ips >= bx.ips * 2 - 1e-9, 'income doubled while ×2 active');
 
 // подарок начисляет жемчуг
 let bg = await state();

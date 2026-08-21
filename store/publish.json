@@ -8,36 +8,36 @@
   "orientation": "portrait",
   "zip": "cozy-aquarium-yandex.zip",
   "shortDescription": {
-    "ru": "Корми рыбок в уютном аквариуме, заводи новые виды и собери всю коллекцию — тёплый idle!",
-    "en": "Feed fish in a cozy aquarium, add new species and collect them all — a warm little idle!"
+    "ru": "Тапай по аквариуму, корми рыбок и собирай жемчуг — сытые рыбки платят вдвое!",
+    "en": "Tap the tank, feed your fish and collect pearls — well-fed fish pay double!"
   },
   "fullDescription": {
-    "ru": "Тёплый Аквариум — уютный idle-коллекционер про домашний аквариум. Тапните по воде, чтобы бросить рыбкам корм: хлопья тонут, рыбки подплывают и едят, а вы получаете жемчуг.\n\nКаждая рыбка живёт в вашем аквариуме и приносит пассивный доход даже пока вы отдыхаете. Копите жемчуг и заводите новые виды — от гуппи Пузырика и золотого Персика до неона Нео, рыбки-клоуна Пятныша, сомика Усы, скалярии Королька и колючего Пуфика. Каждая новая рыбка добавляется в общий аквариум, плавает со своим именем и повышает доход.\n\nУлучшайте аквариум в магазине: сытный корм даёт больше жемчуга за кормление, аэратор повышает пассивный доход, водоросли удешевляют новых рыбок. Открывайте коллекцию из девяти видов, следите за рекордом и заходите каждый день за подарком.\n\nЖивой подводный мир — лучи света, колышущиеся водоросли, проплывающая медуза, краб на дне и поднимающиеся пузырьки — успокаивает и радует. Простой цикл «покорми → заведи рыбку → улучшай» затягивает на пару минут и всегда даёт видимый прогресс.",
-    "en": "Cozy Aquarium is a warm little idle-collector about a home fish tank. Tap the water to drop food — the flakes sink, fish swim over to eat, and you earn pearls.\n\nEvery fish lives in your tank and brings passive income even while you rest. Save pearls and add new species — from the guppy Bubbly and the goldfish Peachy to the neon Neo, the clownfish Spotty, the catfish Whiskers, the angelfish Regal and the spiky Puffy. Each new fish joins the shared tank, swims around with its own name and raises your income.\n\nUpgrade your aquarium in the shop: rich food earns more pearls per feed, the aerator boosts passive income, and water plants make new fish cheaper. Unlock a collection of nine species, chase your high score and come back daily for a gift.\n\nA living underwater world — light rays, swaying plants, a drifting jellyfish, a crab on the sand and rising bubbles — keeps things calm and cheerful. A simple \"feed → add a fish → upgrade\" loop that's easy to pick up and always shows visible progress."
+    "ru": "Тёплый Аквариум — уютный кликер-коллекционер про домашний аквариум. Тапайте по аквариуму: все рыбки разом приносят жемчуг, а над каждой всплывает её награда.\n\nПокупайте корм за жемчуг — хлопья тонут, рыбки подплывают и едят, наполняя шкалу сытости. Полностью сытая рыбка платит вдвое больше за каждый тап, поэтому выгодно кормить аквариум перед активной сессией. Сытость постепенно тает, так что загляните покормить питомцев снова.\n\nКопите жемчуг и заводите новые виды — от гуппи Пузырика и золотого Персика до неона Нео, рыбки-клоуна Пятныша, сомика Усы, скалярии Королька и колючего Пуфика. Каждая новая рыбка добавляется в общий аквариум, плавает со своим именем и увеличивает доход за тап. Рыбки понемногу приносят жемчуг и сами, пока вас нет.\n\nУлучшайте аквариум в магазине: сытный корм насыщает сильнее, аэратор повышает пассивный доход, водоросли удешевляют новых рыбок. Открывайте коллекцию из девяти видов, следите за рекордом и заходите каждый день за подарком.\n\nЖивой подводный мир — лучи света, колышущиеся водоросли, проплывающая медуза, краб на дне и поднимающиеся пузырьки — успокаивает и радует. Короткое обучение введёт в курс за полминуты.",
+    "en": "Cozy Aquarium is a warm little clicker-collector about a home fish tank. Tap the tank: every fish pays out pearls at once, with its reward popping up above it.\n\nBuy food with pearls — the flakes sink, fish swim over to eat and fill their satiety bar. A fully fed fish pays double per tap, so it pays to feed the tank before an active session. Satiety slowly fades, so drop by to feed your pets again.\n\nSave pearls and add new species — from the guppy Bubbly and the goldfish Peachy to the neon Neo, the clownfish Spotty, the catfish Whiskers, the angelfish Regal and the spiky Puffy. Each new fish joins the shared tank, swims around with its own name and raises your income per tap. Fish also bring in a trickle of pearls on their own while you are away.\n\nUpgrade your aquarium in the shop: rich food is more filling, the aerator boosts passive income, and water plants make new fish cheaper. Unlock a collection of nine species, chase your high score and come back daily for a gift.\n\nA living underwater world — light rays, swaying plants, a drifting jellyfish, a crab on the sand and rising bubbles — keeps things calm and cheerful. A short tutorial gets you going in half a minute."
   },
   "keywords": {
     "ru": [
       "аквариум",
       "рыбки",
-      "idle",
       "кликер",
+      "тапалка",
       "коллекция",
       "уютная игра",
       "ферма рыб",
       "казуальная",
-      "пассивный доход",
-      "рыбалка"
+      "жемчуг",
+      "питомцы"
     ],
     "en": [
       "aquarium",
       "fish",
-      "idle",
       "clicker",
+      "tapper",
       "collection",
       "cozy game",
       "fish tank",
       "casual",
-      "idle tycoon",
+      "pearls",
       "pets"
     ]
   },

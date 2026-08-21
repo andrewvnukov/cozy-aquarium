@@ -36,14 +36,18 @@ const CONFIG = {
   accent: '#FF9E5A', bg: '#2C7FA6', ink: '#233A4E',
   // характерные экраны: [имя файла, скрипт подготовки состояния через хуки]
   shots: [
-    ['d1-start',      async p => { for(let i=0;i<10;i++) await p.evaluate(()=>window.__feed()); }],
-    ['d2-feeding',    async p => { await p.evaluate(()=>window.__grant(30000));
-                                   for(let i=0;i<3;i++) await p.evaluate(()=>window.__buyNextFish());
-                                   for(let i=0;i<24;i++){ await p.mouse.click(960, 380+(i%4)*45); } }],
-    ['d3-shop',       async p => { await p.evaluate(()=>{ window.__grant(80000); }); await p.click('#fishBtn'); }],
-    ['d4-upgrades',   async p => { await p.evaluate(()=>window.__grant(250000)); await p.click('#upBtn'); }],
-    ['d5-collection', async p => { await p.evaluate(()=>window.__grant(400000));
-                                   for(let i=0;i<6;i++) await p.evaluate(()=>window.__buyNextFish());
+    // d1 — начало с обучением: тап собирает жемчуг с первой рыбки
+    ['d1-start',      async p => { await p.evaluate(()=>window.__tap()); await p.waitForTimeout(250); }],
+    // d2 — сытые рыбки: золотые шкалы, бейджи ×2 и двойные награды над рыбками
+    ['d2-feeding',    async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(60000);
+                                     for(let i=0;i<4;i++) window.__buyNextFish(); });
+                                   await p.waitForTimeout(4000);          // рыбки расходятся по аквариуму
+                                   await p.evaluate(()=>{ window.__sate(1); window.__tap(); });
+                                   await p.waitForTimeout(200); }],
+    ['d3-shop',       async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(80000); }); await p.click('#fishBtn'); }],
+    ['d4-upgrades',   async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(250000); }); await p.click('#upBtn'); }],
+    ['d5-collection', async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(400000);
+                                     for(let i=0;i<6;i++) window.__buyNextFish(); });
                                    await p.click('#collBtn'); }],
   ],
 };
