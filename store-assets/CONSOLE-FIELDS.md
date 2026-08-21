@@ -73,10 +73,10 @@
 Живой подводный мир — лучи света, водоросли, кораллы, медуза и краб на дне — успокаивает и радует.
 ```
 
-### Как играть (1020/1000)
+### Как играть (989/1000)
 
 ```
-1. Тапайте по рыбке — за каждый тап она приносит жемчуг. Тап по пустой воде дохода не даёт, только рябь.
+1. Тапайте по рыбке — она приносит жемчуг. Тап по пустой воде дохода не даёт, только рябь.
 
 2. Нажмите «Купить», чтобы завести малька; в магазине доступны все открытые виды. Малёк меньше взрослой рыбы, над ним голубая шкала роста: первый вид растёт около пяти секунд, старшие — дольше. У каждого вида свой характер: одни носятся, другие держатся стайкой, третьи копошатся у дна.
 
@@ -86,7 +86,7 @@
 
 5. «Мульти-тап» после видео на две минуты собирает жемчуг со всех рыбок любым тапом, «Доход ×2» удваивает фоновый доход на пять минут.
 
-6. В боковых кнопках — магазин рыбок, улучшения и настройки: там ползунки громкости музыки и звуков и выбор языка.
+6. Боковые кнопки — магазин рыбок, улучшения и настройки: громкость музыки и звуков, выбор языка.
 ```
 
 ---
@@ -127,10 +127,10 @@ Upgrade the tank: rich food is more filling, the aerator raises background incom
 A living underwater world — light rays, plants, corals, a jellyfish and a crab on the sand — keeps things calm and cheerful.
 ```
 
-### Как играть (1029/1000)
+### Как играть (1006/1000)
 
 ```
-1. Tap a fish — every tap pays out pearls. Tapping empty water gives nothing, just a ripple.
+1. Tap a fish — it pays out pearls. Tapping empty water gives nothing, just a ripple.
 
 2. Press "Buy fry" to add a fry; the shop sells every unlocked species. A fry is smaller than an adult and shows a blue growth bar: the first species grows in about five seconds, later ones take longer. Each species swims differently: some dart, some school, some potter along the bottom.
 
@@ -140,5 +140,5 @@ A living underwater world — light rays, plants, corals, a jellyfish and a crab
 
 5. "Multi-tap" after a video lets any tap collect from every fish for two minutes; "Income ×2" doubles background income for five minutes.
 
-6. The side buttons open the fish shop, upgrades and settings: music and sound volume sliders and the language choice.
+6. The side buttons open the fish shop, upgrades and settings: volume sliders and the language choice.
 ```
