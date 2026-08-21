@@ -1,5 +1,8 @@
 {
-  "title": { "ru": "Тёплый Аквариум", "en": "Cozy Aquarium" },
+  "title": {
+    "ru": "Тёплый Аквариум",
+    "en": "Cozy Aquarium"
+  },
   "category": "Казуальные",
   "age": "0+",
   "orientation": "portrait",
@@ -13,15 +16,53 @@
     "en": "Cozy Aquarium is a warm little idle-collector about a home fish tank. Tap the water to drop food — the flakes sink, fish swim over to eat, and you earn pearls.\n\nEvery fish lives in your tank and brings passive income even while you rest. Save pearls and add new species — from the guppy Bubbly and the goldfish Peachy to the neon Neo, the clownfish Spotty, the catfish Whiskers, the angelfish Regal and the spiky Puffy. Each new fish joins the shared tank, swims around with its own name and raises your income.\n\nUpgrade your aquarium in the shop: rich food earns more pearls per feed, the aerator boosts passive income, and water plants make new fish cheaper. Unlock a collection of nine species, chase your high score and come back daily for a gift.\n\nA living underwater world — light rays, swaying plants, a drifting jellyfish, a crab on the sand and rising bubbles — keeps things calm and cheerful. A simple \"feed → add a fish → upgrade\" loop that's easy to pick up and always shows visible progress."
   },
   "keywords": {
-    "ru": ["аквариум", "рыбки", "idle", "кликер", "коллекция", "уютная игра", "ферма рыб", "казуальная", "пассивный доход", "рыбалка"],
-    "en": ["aquarium", "fish", "idle", "clicker", "collection", "cozy game", "fish tank", "casual", "idle tycoon", "pets"]
+    "ru": [
+      "аквариум",
+      "рыбки",
+      "idle",
+      "кликер",
+      "коллекция",
+      "уютная игра",
+      "ферма рыб",
+      "казуальная",
+      "пассивный доход",
+      "рыбалка"
+    ],
+    "en": [
+      "aquarium",
+      "fish",
+      "idle",
+      "clicker",
+      "collection",
+      "cozy game",
+      "fish tank",
+      "casual",
+      "idle tycoon",
+      "pets"
+    ]
   },
   "assets": {
     "icon": "store-assets/icon.png",
-    "cover": { "ru": "store-assets/cover.png", "en": "store-assets/cover-en.png" },
+    "cover": {
+      "ru": "store-assets/cover.png",
+      "en": "store-assets/cover-en.png"
+    },
     "screenshots": {
-      "ru": ["store-assets/d1-start.png", "store-assets/d2-feeding.png", "store-assets/d3-shop.png", "store-assets/d4-upgrades.png", "store-assets/d5-collection.png"],
-      "en": ["store-assets/d1-start-en.png", "store-assets/d2-feeding-en.png", "store-assets/d3-shop-en.png", "store-assets/d4-upgrades-en.png", "store-assets/d5-collection-en.png"]
+      "ru": [
+        "store-assets/d1-start.png",
+        "store-assets/d2-feeding.png",
+        "store-assets/d3-shop.png",
+        "store-assets/d4-upgrades.png",
+        "store-assets/d5-collection.png"
+      ],
+      "en": [
+        "store-assets/d1-start-en.png",
+        "store-assets/d2-feeding-en.png",
+        "store-assets/d3-shop-en.png",
+        "store-assets/d4-upgrades-en.png",
+        "store-assets/d5-collection-en.png"
+      ]
     }
-  }
+  },
+  "aiUsage": "full"
 }

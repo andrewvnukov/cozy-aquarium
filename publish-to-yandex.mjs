@@ -160,6 +160,18 @@ await step(page, 'дождаться проверки архива', async () =>
   await page.getByText(SELECTORS.archiveStatusOk).first().waitFor({ timeout: 600000 });
 });
 
+// Техгейт §1.14: игра должна быть запущена в режиме черновика до отправки на
+// модерацию (консоль проверяет факт запуска автоматически) — открываем и ждём
+await step(page, 'запустить игру в режиме черновика (§1.14)', async () => {
+  const [gamePage] = await Promise.all([
+    context.waitForEvent('page', { timeout: 15000 }),
+    page.getByText(/Открыть игру/i).first().click(),
+  ]);
+  await gamePage.waitForLoadState('load');
+  await gamePage.waitForTimeout(20000); // даём игре загрузиться и отстучаться SDK
+  await gamePage.close();
+});
+
 // Текстовые поля (RU-локаль; EN-локаль консоль ведёт отдельной вкладкой — см. todo в конце)
 for (const f of FIELDS(cfg)) {
   await step(page, 'поле ' + f.label.source, async () => {
@@ -188,8 +200,26 @@ if (NO_SUBMIT) {
 } else {
   await step(page, 'отправить на модерацию', async () => {
     await page.getByRole('button', { name: SELECTORS.submitButton }).first().click();
-    const confirm = page.getByRole('button', { name: SELECTORS.confirmButton }).first();
-    if (await confirm.isVisible({ timeout: 5000 }).catch(() => false)) await confirm.click();
+    // Модалка «Чеклист перед первой публикацией»: отмечаем пункты соответствия.
+    // ВАЖНО: галочки — это твоё заявление о соответствии требованиям; проставляй
+    // их скриптом только для игр, реально прогнанных через релизный чек-лист.
+    const modal = page.getByText(/Чеклист перед первой публикацией/i).first();
+    if (await modal.isVisible({ timeout: 6000 }).catch(() => false)) {
+      const boxes = page.locator('input[type="checkbox"]');
+      for (let i = 0, n = await boxes.count(); i < n; i++) {
+        const b = boxes.nth(i);
+        if (!(await b.isChecked().catch(() => true))) await b.check({ force: true }).catch(() => {});
+      }
+      // блок «Использование ИИ при создании игры» — честный выбор из publish.json (aiUsage)
+      const aiLabel = { full: /полностью создана с помощью ИИ/i,
+                        partial: /ИИ использовался частично/i,
+                        none: /ИИ не использовался/i }[cfg.aiUsage || 'full'];
+      await page.getByText(aiLabel).first().click().catch(() => {});
+      await page.getByRole('button', { name: SELECTORS.submitButton }).last().click();
+    } else {
+      const confirm = page.getByRole('button', { name: SELECTORS.confirmButton }).first();
+      if (await confirm.isVisible({ timeout: 5000 }).catch(() => false)) await confirm.click();
+    }
     await page.getByText(/Ожидает модерации|отправлена на модерацию/i).first()
       .waitFor({ timeout: 30000 }).catch(() => {});
   });

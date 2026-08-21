@@ -246,17 +246,43 @@ function restore(raw){
 
 // ---------- Реклама (no-op вне платформы; награда всегда выдаётся) ----------
 let lastAd=0;
+function adOpened(){ pauseAudio(); gameplayStop(); }   // §4.7: звук на паузу во время ролика
+function adClosed(){ resumeAudio(); gameplayStart(); }
 function maybeInterstitial(){
   if(!ysdk) return;
   if(Date.now()-lastAd < 180000) return;
   lastAd=Date.now();
-  try{ ysdk.adv.showFullscreenAdv({}); }catch(e){}
+  try{ ysdk.adv.showFullscreenAdv({callbacks:{ onOpen:adOpened, onClose:adClosed, onError:adClosed }}); }catch(e){}
 }
 function showRewarded(onReward){
   if(!ysdk){ onReward(); return; }
-  try{ ysdk.adv.showRewardedVideo({callbacks:{ onRewarded:onReward, onError:onReward, onClose:()=>{} }}); }
+  try{ ysdk.adv.showRewardedVideo({callbacks:{
+    onOpen:adOpened,
+    onRewarded:onReward,
+    onError:()=>{ adClosed(); onReward(); },
+    onClose:adClosed }}); }
   catch(e){ onReward(); }
 }
+
+// ---------- Жизненный цикл платформы (§1.19.2, §1.3) ----------
+let readySent=false;
+function gameplayStart(){ if(!readySent) return; try{ ysdk&&ysdk.features&&ysdk.features.GameplayAPI&&ysdk.features.GameplayAPI.start(); }catch(e){} }
+function gameplayStop(){ if(!readySent) return; try{ ysdk&&ysdk.features&&ysdk.features.GameplayAPI&&ysdk.features.GameplayAPI.stop(); }catch(e){} }
+// LoadingAPI.ready() — только когда игра реально загрузилась и готова к игре (после boot)
+function notifyGameReady(){
+  if(readySent || !ysdk || !booted) return;
+  readySent=true;
+  try{ ysdk.features && ysdk.features.LoadingAPI && ysdk.features.LoadingAPI.ready(); }catch(e){}
+  try{ ysdk.features && ysdk.features.GameplayAPI && ysdk.features.GameplayAPI.start(); }catch(e){}
+}
+// смена вкладки / сворачивание: пауза звука и геймплея, при возврате — обратно
+function onFocusChange(hidden){
+  if(hidden){ pauseAudio(); gameplayStop(); }
+  else { resumeAudio(); gameplayStart(); }
+}
+document.addEventListener('visibilitychange', ()=>onFocusChange(document.hidden));
+addEventListener('pagehide', ()=>onFocusChange(true));
+addEventListener('pageshow', ()=>onFocusChange(false));
 
 // ---------- Лидерборд ----------
 function submitScore(v){ try{ if(lb&&LB_NAME) lb.setLeaderboardScore(LB_NAME, Math.floor(v)); }catch(e){} }
@@ -1101,6 +1127,7 @@ function boot(raw){
   startMusic();
   setInterval(()=>refreshHud(), 1000); // обновляет таймер ×2 и цены
   requestAnimationFrame(frame);
+  notifyGameReady(); // §1.19.2: готовность — после реальной загрузки игры
 }
 (function initSDK(){
   let localRaw=null; try{ localRaw=localStorage.getItem(SAVE_KEY); }catch(e){}
@@ -1108,7 +1135,7 @@ function boot(raw){
     if(window.YaGames && !window.__noSDK){
       YaGames.init().then(sdk=>{
         ysdk=sdk;
-        try{ sdk.features.LoadingAPI && sdk.features.LoadingAPI.ready(); }catch(e){}
+        notifyGameReady(); // если boot уже прошёл по таймауту-страховке — сигналим готовность сейчас
         const pReady = sdk.getPlayer({scopes:false}).then(p=>{player=p;return p.getData(["save"]);})
           .then(d=>boot(d&&d.save?d.save:localRaw)).catch(()=>boot(localRaw));
         try{ lb = sdk.leaderboards; }catch(e){}

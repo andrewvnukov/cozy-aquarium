@@ -22,6 +22,17 @@ function ensureAudio(){
 // разблокировка звука по первому касанию (автоплей-политики браузеров/WebView)
 addEventListener("pointerdown", ()=>{ const ctx=ensureAudio(); if(ctx&&ctx.state!=="running") ctx.resume().catch(()=>{}); }, {once:true, passive:true});
 
+// Пауза/возврат звука (урок модерации §1.3 и §4.7): вызывается игрой при потере
+// фокуса вкладки и на время показа рекламы. resumeAudio возвращает звук только
+// если паузу ставили мы (не ломает autoplay-политику до первого тапа игрока).
+let audioPausedByGame=false;
+function pauseAudio(){
+  if(audioCtx && audioCtx.state==="running"){ audioPausedByGame=true; audioCtx.suspend().catch(()=>{}); }
+}
+function resumeAudio(){
+  if(audioCtx && audioPausedByGame && !document.hidden){ audioPausedByGame=false; audioCtx.resume().catch(()=>{}); }
+}
+
 const rand = (a=1,b=0) => b+(a-b)*Math.random();
 
 // ---------- ZzFXMicro: генерация сэмплов по параметрам ----------
