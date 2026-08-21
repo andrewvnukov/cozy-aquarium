@@ -31,6 +31,10 @@ assert(s0.tank[0].g === 1, 'starter fish is already grown');
 assert(s0.tut === 0, 'tutorial starts at step 1 on a fresh save');
 assert(s0.ips > 0, 'grown fish gives (slow) passive income');
 
+assert(s0.levels === 30, 'roster has 30 species');
+const behs = await page.evaluate(() => [...new Set(LEVELS.map(l => l.beh))]);
+assert(behs.length >= 6, 'species have several distinct behaviours: ' + behs.join(','));
+
 // тап по рыбке приносит жемчуг
 let p = await fishPos();
 await page.mouse.click(p.x, p.y);
@@ -79,7 +83,7 @@ let am = await state();
 assert(am.fish === bm.fish - 1, 'merging replaces two fish with one');
 assert(am.tank.some(f => f.lvl === 1), 'merge produces the next level');
 assert(am.lvl === 2, 'max level grows after a merge');
-assert(am.seen === 2, 'new level is added to the collection');
+assert(am.seen === 2, 'new level is unlocked in the shop');
 assert(am.tut === 3, 'tutorial completes after the first merge');
 
 // растущего малька слить нельзя
@@ -96,8 +100,8 @@ let af = await state();
 assert(af.coins === bf.coins - bf.foodCost, 'feeding costs pearls');
 await page.waitForTimeout(6000);
 let mid = await state();
-assert(mid.satMin > 0, 'fish start eating the food');
-assert(mid.satMin < 0.75, 'fish get full gradually, not instantly');
+assert(mid.tank.some(f => f.sat > 0), 'fish start eating the food');
+assert(mid.tank.every(f => f.sat < 0.75), 'one portion is far from filling a fish up');
 
 // полная сытость даёт ×2 за тап
 await page.evaluate(() => { window.__growAll(); window.__sate(0); });
@@ -160,9 +164,14 @@ assert((await state()).fishCost < bP.fishCost, 'plant upgrade lowers fry price')
 await page.click('#fishBtn'); await page.waitForTimeout(120);
 assert(await page.isVisible('#mBody .row'), 'aquarium panel renders fish rows');
 await page.click('#mClose'); await page.waitForTimeout(80);
-await page.click('#collBtn'); await page.waitForTimeout(120);
-assert(await page.isVisible('#mBody .coll'), 'collection grid renders');
-await page.click('#mClose');
+await page.click('#setBtn'); await page.waitForTimeout(150);
+assert(await page.isVisible('#settings .srow'), 'settings panel renders');
+await page.evaluate(() => { const e = document.getElementById('musVol'); e.value = 15; e.dispatchEvent(new Event('input')); });
+assert(Math.round((await state()).musVol * 100) === 15, 'music volume slider changes the setting');
+await page.click('#langEn'); await page.waitForTimeout(120);
+assert(await page.evaluate(() => document.documentElement.lang) === 'en', 'language switch in settings works');
+await page.click('#langRu'); await page.waitForTimeout(120);
+await page.click('#sClose'); await page.waitForTimeout(100);
 
 // сейв переживает перезагрузку
 let pre = await state();
@@ -175,7 +184,8 @@ await page.waitForFunction(() => typeof window.render_game_to_text === 'function
 let post = await state();
 assert(post.fish === pre.fish, 'tank survives reload');
 assert(post.lvl === pre.lvl, 'fish levels survive reload');
-assert(post.seen === pre.seen, 'collection survives reload');
+assert(post.seen === pre.seen, 'unlocked species survive reload');
+assert(Math.abs(post.musVol - pre.musVol) < 1e-6, 'volume settings survive reload');
 assert(post.feed === pre.feed && post.aer === pre.aer, 'upgrades survive reload');
 
 assert(errors.length === 0, 'no console/page errors' + (errors.length ? ' -> ' + errors.join(' | ') : ''));

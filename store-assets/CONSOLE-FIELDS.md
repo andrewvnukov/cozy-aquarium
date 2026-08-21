@@ -51,20 +51,20 @@
 Тёплый Аквариум — уютный мерж-кликер про рыбок: тапай за жемчугом, расти мальков, объединяй одинаковых и собери коллекцию из девяти видов.
 ```
 
-### Короткое описание (55/70)
+### Короткое описание (60/70)
 
 ```
-Тапай рыбок, расти мальков и объединяй их в новые виды!
+Тапай рыбок, расти мальков и объединяй — 30 видов аквариума!
 ```
 
-### Об игре (944/1000)
+### Об игре (972/1000)
 
 ```
 Тёплый Аквариум — уютный мерж-кликер про домашний аквариум.
 
 Тапайте по рыбке — она приносит жемчуг, и над ней всплывает награда. Тап по воде рыбок не тревожит: по ней просто расходится рябь.
 
-На жемчуг покупайте мальков. Малёк подрастает за несколько секунд, а когда становится взрослым — перетащите его на такую же взрослую рыбку, и они объединятся в рыбку следующего уровня. Так из простых гуппи получаются золотая рыбка, неон, клоун и ещё пять видов — всего девять в коллекции.
+На жемчуг покупайте мальков. Малёк подрастает за несколько секунд, а когда становится взрослым — перетащите его на такую же взрослую рыбку, и они объединятся в рыбку следующего уровня. Так из простых гуппи получаются кардинал, неон, данио, барбус, петушок, дискус, крылатка и другие — всего тридцать настоящих видов.
 
 Корм тоже покупается за жемчуг: хлопья тонут, рыбки не спеша едят и наполняют шкалу сытости. Сытая рыбка платит вдвое больше за тап и быстрее растёт. Сытость постепенно тает — загляните покормить питомцев снова.
 
@@ -73,20 +73,20 @@
 Живой подводный мир — лучи света, водоросли, кораллы, медуза и краб на дне — успокаивает и радует.
 ```
 
-### Как играть (990/1000)
+### Как играть (1087/1000)
 
 ```
 1. Тапайте по рыбке — за каждый тап она приносит жемчуг. Тап по пустой воде дохода не даёт, только рябь.
 
-2. Нажмите «Купить», чтобы завести малька; в магазине доступны все уже открытые виды. Малёк меньше взрослой рыбы, над ним видна голубая шкала роста: первый уровень растёт около пяти секунд, старшие — дольше.
+2. Нажмите «Купить», чтобы завести малька; в магазине доступны все открытые виды. Малёк меньше взрослой рыбы, над ним голубая шкала роста: первый вид растёт около пяти секунд, старшие — дольше. У каждого вида свой характер: одни носятся, другие держатся стайкой, третьи копошатся у дна.
 
 3. Когда две рыбки одного уровня выросли, зажмите одну и перетащите на вторую — цель подсветится кругом. Отпустите: рыбки объединятся в малька следующего уровня, а новый вид попадёт в коллекцию и в магазин.
 
 4. Нажмите «Покормить», чтобы бросить корм. Хлопья тонут, рыбки подплывают и едят их не спеша. Когда зелёная шкала дойдёт до золотой риски, рыбка станет сытой: она платит вдвое больше за тап и растёт быстрее. Сытость постепенно тает.
 
-5. «Мульти-тап» после видео на две минуты позволяет собирать жемчуг со всех рыбок любым тапом, «Доход ×2» удваивает фоновый доход на пять минут.
+5. «Мульти-тап» после видео на две минуты собирает жемчуг со всех рыбок любым тапом, «Доход ×2» удваивает фоновый доход на пять минут.
 
-6. В боковых кнопках — список рыбок, улучшения и коллекция; там же переключается язык.
+6. В боковых кнопках — магазин рыбок, улучшения и настройки: там ползунки громкости музыки и звуков и выбор языка.
 ```
 
 ---
@@ -111,14 +111,14 @@ Cozy Aquarium is a merge-clicker about fish: tap for pearls, grow fry, merge mat
 Tap fish, grow fry and merge them into new species!
 ```
 
-### Об игре (944/1000)
+### Об игре (971/1000)
 
 ```
 Cozy Aquarium is a warm little merge-clicker about a home fish tank.
 
 Tap a fish and it pays out pearls, with the reward popping up above it. Tapping the water leaves your fish alone — it just sends out a ripple.
 
-Spend pearls on fry. A fry grows up in seconds, and once it is an adult you can drag it onto a matching adult fish to merge them into the next level. Simple guppies become a goldfish, a neon tetra, a clownfish and five more — nine species to collect.
+Spend pearls on fry. A fry grows up in seconds, and once it is an adult you can drag it onto a matching adult fish to merge them into the next level. Simple guppies become white clouds, neon tetras, danios, barbs, bettas, discus, lionfish and more — thirty real species in all.
 
 Food costs pearls too: the flakes sink, fish eat unhurriedly and fill their satiety bar. A well-fed fish pays double per tap and grows faster. Satiety slowly fades, so drop by to feed your pets again.
 
@@ -127,18 +127,18 @@ Upgrade the tank: rich food is more filling, the aerator raises background incom
 A living underwater world — light rays, plants, corals, a jellyfish and a crab on the sand — keeps things calm and cheerful.
 ```
 
-### Как играть (980/1000)
+### Как играть (1064/1000)
 
 ```
 1. Tap a fish — every tap pays out pearls. Tapping empty water gives nothing, just a ripple.
 
-2. Press "Buy fry" to add a fry; the shop sells every species you have unlocked. A fry is smaller than an adult and shows a blue growth bar: level 1 grows in about five seconds, higher levels take longer.
+2. Press "Buy fry" to add a fry; the shop sells every unlocked species. A fry is smaller than an adult and shows a blue growth bar: the first species grows in about five seconds, later ones take longer. Each species swims differently: some dart, some school, some potter along the bottom.
 
 3. When two fish of the same level are grown up, press and drag one onto the other — a valid target lights up with a ring. Release to merge them into a fry of the next level and unlock a new species in your collection.
 
 4. Press "Feed" to drop food. The flakes sink and fish eat them unhurriedly. Once the green bar reaches the golden mark the fish is full: it pays double per tap and grows faster. Satiety slowly fades.
 
-5. "Multi-tap" after a short video lets any tap collect pearls from every fish for two minutes; "Income ×2" doubles background income for five minutes.
+5. "Multi-tap" after a video lets any tap collect from every fish for two minutes; "Income ×2" doubles background income for five minutes.
 
-6. The side buttons open your fish list, upgrades and the collection. The RU/EN button switches language.
+6. The side buttons open the fish shop, upgrades and settings: music and sound volume sliders and the language choice.
 ```

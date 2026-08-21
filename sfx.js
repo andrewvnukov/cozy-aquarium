@@ -8,7 +8,8 @@
 // жми Export -> "ZzFX Call Arguments" и вставляй массив в SFX ниже.
 // ============================================================
 const audioDefaultSampleRate = 44100;
-let audioCtx = null, masterGain = null;
+let audioCtx = null, masterGain = null, sfxGain = null, musicGain = null;
+let sfxVolume = 0.7, musicVolume = 0.5;   // 0..1, настраиваются игроком в настройках
 function ensureAudio(){
   if(audioCtx) return audioCtx;
   try{
@@ -16,9 +17,16 @@ function ensureAudio(){
     masterGain = audioCtx.createGain();
     masterGain.gain.value = .6;
     masterGain.connect(audioCtx.destination);
+    sfxGain = audioCtx.createGain();   sfxGain.gain.value = sfxVolume;   sfxGain.connect(masterGain);
+    musicGain = audioCtx.createGain(); musicGain.gain.value = musicVolume; musicGain.connect(masterGain);
   }catch(e){}
   return audioCtx;
 }
+// громкости: 0..1, применяются мгновенно и переживают перезапуск (значение хранит игра)
+function setSfxVolume(v){ sfxVolume=Math.max(0,Math.min(1,v)); if(sfxGain) sfxGain.gain.value=sfxVolume; }
+function setMusicVolume(v){ musicVolume=Math.max(0,Math.min(1,v)); if(musicGain) musicGain.gain.value=musicVolume; }
+function getSfxVolume(){ return sfxVolume; }
+function getMusicVolume(){ return musicVolume; }
 // разблокировка звука по первому касанию (автоплей-политики браузеров/WebView)
 addEventListener("pointerdown", ()=>{ const ctx=ensureAudio(); if(ctx&&ctx.state!=="running") ctx.resume().catch(()=>{}); }, {once:true, passive:true});
 
@@ -80,13 +88,13 @@ function zzfxG(volume=1, randomness=.05, frequency=220, attack=0, sustain=0, rel
   }
   return b;
 }
-function playBuffer(samples, volume=1, loop=false){
+function playBuffer(samples, volume=1, loop=false, bus){
   const ctx=ensureAudio(); if(!ctx) return;
   const buf=ctx.createBuffer(1, samples.length, audioDefaultSampleRate);
   buf.getChannelData(0).set(samples);
   const src=ctx.createBufferSource(); src.buffer=buf; src.loop=loop;
   const g=ctx.createGain(); g.gain.value=volume;
-  src.connect(g).connect(masterGain);
+  src.connect(g).connect(bus || sfxGain || masterGain);
   src.start(0);
   return src;
 }
@@ -141,6 +149,6 @@ function buildSong(){
 function startMusic(){
   if(musicSrc) return;
   const ctx=ensureAudio(); if(!ctx) return;
-  try{ musicSrc=playBuffer(buildSong(), .38, true); }catch(e){}
+  try{ musicSrc=playBuffer(buildSong(), .38, true, musicGain); }catch(e){}
 }
 function stopMusic(){ if(musicSrc){ try{ musicSrc.stop(); }catch(e){} musicSrc=null; } }

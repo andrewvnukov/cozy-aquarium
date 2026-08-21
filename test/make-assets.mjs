@@ -31,7 +31,7 @@ const HERO = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
   + '</svg>';
 const CONFIG = {
   titleRu: 'Тёплый Аквариум', titleEn: 'Cozy Aquarium',
-  subRu: 'Тапай · расти · объединяй', subEn: 'Tap · grow · merge',
+  subRu: '30 видов · расти · объединяй', subEn: '30 species · grow · merge',
   heroSvg: HERO,
   accent: '#FF9E5A', bg: '#2C7FA6', ink: '#233A4E',
   // характерные экраны: [имя файла, скрипт подготовки состояния через хуки]
@@ -41,7 +41,7 @@ const CONFIG = {
                                    await p.waitForTimeout(250); }],
     // d2 — сытый аквариум: золотые шкалы, ×2 и двойные награды
     ['d2-feeding',    async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(2e6);
-                                     for(let i=0;i<5;i++) window.__buyFish(); window.__growAll(); });
+                                     for(let i=0;i<5;i++) window.__buyFish(0); window.__growAll(); });
                                    await p.waitForTimeout(4000);
                                    await p.evaluate(()=>{ window.__sate(1); window.__tap(); });
                                    await p.waitForTimeout(200); }],
@@ -51,15 +51,16 @@ const CONFIG = {
                                      window.__mergeFirstPair(); });
                                    await p.click('#fishBtn'); }],
     ['d4-upgrades',   async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(5e6); }); await p.click('#upBtn'); }],
+    ['d6-settings',   async p => { await p.evaluate(()=>window.__skipTut()); await p.click('#setBtn'); }],
     // d5 — коллекция: несколько уровней уже открыто мержами
-    ['d5-collection', async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(1e7);
-                                     for(let lvl=0; lvl<5; lvl++){
-                                       for(let k=0;k<2;k++){ S.tank.push({lvl, g:1, sat:0}); }
+    // d5 — разнообразие видов и характеров: стайки, донные, зависающие
+    ['d5-collection', async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(1e9);
+                                     [0,2,3,8,9,12,13,14,15,18,22,25,28].forEach(lvl=>{
                                        if(!S.seen.includes(lvl)) S.seen.push(lvl);
-                                     }
+                                       S.tank.push({lvl, g:1, sat:0});
+                                     });
                                      rebuildSwimmers(); refreshHud(); });
-                                   await p.waitForTimeout(600);
-                                   await p.click('#collBtn'); }],
+                                   await p.waitForTimeout(6000); }],
   ],
 };
 

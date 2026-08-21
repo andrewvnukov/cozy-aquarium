@@ -18,7 +18,7 @@
 Петля: **тапай → покупай мальков → расти → объединяй**.
 
 - **Тап по рыбке** приносит жемчуг, над рыбкой всплывает награда. Тап по пустой воде дохода не даёт —
-  только рябь и лёгкая вибрация, чтобы случайные касания не «доили» аквариум.
+  только рябь и лёгкая вибрация. За курсором/пальцем тянется водяной след.
 - **Мальки** покупаются за жемчуг; цена каждого следующего растёт (30 × 1.6ⁿ) — это основной
   сдерживающий фактор прогресса. Малёк меньше взрослой рыбы, у него голубая шкала роста; рыба первого
   уровня растёт 5 секунд, каждый следующий уровень — дольше (до ~170 c).
@@ -26,7 +26,10 @@
   показаны с замком — новые виды открываются только слиянием.
 - **Слияние**: выросшую рыбу можно перетащить пальцем на другую выросшую рыбу того же уровня —
   они объединяются в малька следующего уровня. Валидная цель подсвечивается кругом. Так открываются
-  все 9 видов: гуппи → золотая рыбка → неон → клоун → моллинезия → хирург → сомик → скалярия → иглобрюх.
+  все 30 видов: гуппи → кардинал → неон → данио → пецилия → меченосец → моллинезия → тернеция →
+  расбора → барбус → золотая рыбка → гурами → петушок → коридорас → анциструс → боция → апистограмма →
+  скалярия → дискус → попугай → оскар → таракатум → клоун → хирург → бабочка → идол → ангел → спинорог →
+  крылатка → иглобрюх.
 - **Корм** покупается за жемчуг: порция небольшая — примерно по одному хлопику на рыбу. Хлопья тонут,
   рыбки едят их не спеша (одна штука в ~0.9 c, до полной сытости нужно ~7 хлопьев), а почти сытые
   уступают корм голодным. Сытая рыба платит **×2** за тап и растёт в 1.6 раза быстрее. Сытость
@@ -34,8 +37,18 @@
 - **Пассивный доход** намеренно слабый (4% тап-ценности в секунду) — это фоновая добавка, а не
   замена активной игры.
 
+**Характеры**: у каждого вида свой стиль плавания — dart (данио, барбус, спинорог носятся по всему
+аквариуму), school (неон, кардинал, расбора, тернеция держатся стайкой), slow (золотая рыбка, гурами,
+дискус, скалярия, оскар, ангел плывут величаво), hover (петушок, клоун, крылатка зависают на месте),
+bottom (коридорас, боция, таракатум рыскают у дна), glass (анциструс ползёт по дну), drift (идол,
+иглобрюх неспешно дрейфуют), calm (остальные). У каждого вида своя любимая глубина.
+
 Мета-прогрессия: апгрейды (Сытный корм → корм насыщает сильнее; Аэратор → +25% к пассивному доходу;
-Водоросли → −5% к цене мальков), коллекция из 9 уровней и лидерборд по максимальному уровню.
+Водоросли → −5% к цене мальков) и лидерборд по максимальному уровню. Вкладки коллекции нет — виды
+видны в магазине.
+
+**Настройки** (кнопка-шестерёнка): раздельные ползунки громкости музыки и звуков, выбор языка RU/EN.
+Значения сохраняются в облачном сейве.
 
 Реклама-награды: **Мульти-тап** (2 минуты любой тап собирает жемчуг сразу со всех рыбок) и
 **Доход ×2** на 5 минут. Плюс бесплатный ежедневный подарок.
@@ -61,37 +74,37 @@
 
 ## Короткое описание (~100 символов)
 
-- RU: `Тапай по рыбкам, расти мальков и объединяй одинаковых — собери всех девять видов!` (81 симв.)
-- EN: `Tap your fish, grow fry and merge matching ones — collect all nine species!` (75 симв.)
+- RU: `Тапай рыбок, расти мальков и объединяй — 30 видов аквариума!` (60 симв.)
+- EN: `Tap fish, grow fry and merge them — 30 aquarium species!` (56 симв.)
 
 ## Полное описание
 
 **RU:**
-Тёплый Аквариум — уютный мерж-кликер про домашний аквариум. Тапайте по рыбке — она приносит жемчуг, и над ней всплывает награда. Тап по воде рыбок не тревожит: по ней просто расходится рябь.
+Тёплый Аквариум — уютный мерж-кликер про домашний аквариум с тридцатью настоящими видами рыб.
 
-На жемчуг покупайте мальков. Малёк подрастает всего за несколько секунд, а когда становится взрослым — перетащите его на такую же взрослую рыбку, и они объединятся в рыбку следующего уровня. Так из простых гуппи получаются золотая рыбка, неон, клоун, моллинезия, хирург, сомик, скалярия и колючий иглобрюх — девять видов в коллекции.
+Тапайте по рыбке — она приносит жемчуг, и над ней всплывает награда. Тап по воде рыбок не тревожит: по воде расходится рябь, а за пальцем тянется водяной след.
 
-Корм тоже покупается за жемчуг: хлопья тонут, рыбки не спеша едят и наполняют шкалу сытости. Сытая рыбка платит вдвое больше за тап и быстрее растёт, поэтому кормить аквариум выгодно перед активной сессией. Сытость постепенно тает — загляните покормить питомцев снова.
+На жемчуг покупайте мальков. Малёк подрастает за несколько секунд, а когда становится взрослым — перетащите его на такую же взрослую рыбку, и они объединятся в рыбку следующего вида. Так гуппи и кардинал сменяются неоном, данио, барбусом, золотой рыбкой, гурами и петушком, а дальше ждут дискус, оскар, скалярия, рыба-клоун, мавританский идол, крылатка и иглобрюх.
 
-Посмотрите короткое видео — и целые две минуты любой тап будет собирать жемчуг сразу со всех рыбок. Открытые виды можно докупать в магазине за жемчуг, а новые открываются только слиянием. Улучшайте аквариум: сытный корм насыщает сильнее, аэратор повышает фоновый доход, водоросли удешевляют мальков. Заходите каждый день за подарком.
+У каждого вида свой характер: данио и барбус носятся по всему аквариуму, неоны и расборы держатся стайкой, дискусы и скалярии плывут величаво, петушок зависает на месте, а коридорас, анциструс и боция копошатся у самого дна.
 
-Живой подводный мир — лучи света, колышущиеся водоросли, кораллы, проплывающая медуза и краб на дне — успокаивает и радует. Короткое обучение введёт в курс за полминуты.
+Корм покупается за жемчуг: хлопья тонут, рыбки едят их не спеша. Сытая рыбка платит вдвое больше за тап и быстрее растёт. Улучшайте аквариум, смотрите видео за мульти-тап и заходите каждый день за подарком. В настройках — громкость музыки и звуков, а также язык.
 
 **EN:**
-Cozy Aquarium is a warm little merge-clicker about a home fish tank. Tap a fish and it pays out pearls, with the reward popping up above it. Tapping the water leaves your fish alone — it just sends out a ripple.
+Cozy Aquarium is a warm merge-clicker about a home fish tank with thirty real fish species.
 
-Spend pearls on fry. A fry grows up in seconds, and once it is an adult you can drag it onto a matching adult fish to merge them into the next level. Simple guppies become a goldfish, a neon tetra, a clownfish, a molly, a blue tang, a catfish, an angelfish and a spiky pufferfish — nine species to collect.
+Tap a fish and it pays out pearls, with the reward popping up above it. Tapping the water leaves your fish alone — it sends out a ripple, and a watery trail follows your finger.
 
-Food costs pearls too: the flakes sink, fish eat unhurriedly and fill their satiety bar. A well-fed fish pays double per tap and grows faster, so feeding the tank before an active session pays off. Satiety slowly fades, so drop by to feed your pets again.
+Spend pearls on fry. A fry grows up in seconds, and once it is an adult you can drag it onto a matching adult fish to merge them into the next species. Guppies and white clouds give way to neon tetras, danios, tiger barbs, goldfish, gouramis and bettas, and further on wait discus, oscars, angelfish, clownfish, moorish idols, lionfish and pufferfish.
 
-Watch a short video and for two whole minutes every tap collects pearls from all your fish at once. Species you have unlocked can be bought again in the shop, while new ones come only from merging. Upgrade the tank: rich food is more filling, the aerator raises background income, water plants make fry cheaper. Come back daily for a gift.
+Every species has its own character: danios and barbs dart across the whole tank, neons and rasboras keep to a school, discus and angelfish glide slowly, a betta hovers in place, while corydoras, plecos and loaches potter about on the bottom.
 
-A living underwater world — light rays, swaying plants, corals, a drifting jellyfish and a crab on the sand — keeps things calm and cheerful. A short tutorial gets you going in half a minute.
+Food costs pearls: the flakes sink and fish eat them unhurriedly. A well-fed fish pays double per tap and grows faster. Upgrade the tank, watch a video for multi-tap and come back daily for a gift. Settings let you adjust music and sound volume and switch the language.
 
 ## Ключевые слова
 
-- RU: `аквариум, рыбки, мерж, кликер, объединяй, коллекция, уютная игра, казуальная, жемчуг, питомцы`
-- EN: `aquarium, fish, merge, clicker, idle, collection, cozy game, casual, pearls, pets`
+- RU: `аквариум, рыбки, мерж, кликер, 30 видов, уютная игра, жемчуг, питомцы, объединяй`
+- EN: `aquarium, fish, merge, clicker, 30 species, cozy game, pearls, pets, idle`
 
 ## Монетизация
 
@@ -109,15 +122,16 @@ A living underwater world — light rays, swaying plants, corals, a drifting jel
 | `icon.png` | 512×512 | ✅ |
 | `cover.png` (RU) | 800×470 | ✅ |
 | `cover-en.png` (EN) | 800×470 | ✅ |
-| `d1-start.png` … `d5-collection.png` (RU, 5 шт.) | 1920×1080 | ✅ |
-| `d1-start-en.png` … `d5-collection-en.png` (EN, 5 шт.) | 1920×1080 | ✅ |
+| `d1-start.png` … `d6-settings.png` (RU, 6 шт.) | 1920×1080 | ✅ |
+| `d1-start-en.png` … `d6-settings-en.png` (EN, 6 шт.) | 1920×1080 | ✅ |
 
 Кадры (RU=EN по составу, отличается только язык HUD):
 1. `d1-start` — самое начало: аквариум со стартовой рыбкой, карточка обучения, первый сбор жемчуга.
 2. `d2-feeding` — накормленный аквариум: золотые шкалы сытости, бейджи ×2 и двойные награды над рыбками.
 3. `d3-shop` — открыт магазин «Рыбки аквариума»: открытые виды с ценами, закрытые под замком, подсказка про слияние.
 4. `d4-upgrades` — открыты «Улучшения аквариума» (Сытный корм / Аэратор / Водоросли).
-5. `d5-collection` — открыта коллекция рыб (часть обнаружена, часть скрыта «?»), полный аквариум.
+5. `d5-collection` — разнообразие видов и характеров: стайки, донные рыбы, зависающие, крылатка.
+6. `d6-settings` — окно настроек: громкость музыки и звуков, выбор языка.
 
 ## Что грузить в консоли (памятка)
 

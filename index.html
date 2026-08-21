@@ -104,6 +104,23 @@
   .card .cn{font-weight:900;font-size:12px;margin-top:3px}
   .card.locked{opacity:.72}
   .card .qm{font-weight:900;font-size:30px;color:var(--ink-soft);height:56px;line-height:56px}
+  /* окно настроек */
+  #settings{position:absolute;inset:0;background:rgba(20,40,58,.55);display:flex;align-items:flex-end;
+            justify-content:center;pointer-events:auto;z-index:6;transition:opacity .2s}
+  #settings.hidden{opacity:0;pointer-events:none}
+  #sTitle{font-weight:900;font-size:20px;text-align:center;margin:2px 44px 14px;color:var(--ink)}
+  #sClose{position:absolute;top:10px;right:12px;width:38px;height:38px;border-radius:50%;z-index:2;
+          background:var(--paper);border:2.5px solid var(--line);font-size:21px;font-weight:900;
+          color:var(--ink);cursor:pointer;box-shadow:0 3px 0 rgba(35,58,78,.28)}
+  .srow{display:flex;align-items:center;gap:12px;background:#FFF8E6;border:2.5px solid var(--line);
+        border-radius:16px;padding:12px;margin-bottom:10px;box-shadow:0 2px 0 rgba(35,58,78,.18)}
+  .slbl{font-weight:900;font-size:14.5px;min-width:72px}
+  .sval{font-weight:900;font-size:13px;color:var(--ink-soft);min-width:44px;text-align:right}
+  .srow input[type=range]{flex:1;accent-color:var(--accent);height:26px}
+  .segm{flex:1;display:flex;gap:8px;justify-content:flex-end}
+  .segm button{border:2.5px solid var(--line);background:var(--paper);color:var(--ink);font-weight:900;
+               font-size:13px;padding:8px 16px;border-radius:12px;cursor:pointer}
+  .segm button.on{background:var(--accent);border-color:var(--accent-deep);color:#fff}
   /* карточка обучения над нижними кнопками; тапы проходят сквозь неё */
   #tut{position:absolute;left:50%;transform:translateX(-50%);bottom:154px;z-index:4;pointer-events:none;max-width:92%}
   #tut.hidden{display:none}
@@ -146,12 +163,17 @@
   <button class="rbtn" id="upBtn" aria-label="Улучшения">
     <svg viewBox="0 0 27 27"><path d="M13.5 4l2.3 4.9 5.2.6-3.9 3.6 1.1 5.2-4.7-2.7-4.7 2.7 1.1-5.2L6 9.5l5.2-.6z" fill="#F2C14E" stroke="#233A4E" stroke-width="2.1" stroke-linejoin="round"/></svg>
   </button>
-  <button class="rbtn" id="collBtn" aria-label="Коллекция">
-    <svg viewBox="0 0 27 27"><rect x="4.5" y="4.5" width="8" height="8" rx="2" fill="#7FD1AE" stroke="#233A4E" stroke-width="2.1"/><rect x="14.5" y="4.5" width="8" height="8" rx="2" fill="#B9A3E3" stroke="#233A4E" stroke-width="2.1"/><rect x="4.5" y="14.5" width="8" height="8" rx="2" fill="#5B9BD5" stroke="#233A4E" stroke-width="2.1"/><rect x="14.5" y="14.5" width="8" height="8" rx="2" fill="#FF9E5A" stroke="#233A4E" stroke-width="2.1"/></svg>
+  <button class="rbtn" id="setBtn" aria-label="Настройки">
+    <svg viewBox="0 0 27 27"><circle cx="13.5" cy="13.5" r="4" fill="none" stroke="#233A4E" stroke-width="2.2"/><path d="M13.5 2.5v3.4M13.5 21.1v3.4M2.5 13.5h3.4M21.1 13.5h3.4M5.7 5.7l2.4 2.4M18.9 18.9l2.4 2.4M5.7 21.3l2.4-2.4M18.9 8.1l2.4-2.4" stroke="#233A4E" stroke-width="2.2" stroke-linecap="round"/></svg>
   </button>
-  <button class="rbtn lang" id="langBtn" aria-label="Язык / Language">RU</button>
 </div>
 <div id="modal" class="hidden"><div class="sheet"><button id="mClose">×</button><div id="mTitle"></div><div id="mScroll"><div id="mBody"></div></div></div></div>
+<div id="settings" class="hidden"><div class="sheet">
+  <button id="sClose">×</button><div id="sTitle">Настройки</div>
+  <div class="srow"><span class="slbl" id="musLbl">Музыка</span><input type="range" id="musVol" min="0" max="100" step="1"><span class="sval" id="musVal">50%</span></div>
+  <div class="srow"><span class="slbl" id="sfxLbl">Звуки</span><input type="range" id="sfxVol" min="0" max="100" step="1"><span class="sval" id="sfxVal">70%</span></div>
+  <div class="srow"><span class="slbl" id="langLbl">Язык</span><div class="segm"><button id="langRu">Рус</button><button id="langEn">Eng</button></div></div>
+</div></div>
 <div id="tut" class="hidden"><div id="tutCard"><span id="tutTxt"></span><button id="tutSkip" aria-label="Пропустить обучение">✕</button></div></div>
 <div id="toast"></div>
 <script>
@@ -172,11 +194,7 @@ function lang(){
     return ysdk.environment.i18n.lang==="ru"?"ru":"en"; }catch(e){}
   return (navigator.language||"ru").slice(0,2)==="ru"?"ru":"en";
 }
-function toggleLang(){
-  S.lang = lang()==="ru" ? "en" : "ru";
-  document.documentElement.setAttribute("lang", S.lang);
-  refreshHud(); persist(true); sfx("tap");
-}
+
 const STR = {
   coins:{ru:"ЖЕМЧУГ",en:"PEARLS"}, income:{ru:"ДОХОД",en:"INCOME"},
   feed:{ru:"Покормить",en:"Feed"}, buy:{ru:"Купить",en:"Buy fry"},
@@ -190,7 +208,8 @@ const STR = {
   need:{ru:"Не хватает жемчуга",en:"Not enough pearls"},
   fishTitle:{ru:"Рыбки аквариума",en:"Your aquarium"},
   upTitle:{ru:"Улучшения аквариума",en:"Aquarium upgrades"},
-  collTitle:{ru:"Коллекция рыб",en:"Fish collection"},
+  setTitle:{ru:"Настройки",en:"Settings"},
+  music:{ru:"Музыка",en:"Music"}, sounds:{ru:"Звуки",en:"Sounds"}, langLbl:{ru:"Язык",en:"Language"},
   lvl:{ru:"Ур.",en:"Lv."}, growing:{ru:"растут",en:"growing"}, adult:{ru:"взрослых",en:"adult"},
   perTap:{ru:"за тап",en:"per tap"},
   newFry:{ru:"Малёк поселился в аквариуме",en:"A fry joined your tank"},
@@ -215,15 +234,39 @@ const nm = sp => lang()==="ru"? sp.ru : sp.en;
 // ---------- Уровни рыб (мерж-цепочка: две выросшие рыбы Lv N -> малёк Lv N+1) ----------
 // tap — жемчуг за тап по взрослой рыбе; grow — сколько секунд растёт малёк этого уровня
 const LEVELS = [
-  {ru:'Гуппи',        en:'Guppy',       c1:'#F2A65A', c2:'#FFDDAF', shape:'guppy',  tap:1,     grow:5},
-  {ru:'Золотая рыбка',en:'Goldfish',    c1:'#FF8C42', c2:'#FFC38A', shape:'gold',   tap:3,     grow:9},
-  {ru:'Неон',         en:'Neon Tetra',  c1:'#3BA7D6', c2:'#F25C69', shape:'neon',   tap:9,     grow:15},
-  {ru:'Клоун',        en:'Clownfish',   c1:'#FF7A2E', c2:'#FFFFFF', shape:'clown',  tap:26,    grow:24},
-  {ru:'Моллинезия',   en:'Molly',       c1:'#4A4A57', c2:'#9AA0AC', shape:'molly',  tap:75,    grow:38},
-  {ru:'Хирург',       en:'Blue Tang',   c1:'#3E7CC4', c2:'#F2C14E', shape:'tang',   tap:210,   grow:58},
-  {ru:'Сомик',        en:'Catfish',     c1:'#8A7358', c2:'#CBB89B', shape:'cat',    tap:600,   grow:85},
-  {ru:'Скалярия',     en:'Angelfish',   c1:'#F0E6C4', c2:'#4A6377', shape:'angel',  tap:1700,  grow:120},
-  {ru:'Иглобрюх',     en:'Pufferfish',  c1:'#C7D66B', c2:'#EEF5C6', shape:'puffer', tap:4800,  grow:170},
+  // beh — характер: dart (снуёт), school (стайная), calm, slow, hover (зависает),
+  // bottom (у дна), glass (ползёт по дну/стеклу), drift (медленно дрейфует)
+  // depth — любимая глубина 0 (у поверхности) .. 1 (у дна)
+  {ru:'Гуппи',            en:'Guppy',            c1:'#F2A65A', c2:'#FFDDAF', shape:'guppy',   beh:'calm',   depth:0.25, tap:1,       grow:5},
+  {ru:'Кардинал',         en:'White Cloud',      c1:'#8FB6C9', c2:'#F2846A', shape:'danio',   beh:'school', depth:0.30, tap:2,       grow:7},
+  {ru:'Неон',             en:'Neon Tetra',       c1:'#3BA7D6', c2:'#F25C69', shape:'neon',    beh:'school', depth:0.38, tap:4,       grow:9},
+  {ru:'Данио-рерио',      en:'Zebra Danio',      c1:'#C9D6E0', c2:'#3E6E9E', shape:'danio',   beh:'dart',   depth:0.20, tap:7,       grow:11},
+  {ru:'Пецилия',          en:'Platy',            c1:'#F2762E', c2:'#FFCF9E', shape:'guppy',   beh:'calm',   depth:0.35, tap:12,      grow:13},
+  {ru:'Меченосец',        en:'Swordtail',        c1:'#E8453C', c2:'#FFD9A0', shape:'sword',   beh:'calm',   depth:0.32, tap:20,      grow:16},
+  {ru:'Моллинезия',       en:'Molly',            c1:'#4A4A57', c2:'#9AA0AC', shape:'molly',   beh:'calm',   depth:0.40, tap:34,      grow:19},
+  {ru:'Тернеция',         en:'Black Tetra',      c1:'#6B6E82', c2:'#2E3140', shape:'tetra',   beh:'school', depth:0.42, tap:56,      grow:22},
+  {ru:'Расбора',          en:'Harlequin Rasbora',c1:'#E4A05C', c2:'#3A2F44', shape:'tetra',   beh:'school', depth:0.34, tap:92,      grow:25},
+  {ru:'Барбус',           en:'Tiger Barb',       c1:'#E8B44A', c2:'#2E2A33', shape:'barb',    beh:'dart',   depth:0.45, tap:150,     grow:29},
+  {ru:'Золотая рыбка',    en:'Goldfish',         c1:'#FF8C42', c2:'#FFC38A', shape:'gold',    beh:'slow',   depth:0.50, tap:245,     grow:33},
+  {ru:'Гурами',           en:'Pearl Gourami',    c1:'#B9A7C4', c2:'#E8D6B0', shape:'gourami', beh:'slow',   depth:0.30, tap:400,     grow:38},
+  {ru:'Петушок',          en:'Betta',            c1:'#C2384F', c2:'#5B7FD1', shape:'betta',   beh:'hover',  depth:0.28, tap:650,     grow:43},
+  {ru:'Коридорас',        en:'Corydoras',        c1:'#C4B49A', c2:'#6E5F4E', shape:'cory',    beh:'bottom', depth:0.95, tap:1050,    grow:48},
+  {ru:'Анциструс',        en:'Bristlenose Pleco',c1:'#4E4A42', c2:'#8C8578', shape:'pleco',   beh:'glass',  depth:0.97, tap:1700,    grow:54},
+  {ru:'Боция-клоун',      en:'Clown Loach',      c1:'#F2A03C', c2:'#2E2A33', shape:'loach',   beh:'bottom', depth:0.88, tap:2750,    grow:60},
+  {ru:'Апистограмма',     en:'Apistogramma',     c1:'#F2C14E', c2:'#3E7CC4', shape:'cichlid', beh:'calm',   depth:0.62, tap:4400,    grow:67},
+  {ru:'Скалярия',         en:'Angelfish',        c1:'#F0E6C4', c2:'#4A6377', shape:'angel',   beh:'slow',   depth:0.45, tap:7100,    grow:74},
+  {ru:'Дискус',           en:'Discus',           c1:'#E8734A', c2:'#3E7CC4', shape:'discus',  beh:'slow',   depth:0.50, tap:11500,   grow:82},
+  {ru:'Цихлида-попугай',  en:'Blood Parrot',     c1:'#F2603C', c2:'#FFB08A', shape:'parrot',  beh:'calm',   depth:0.58, tap:18500,   grow:90},
+  {ru:'Оскар',            en:'Oscar',            c1:'#3E3A38', c2:'#E8873C', shape:'oscar',   beh:'slow',   depth:0.60, tap:30000,   grow:99},
+  {ru:'Сомик-таракатум',  en:'Hoplo Catfish',    c1:'#8A7358', c2:'#CBB89B', shape:'cat',     beh:'bottom', depth:0.92, tap:48000,   grow:108},
+  {ru:'Рыба-клоун',       en:'Clownfish',        c1:'#FF7A2E', c2:'#FFFFFF', shape:'clown',   beh:'hover',  depth:0.55, tap:78000,   grow:118},
+  {ru:'Рыба-хирург',      en:'Blue Tang',        c1:'#3E7CC4', c2:'#F2C14E', shape:'tang',    beh:'calm',   depth:0.48, tap:126000,  grow:128},
+  {ru:'Рыба-бабочка',     en:'Butterflyfish',    c1:'#F2D24E', c2:'#2E3140', shape:'butterfly',beh:'calm',  depth:0.40, tap:205000,  grow:139},
+  {ru:'Мавританский идол',en:'Moorish Idol',     c1:'#F5F0DC', c2:'#2E3140', shape:'idol',    beh:'drift',  depth:0.44, tap:330000,  grow:150},
+  {ru:'Рыба-ангел',       en:'Emperor Angelfish',c1:'#3B5EA8', c2:'#F2C14E', shape:'emperor', beh:'slow',   depth:0.52, tap:535000,  grow:162},
+  {ru:'Спинорог',         en:'Triggerfish',      c1:'#4E8C7A', c2:'#F2E2B0', shape:'trigger', beh:'dart',   depth:0.56, tap:865000,  grow:175},
+  {ru:'Крылатка',         en:'Lionfish',         c1:'#C4442E', c2:'#F5EAD6', shape:'lion',    beh:'hover',  depth:0.66, tap:1400000, grow:188},
+  {ru:'Иглобрюх',         en:'Pufferfish',       c1:'#C7D66B', c2:'#EEF5C6', shape:'puffer',  beh:'drift',  depth:0.70, tap:2270000, grow:200},
 ];
 const MAXLVL = LEVELS.length-1;
 const LV = l => LEVELS[Math.max(0,Math.min(MAXLVL,l))];
@@ -239,6 +282,7 @@ function fresh(){ return {
   best:1,                                   // рекорд: максимальный уровень+1 (лидерборд)
   x2Until:0, multiUntil:0, lastDaily:"",    // таймеры rewarded / ежедневки
   lang:null,                                // ручной выбор языка (null = авто)
+  musVol:0.5, sfxVol:0.7,                   // громкости из настроек (0..1)
   tut:0,                                    // шаг обучения (0..2), 3 = пройдено
   time:Date.now()
 };}
@@ -252,9 +296,9 @@ const multiOn   = () => Date.now() < S.multiUntil;
 const MULTI_MS  = 120000;                                // мульти-тап: 2 минуты после рекламы
 
 const SAT_FULL  = 0.75;                                  // порог «сыта» — с него идёт ×2
-const SAT_DECAY = 0.004;                                 // сытость/сек: ×2 живёт ~60 c, тает ~4 мин
+const SAT_DECAY = 0.0016;                                // сытость/сек: ×2 живёт ~2.5 мин, тает ~10 мин
 const EAT_CD    = 0.9;                                   // рыбка ест не чаще раза в 0.9 c
-const feedFill  = () => 0.11 + 0.02*S.feed;              // один хлопик: нужно ~7 штук до ×2
+const feedFill  = () => 0.038 + 0.008*S.feed;            // один хлопик: до ×2 нужно ~20 штук
 const GROW_BOOST= 1.6;                                   // сытость ускоряет рост (до +60%)
 
 const isSated   = f => f.sat >= SAT_FULL;
@@ -271,7 +315,7 @@ const ips       = () => ipsBase() * aerMult() * (x2On()?2:1);
 // цена малька растёт с каждой покупкой — главный сдерживающий фактор прогресса
 const priceMult = () => Math.max(0.5, 1 - 0.05*S.plant);
 // цена рыбы уровня L: дороже, чем получить её мержем — покупка это ускорение, а не замена
-const fishCostAt = lvl => Math.max(1, Math.floor(30 * Math.pow(3.2, lvl) * Math.pow(1.6, Math.max(0,S.bought-1)) * priceMult()));
+const fishCostAt = lvl => Math.max(1, Math.floor(30 * Math.pow(1.85, lvl) * Math.pow(1.35, Math.max(0,S.bought-1)) * priceMult()));
 const fishCost  = () => fishCostAt(0);
 const unlocked  = lvl => S.seen.includes(lvl);   // открытые виды доступны в магазине
 const foodCost  = () => Math.max(3, Math.ceil(tapBase()*0.85));
@@ -313,6 +357,8 @@ function restore(raw){
   if(!Array.isArray(S.seen) || !S.seen.length || typeof S.seen[0]!=='number') S.seen=[0];
   S.tank.forEach(f=>{ if(!S.seen.includes(f.lvl)) S.seen.push(f.lvl); });
   if(typeof S.multiUntil!=='number') S.multiUntil=0;
+  if(typeof S.musVol!=='number') S.musVol=0.5;
+  if(typeof S.sfxVol!=='number') S.sfxVol=0.7;
   // офлайн: сытость тает, мальки продолжают расти
   const off=Math.max(0,(Date.now()-(S.time||Date.now()))/1000);
   S.tank.forEach(f=>{
@@ -371,7 +417,8 @@ function submitScore(v){ try{ if(lb&&LB_NAME) lb.setLeaderboardScore(LB_NAME, Ma
 
 // ---------- HUD ----------
 const $ = id => document.getElementById(id);
-const fmt = n => n>=1e6 ? (n/1e6).toFixed(2)+"M" : n>=1e4 ? (n/1e3).toFixed(1)+"K" : Math.floor(n).toString();
+const fmt = n => n>=1e12 ? (n/1e12).toFixed(2)+"T" : n>=1e9 ? (n/1e9).toFixed(2)+"B"
+  : n>=1e6 ? (n/1e6).toFixed(2)+"M" : n>=1e4 ? (n/1e3).toFixed(1)+"K" : Math.floor(n).toString();
 const fmtIps = v => v>=100 ? fmt(v) : (Math.round(v*10)/10).toString();
 const mins = ms => Math.ceil(ms/60000)+(lang()==="ru"?" мин":" min");
 function refreshHud(){
@@ -393,7 +440,6 @@ function refreshHud(){
   $("x2T").textContent    = on? T("x2on") : T("x2");
   $("x2S").textContent    = on? mins(S.x2Until-Date.now()) : (lang()==="ru"?"5 мин":"5 min");
   $("x2Btn").classList.toggle("off", on);
-  $("langBtn").textContent = lang().toUpperCase();
   renderTut();
   if(modalOpen) buildModal(modalOpen);
 }
@@ -496,6 +542,29 @@ function checkDaily(){
     setTimeout(()=>toast(T("daily")+" +"+fmt(g)), 700);
   }
 }
+// ---------- Настройки (громкости и язык) ----------
+let setOpen=false;
+function openSettings(){ setOpen=true; renderSettings(); $("settings").classList.remove("hidden"); }
+function closeSettings(){ setOpen=false; $("settings").classList.add("hidden"); persist(true); }
+function renderSettings(){
+  $("sTitle").textContent=T("setTitle");
+  $("musLbl").textContent=T("music");
+  $("sfxLbl").textContent=T("sounds");
+  $("langLbl").textContent=T("langLbl");
+  $("musVol").value=Math.round(S.musVol*100);
+  $("sfxVol").value=Math.round(S.sfxVol*100);
+  $("musVal").textContent=Math.round(S.musVol*100)+"%";
+  $("sfxVal").textContent=Math.round(S.sfxVol*100)+"%";
+  $("langRu").classList.toggle("on", lang()==="ru");
+  $("langEn").classList.toggle("on", lang()==="en");
+}
+function applyVolumes(){ try{ setMusicVolume(S.musVol); setSfxVolume(S.sfxVol); }catch(e){} }
+function setLang(l){
+  S.lang=l;
+  document.documentElement.setAttribute("lang", l);
+  refreshHud(); renderSettings(); persist(true); sfx("tap");
+}
+
 // ---------- Обучение (3 шага на свежем сейве) ----------
 let tutTaps=0;
 function renderTut(){
@@ -574,22 +643,6 @@ function buildModal(kind){
       b.onclick=()=>{ if(buyUp(u.k)) buildModal('up'); };
       row.appendChild(b); body.appendChild(row);
     });
-  } else if(kind==='coll'){
-    $("mTitle").textContent=T("collTitle")+" ("+S.seen.length+"/"+LEVELS.length+")"; body.innerHTML="";
-    const grid=document.createElement('div'); grid.className="coll";
-    LEVELS.forEach((lv,i)=>{
-      const seen=S.seen.includes(i);
-      const card=document.createElement('div'); card.className="card"+(seen?"":" locked");
-      if(seen){
-        card.appendChild(fishThumb(i));
-        const n=document.createElement('div'); n.className="cn"; n.textContent=nm(lv); card.appendChild(n);
-      } else {
-        const q=document.createElement('div'); q.className="qm"; q.textContent="?"; card.appendChild(q);
-        const n=document.createElement('div'); n.className="cn"; n.textContent="—"; card.appendChild(n);
-      }
-      grid.appendChild(card);
-    });
-    body.appendChild(grid);
   }
 }
 
@@ -826,15 +879,29 @@ let swimmers=[];
 // нижняя граница боковой панели кнопок (4 круглые кнопки по 52px с зазором 12px)
 const sideZoneBottom = () => 118 + 4*52 + 3*12 + 26;
 function spawnSwimmer(f, atX, atY){
-  const lane=swimmers.length, lanes=Math.max(4, LEVELS.length);
-  const top=H*0.26, bot=sandY-46;
-  const y=(atY!=null)?atY: top + ((lane+0.5)/lanes)*(bot-top) + rr(-8,8);
+  const lane=swimmers.length, lv=LV(f.lvl);
+  const top=H*0.24, bot=sandY-18;
+  const y=(atY!=null)?atY: top + (lv.depth||0.4)*(bot-top) + rr(-22,22);
   const x=(atX!=null)?atX: W*(0.14 + ((lane*0.37)%1)*0.72) + rr(-12,12);
   swimmers.push({ f, x:Math.max(W*0.1,Math.min(W*0.9,x)), y:Math.max(top,Math.min(bot,y)),
     get sp(){ return LV(this.f.lvl); },  // drawFish берёт описание уровня
-    dir:Math.random()<0.5?1:-1, spd:rr(26,44), phase:rr(0,6.28), eat:0, eatCd:0, pop:0 });
+    dir:Math.random()<0.5?1:-1, spd:rr(26,44)*behSpeed(lv.beh), phase:rr(0,6.28),
+    beh:lv.beh||'calm', home:(lv.depth||0.4), restCd:rr(0,3), eat:0, eatCd:0, pop:0 });
 }
 function rebuildSwimmers(){ swimmers=[]; S.tank.forEach(f=>spawnSwimmer(f)); }
+// характеры плавания: множитель базовой скорости
+function behSpeed(b){
+  switch(b){
+    case 'dart':   return 2.2;   // снуёт по всему аквариуму
+    case 'school': return 1.4;   // стайная, бодрая
+    case 'slow':   return 0.5;   // величавая
+    case 'hover':  return 0.25;  // почти стоит на месте
+    case 'bottom': return 1.0;   // рыскает по дну
+    case 'glass':  return 0.35;  // медленно ползёт по дну
+    case 'drift':  return 0.45;  // неспешно дрейфует
+    default:       return 1.0;
+  }
+}
 // масштаб рыбки: малёк меньше взрослого
 const fishScale = f => 0.45 + 0.55*f.g;
 
@@ -848,6 +915,32 @@ function spawnFood(n){
 }
 let ripple=[];
 let popups=[]; // всплывающий текст «+N» над рыбками при сборе
+let trail=[];  // водяной след за курсором/пальцем
+function addTrail(x,y){
+  const last=trail[trail.length-1];
+  if(last && Math.hypot(last.x-x,last.y-y)<6) return;   // не сыпать точки на месте
+  trail.push({x,y,life:1,r:rr(5,11)});
+  if(trail.length>26) trail.shift();
+}
+function drawTrail(dt){
+  for(let i=trail.length-1;i>=0;i--){ const p=trail[i]; p.life-=dt*1.3; p.r+=6*dt; if(p.life<=0) trail.splice(i,1); }
+  if(!trail.length) return;
+  ctx.save();
+  ctx.globalCompositeOperation='lighter';
+  trail.forEach(p=>{
+    const a=Math.max(0,p.life)*0.22;
+    const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+    g.addColorStop(0,'rgba(220,245,255,'+a.toFixed(3)+')');
+    g.addColorStop(1,'rgba(220,245,255,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,6.28); ctx.fill();
+  });
+  ctx.restore();
+  // тонкая струйка, соединяющая точки следа
+  ctx.save(); ctx.strokeStyle='rgba(235,250,255,0.22)'; ctx.lineWidth=2; ctx.lineCap='round';
+  ctx.beginPath();
+  trail.forEach((p,i)=>{ i? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y); });
+  ctx.stroke(); ctx.restore();
+}
 
 // рост мальков: идёт у каждой рыбы аквариума, сытость ускоряет
 function growFish(dt){
@@ -871,7 +964,7 @@ function updateWorld(t,dt){
     s.phase+=dt*6;
     let tx=null,ty=null,best=1e9;
     // почти сытая рыбка за кормом не гонится — маленькая порция достаётся голодным
-    if(food.length && s.f.sat<0.97){ food.forEach(f=>{ const d=(f.x-s.x)**2+(f.y-s.y)**2; if(d<best){best=d; tx=f.x; ty=f.y;} }); }
+    if(food.length && s.f.sat<0.97 && s.eatCd<=0){ food.forEach(f=>{ const d=(f.x-s.x)**2+(f.y-s.y)**2; if(d<best){best=d; tx=f.x; ty=f.y;} }); }
     if(tx!=null && best<460*460){ // плывёт к корму
       const dx=tx-s.x, dy=ty-s.y, L=Math.hypot(dx,dy)||1;
       s.x+=dx/L*s.spd*2.1*dt; s.y+=dy/L*s.spd*2.1*dt; s.dir=dx<0?-1:1;
@@ -880,11 +973,58 @@ function updateWorld(t,dt){
         s.f.sat=Math.min(1, s.f.sat+feedFill());
         s.eatCd=EAT_CD; s.eat=1; sparkle(s.x,s.y);
       }
-    } else { // спокойное блуждание
-      s.x+=s.dir*s.spd*dt*0.5;
-      s.y+=Math.sin(t*1.3+s.phase)*8*dt;
+    } else { // блуждание согласно характеру вида
+      const top=H*0.24, bot=sandY-18, homeY=top+s.home*(bot-top);
+      switch(s.beh){
+        case 'dart':      // резкие рывки и смена направления по всему аквариуму
+          s.x+=s.dir*s.spd*dt;
+          s.y+=Math.sin(t*3.2+s.phase)*26*dt;
+          s.restCd-=dt; if(s.restCd<=0){ s.restCd=rr(0.8,2.6); if(Math.random()<0.35) s.dir*=-1; }
+          break;
+        case 'school':    // тянется к сородичам своего вида и держит строй
+          {
+            let cx=0, cy=0, n=0;
+            swimmers.forEach(o=>{ if(o!==s && o.f.lvl===s.f.lvl){ cx+=o.x; cy+=o.y; n++; } });
+            s.x+=s.dir*s.spd*dt*0.7;
+            if(n){ cx/=n; cy/=n;
+              s.x+=(cx-s.x)*0.25*dt; s.y+=(cy-s.y)*0.5*dt;
+              if(Math.abs(cx-s.x)>120) s.dir=cx>s.x?1:-1;
+            }
+            s.y+=Math.sin(t*1.8+s.phase)*10*dt;
+          }
+          break;
+        case 'hover':     // зависает на месте, покачиваясь
+          s.x+=Math.sin(t*0.6+s.phase)*10*dt;
+          s.y+=Math.sin(t*1.1+s.phase)*7*dt;
+          s.y+=(homeY-s.y)*0.6*dt;
+          break;
+        case 'bottom':    // рыскает у самого дна, иногда замирает
+          s.restCd-=dt;
+          if(s.restCd>0.6) s.x+=s.dir*s.spd*dt*0.8;
+          if(s.restCd<=0){ s.restCd=rr(1.5,4); if(Math.random()<0.5) s.dir*=-1; }
+          s.y+=(bot-4-s.y)*1.2*dt + Math.sin(t*2+s.phase)*3*dt;
+          break;
+        case 'glass':     // медленно ползёт по дну, почти не отрываясь
+          s.x+=s.dir*s.spd*dt*0.6;
+          s.y+=(bot-2-s.y)*1.5*dt;
+          break;
+        case 'drift':     // неспешный дрейф широкой синусоидой
+          s.x+=s.dir*s.spd*dt*0.6;
+          s.y+=Math.sin(t*0.5+s.phase)*14*dt;
+          s.y+=(homeY-s.y)*0.25*dt;
+          break;
+        case 'slow':      // величавое плавание, держится своей глубины
+          s.x+=s.dir*s.spd*dt*0.5;
+          s.y+=Math.sin(t*0.8+s.phase)*6*dt;
+          s.y+=(homeY-s.y)*0.35*dt;
+          break;
+        default:          // спокойное плавание
+          s.x+=s.dir*s.spd*dt*0.5;
+          s.y+=Math.sin(t*1.3+s.phase)*8*dt;
+          s.y+=(homeY-s.y)*0.2*dt;
+      }
       if(s.x>W*0.9){ s.dir=-1; } if(s.x<W*0.1){ s.dir=1; }
-      s.y=Math.max(H*0.24, Math.min(sandY-34, s.y));
+      s.y=Math.max(top, Math.min(bot, s.y));
     }
     if(s.eat>0) s.eat=Math.max(0,s.eat-dt*2);
     if(s.eatCd>0) s.eatCd-=dt;
@@ -901,8 +1041,12 @@ function updateWorld(t,dt){
       const a=swimmers[i], b=swimmers[j];
       const dx=b.x-a.x, dy=b.y-a.y;
       if(Math.abs(dx)>=MINX || Math.abs(dy)>=MINY) continue;
-      const py=(MINY-Math.abs(dy))*0.5*(dy<0?-1:1)*k;
-      a.y-=py; b.y+=py;
+      const floorA=(a.beh==='bottom'||a.beh==='glass'), floorB=(b.beh==='bottom'||b.beh==='glass');
+      if(!(floorA&&floorB)){ // две донные рыбы расходятся только по горизонтали
+        const py=(MINY-Math.abs(dy))*0.5*(dy<0?-1:1)*k;
+        if(!floorA) a.y-=py;
+        if(!floorB) b.y+=py;
+      }
       const px=(MINX-Math.abs(dx))*0.25*(dx<0?-1:1)*k;
       a.x-=px; b.x+=px;
       a.y=Math.max(H*0.24, Math.min(sandY-34, a.y));
@@ -1280,6 +1424,394 @@ function drawFish(g, sp, cx, cy, scale, dir, wag){
     g.fillStyle='rgba(255,140,120,0.3)'; g.beginPath(); g.ellipse(12,2,2.6,1.8,0,0,6.28); g.fill();
     g.strokeStyle=ink; g.lineWidth=2.2; g.beginPath(); g.arc(R-3,3,2.8,0.3,1.6); g.stroke();
   }
+  else if(S==='danio'){ // ── Данио/кардинал: узкое торпедовидное тело с продольными полосами ──
+    const bw=19,bh=7;
+    g.save(); g.translate(-bw+2,0); g.rotate(wag*0.4);
+    g.fillStyle=rgbaC(sp.c2,0.9);
+    g.beginPath(); g.moveTo(0,0); g.lineTo(-11,-8); g.quadraticCurveTo(-6,0,-11,8); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=rgbaC(sp.c2,0.85);
+    g.beginPath(); g.moveTo(-5,-bh+1); g.quadraticCurveTo(0,-bh-6,6,-bh+1); g.closePath(); g.fill(); stroke();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.clip();
+    g.fillStyle=rgbaC(sp.c2,0.85);                       // продольные полосы данио
+    [-3.4,0.4].forEach(y=>{ g.fillRect(-bw,y,bw*2,2.6); });
+    bellyLight(g,bw,bh); g.restore();
+    g.save(); g.translate(3,3); g.rotate(0.28+wag*0.2);
+    g.fillStyle=rgbaC(sp.c2,0.8); g.beginPath(); g.ellipse(0,0,4.6,2.4,0,0,6.28); g.fill();
+    g.strokeStyle=ink; g.lineWidth=1.8; g.stroke(); g.restore();
+    fishEye(g,11,-1.6,3.2,'#2E5E80');
+    g.strokeStyle=ink; g.lineWidth=2; g.beginPath(); g.arc(bw-1,1,1.8,-0.4,0.9); g.stroke();
+  }
+  else if(S==='tetra'){ // ── Тернеция/расбора: высокое ромбовидное тело ──
+    const bw=16,bh=13;
+    g.save(); g.translate(-bw+3,0); g.rotate(wag*0.34);
+    g.fillStyle=rgbaC(sp.c2,0.9);
+    g.beginPath(); g.moveTo(0,0); g.lineTo(-12,-10); g.quadraticCurveTo(-7,0,-12,10); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=rgbaC(sp.c2,0.9);
+    g.beginPath(); g.moveTo(-6,-bh+3); g.quadraticCurveTo(-1,-bh-8,5,-bh+2); g.closePath(); g.fill(); stroke();
+    g.beginPath(); g.moveTo(-4,bh-3); g.quadraticCurveTo(1,bh+8,7,bh-2); g.closePath(); g.fill(); stroke();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.moveTo(bw,0); g.quadraticCurveTo(bw*0.5,-bh,-bw*0.2,-bh*0.9);
+    g.quadraticCurveTo(-bw,-bh*0.3,-bw,0); g.quadraticCurveTo(-bw,bh*0.3,-bw*0.2,bh*0.9);
+    g.quadraticCurveTo(bw*0.5,bh,bw,0); g.closePath(); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(-1,0,bw,bh*0.95,0,0,6.28); g.clip();
+    g.fillStyle=rgbaC(sp.c2,0.55);
+    g.beginPath(); g.moveTo(-2,-bh); g.lineTo(4,-bh); g.lineTo(-3,bh); g.lineTo(-9,bh); g.closePath(); g.fill();
+    bellyLight(g,bw,bh); g.restore();
+    fishEye(g,9,-3.5,3.6,'#C46A2E');
+    g.strokeStyle=ink; g.lineWidth=2; g.beginPath(); g.arc(bw-2,1,2.2,-0.5,0.8); g.stroke();
+  }
+  else if(S==='barb'){ // ── Барбус: плотное тело с вертикальными «тигровыми» полосами ──
+    const bw=17,bh=13;
+    g.save(); g.translate(-bw+3,0); g.rotate(wag*0.34);
+    g.fillStyle=rgbaC(sp.c1,0.95);
+    g.beginPath(); g.moveTo(0,0); g.lineTo(-12,-10); g.quadraticCurveTo(-6,0,-12,10); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=rgbaC(sp.c2,0.9);
+    g.beginPath(); g.moveTo(-7,-bh+2); g.quadraticCurveTo(-1,-bh-9,6,-bh+1); g.closePath(); g.fill(); stroke();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.clip();
+    g.fillStyle=rgbaC(sp.c2,0.9);                        // четыре тигровых полосы
+    [[10,3],[2,3.4],[-6,3.4],[-13,3]].forEach(b=>{
+      g.beginPath(); g.moveTo(b[0]-b[1],-bh); g.quadraticCurveTo(b[0]-b[1]-2,0,b[0]-b[1],bh);
+      g.lineTo(b[0]+b[1],bh); g.quadraticCurveTo(b[0]+b[1]-2,0,b[0]+b[1],-bh); g.closePath(); g.fill(); });
+    bellyLight(g,bw,bh); g.restore();
+    g.save(); g.translate(2,4); g.rotate(0.3+wag*0.22);
+    g.fillStyle=rgbaC(sp.c1,0.9); g.beginPath(); g.ellipse(0,0,6,3.2,0,0,6.28); g.fill();
+    g.strokeStyle=ink; g.lineWidth=2; g.stroke(); g.restore();
+    fishEye(g,9.5,-3.5,3.6,'#B8531E');
+    g.strokeStyle=ink; g.lineWidth=2; g.beginPath(); g.arc(bw-1,1.5,2.2,-0.4,0.9); g.stroke();
+  }
+  else if(S==='sword'){ // ── Меченосец: длинный нижний луч хвоста ──
+    const bw=17,bh=9;
+    g.save(); g.translate(-bw+3,0); g.rotate(wag*0.32);
+    g.fillStyle=rgbaC(sp.c2,0.95);
+    g.beginPath(); g.moveTo(0,0); g.lineTo(-11,-8); g.quadraticCurveTo(-7,0,-11,6); g.closePath(); g.fill(); stroke();
+    g.beginPath(); g.moveTo(-4,2); g.lineTo(-24,10); g.lineTo(-9,6); g.closePath();   // «меч»
+    g.fillStyle=rgbaC(sp.c2,0.95); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=rgbaC(sp.c2,0.9);
+    g.beginPath(); g.moveTo(-6,-bh+2); g.quadraticCurveTo(0,-bh-7,7,-bh+1); g.closePath(); g.fill(); stroke();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.clip();
+    g.fillStyle=rgbaC(sp.c2,0.5); g.fillRect(-bw,-1.5,bw*2,3);
+    bellyLight(g,bw,bh); g.restore();
+    fishEye(g,9.5,-2.6,3.4,'#8A2E2E');
+    g.strokeStyle=ink; g.lineWidth=2; g.beginPath(); g.arc(bw-1,1,2,-0.4,0.9); g.stroke();
+  }
+  else if(S==='gourami'){ // ── Гурами: овальное тело и нитевидные брюшные усы ──
+    const bw=16,bh=12;
+    g.save(); g.translate(-bw+3,0); g.rotate(wag*0.3);
+    g.fillStyle=rgbaC(sp.c2,0.85);
+    g.beginPath(); g.moveTo(0,0); g.quadraticCurveTo(-8,-10,-14,-7); g.quadraticCurveTo(-10,0,-14,7);
+    g.quadraticCurveTo(-8,10,0,0); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=rgbaC(sp.c2,0.8);
+    g.beginPath(); g.moveTo(-8,-bh+3); g.quadraticCurveTo(-2,-bh-7,6,-bh+2); g.closePath(); g.fill(); stroke();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.clip();
+    g.fillStyle='rgba(255,255,255,0.45)';                // жемчужный крап
+    for(let i=0;i<14;i++){ const a=i*2.4; g.beginPath(); g.arc(Math.cos(a)*bw*0.6, Math.sin(a*1.7)*bh*0.6, 1.4, 0, 6.28); g.fill(); }
+    bellyLight(g,bw,bh); g.restore();
+    g.strokeStyle=ink; g.lineWidth=1.8; g.lineCap='round'; // нитевидные брюшные плавники
+    g.beginPath(); g.moveTo(2,bh-2); g.quadraticCurveTo(-4+wag*3,bh+9,-12+wag*4,bh+13); g.stroke();
+    g.beginPath(); g.moveTo(4,bh-3); g.quadraticCurveTo(-1+wag*3,bh+7,-8+wag*4,bh+11); g.stroke();
+    fishEye(g,9,-3.6,3.6,'#8A6E3E');
+    g.strokeStyle=ink; g.lineWidth=2; g.beginPath(); g.arc(bw-2,1,2,-0.4,0.9); g.stroke();
+  }
+  else if(S==='betta'){ // ── Петушок: пышные вуалевые плавники ──
+    const bw=13,bh=10;
+    g.save(); g.translate(-bw+2,0); g.rotate(wag*0.26);
+    const tg=g.createLinearGradient(0,0,-22,0);
+    tg.addColorStop(0,sp.c1); tg.addColorStop(1,rgbaC(sp.c2,0.85));
+    g.fillStyle=tg;
+    g.beginPath(); g.moveTo(0,0);
+    g.bezierCurveTo(-10,-18,-22,-14,-24,-4);
+    g.bezierCurveTo(-26,6,-16,18,-2,7); g.closePath(); g.fill(); stroke();
+    finRays(g,0,0,[[-18,-12],[-22,-4],[-16,8]],0.3);
+    g.restore();
+    g.fillStyle=rgbaC(sp.c2,0.9);                        // высокий спинной парус
+    g.beginPath(); g.moveTo(-8,-bh+2); g.bezierCurveTo(-6,-bh-14,6,-bh-16,10,-bh+2); g.closePath(); g.fill(); stroke();
+    g.beginPath(); g.moveTo(-6,bh-2); g.bezierCurveTo(-4,bh+13,6,bh+14,9,bh-2); g.closePath(); g.fill(); stroke();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.clip(); bellyLight(g,bw,bh); g.restore();
+    fishEye(g,7.5,-3,3.6,'#3A2E5E');
+    g.strokeStyle=ink; g.lineWidth=2; g.beginPath(); g.arc(bw-1,1.5,2,-0.5,0.8); g.stroke();
+  }
+  else if(S==='cory'){ // ── Коридорас: приплюснутый донный сомик с крапом ──
+    const bw=17,bh=10;
+    g.save(); g.translate(-bw+3,1); g.rotate(wag*0.3);
+    g.fillStyle=rgbaC(sp.c2,0.9);
+    g.beginPath(); g.moveTo(0,0); g.lineTo(-11,-8); g.quadraticCurveTo(-6,0,-11,7); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=rgbaC(sp.c2,0.95);                        // высокий треугольный спинной
+    g.beginPath(); g.moveTo(-6,-bh+3); g.lineTo(1,-bh-8); g.lineTo(7,-bh+2); g.closePath(); g.fill(); stroke();
+    const body=()=>{ g.beginPath();
+      g.moveTo(bw,2); g.quadraticCurveTo(bw*0.6,-bh+1,0,-bh+1);
+      g.quadraticCurveTo(-bw*0.8,-bh+3,-bw+2,3);
+      g.quadraticCurveTo(-bw*0.3,bh-1,bw*0.5,bh-2); g.quadraticCurveTo(bw*0.9,bh-3,bw,2); g.closePath(); };
+    g.fillStyle=bodyGrad(g,sp.c1,bh); body(); g.fill(); stroke();
+    g.save(); body(); g.clip();
+    g.fillStyle='rgba(60,45,30,0.45)';
+    [[-11,-3],[-4,-5],[3,-3],[10,-1],[-8,2],[0,1],[7,3]].forEach(pt=>{ g.beginPath(); g.ellipse(pt[0],pt[1],2.2,1.7,0.3,0,6.28); g.fill(); });
+    g.restore();
+    g.strokeStyle=ink; g.lineWidth=1.8; g.lineCap='round'; // усики
+    g.beginPath(); g.moveTo(bw-3,3); g.quadraticCurveTo(bw+4,6,bw+8,4); g.stroke();
+    g.beginPath(); g.moveTo(bw-4,5); g.quadraticCurveTo(bw+3,9,bw+7,8); g.stroke();
+    g.save(); g.translate(3,6); g.rotate(0.4+wag*0.2);
+    g.fillStyle=rgbaC(sp.c2,0.9); g.beginPath(); g.ellipse(0,0,6.5,3,0,0,6.28); g.fill();
+    g.strokeStyle=ink; g.lineWidth=2; g.stroke(); g.restore();
+    fishEye(g,10,-4,3.2,'#5E4A2E');
+  }
+  else if(S==='pleco'){ // ── Анциструс: присоска, костные пластины, огромный спинной ──
+    const bw=20,bh=9;
+    g.save(); g.translate(-bw+3,0); g.rotate(wag*0.26);
+    g.fillStyle=rgbaC(sp.c2,0.85);
+    g.beginPath(); g.moveTo(0,0); g.lineTo(-12,-9); g.quadraticCurveTo(-7,0,-12,8); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=rgbaC(sp.c2,0.9);                         // веерный спинной парус
+    g.beginPath(); g.moveTo(-8,-bh+3); g.quadraticCurveTo(-2,-bh-13,10,-bh+1); g.closePath(); g.fill(); stroke();
+    const body=()=>{ g.beginPath();
+      g.moveTo(bw+2,1); g.quadraticCurveTo(bw*0.6,-bh,0,-bh);
+      g.quadraticCurveTo(-bw*0.8,-bh+2,-bw+2,2);
+      g.quadraticCurveTo(-bw*0.3,bh-1,bw*0.6,bh-2); g.quadraticCurveTo(bw,bh-3,bw+2,1); g.closePath(); };
+    g.fillStyle=bodyGrad(g,sp.c1,bh); body(); g.fill(); stroke();
+    g.save(); body(); g.clip();
+    g.strokeStyle='rgba(30,25,20,0.35)'; g.lineWidth=1.4;  // костные пластины
+    for(let x=-bw;x<bw;x+=5){ g.beginPath(); g.moveTo(x,-bh); g.lineTo(x-2,bh); g.stroke(); }
+    g.fillStyle='rgba(255,255,255,0.28)';
+    for(let i=0;i<10;i++){ g.beginPath(); g.arc(-bw+i*4.2, -3+((i%3)-1)*3, 1.1, 0, 6.28); g.fill(); }
+    g.restore();
+    g.fillStyle=shade(sp.c1,-0.2);                        // присоска-рот
+    g.beginPath(); g.ellipse(bw+1,3,4.5,3.4,0,0,6.28); g.fill(); stroke();
+    g.strokeStyle=ink; g.lineWidth=1.6;                   // «усы» бристленоза
+    [[-1,-1],[0,1],[1,3]].forEach(o=>{ g.beginPath(); g.moveTo(bw+3,2+o[1]); g.quadraticCurveTo(bw+8,o[1],bw+11,o[1]-1); g.stroke(); });
+    fishEye(g,10,-4,3,'#3E3A2E');
+  }
+  else if(S==='loach'){ // ── Боция-клоун: вытянутое тело с тремя широкими полосами ──
+    const bw=20,bh=8;
+    g.save(); g.translate(-bw+3,0); g.rotate(wag*0.36);
+    g.fillStyle=rgbaC(sp.c1,0.95);
+    g.beginPath(); g.moveTo(0,0); g.lineTo(-13,-9); g.quadraticCurveTo(-7,0,-13,9); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=rgbaC(sp.c1,0.95);
+    g.beginPath(); g.moveTo(-5,-bh+2); g.quadraticCurveTo(1,-bh-7,8,-bh+1); g.closePath(); g.fill(); stroke();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.clip();
+    g.fillStyle=rgbaC(sp.c2,0.92);                        // три чёрные перевязи
+    [[11,3.6],[0,4],[-12,3.6]].forEach(b=>{
+      g.beginPath(); g.moveTo(b[0]-b[1],-bh); g.quadraticCurveTo(b[0]-b[1]-2,0,b[0]-b[1],bh);
+      g.lineTo(b[0]+b[1],bh); g.quadraticCurveTo(b[0]+b[1]-2,0,b[0]+b[1],-bh); g.closePath(); g.fill(); });
+    bellyLight(g,bw,bh); g.restore();
+    g.strokeStyle=ink; g.lineWidth=1.7;
+    g.beginPath(); g.moveTo(bw-2,2); g.quadraticCurveTo(bw+5,4,bw+9,2); g.stroke();
+    fishEye(g,11,-2.6,3.2,'#C4622E');
+  }
+  else if(S==='cichlid'){ // ── Апистограмма: яркая карликовая цихлида с лучистым парусом ──
+    const bw=15,bh=11;
+    g.save(); g.translate(-bw+3,0); g.rotate(wag*0.3);
+    g.fillStyle=rgbaC(sp.c2,0.9);
+    g.beginPath(); g.moveTo(0,0); g.quadraticCurveTo(-9,-11,-15,-9); g.quadraticCurveTo(-11,0,-15,9);
+    g.quadraticCurveTo(-9,11,0,0); g.closePath(); g.fill(); stroke();
+    finRays(g,0,0,[[-12,-7],[-14,0],[-12,7]],0.28);
+    g.restore();
+    g.fillStyle=rgbaC(sp.c2,0.95);                        // зубчатый спинной
+    g.beginPath(); g.moveTo(-8,-bh+2);
+    for(let i=0;i<5;i++){ g.lineTo(-8+i*4, -bh-6-((i%2)?2:6)); g.lineTo(-6+i*4, -bh+1); }
+    g.lineTo(9,-bh+2); g.closePath(); g.fill(); stroke();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.clip();
+    g.fillStyle=rgbaC(sp.c2,0.5); g.fillRect(-bw,-1.4,bw*2,2.8);   // продольная линия
+    g.fillStyle='rgba(40,60,90,0.5)'; g.beginPath(); g.arc(-4,0,3.4,0,6.28); g.fill();
+    bellyLight(g,bw,bh); g.restore();
+    fishEye(g,8.5,-3.4,3.6,'#2E5E8A');
+    g.strokeStyle=ink; g.lineWidth=2; g.beginPath(); g.arc(bw-1,1.4,2,-0.4,0.9); g.stroke();
+  }
+  else if(S==='discus'){ // ── Дискус: почти круглый диск с волнистым узором ──
+    const R=16;
+    g.save(); g.translate(-R+2,0); g.rotate(wag*0.26);
+    g.fillStyle=rgbaC(sp.c2,0.85);
+    g.beginPath(); g.moveTo(2,-6); g.quadraticCurveTo(-9,-8,-11,0); g.quadraticCurveTo(-9,8,2,6); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=bodyGrad(g,sp.c1,R);
+    g.beginPath(); g.ellipse(0,0,R,R*0.98,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(0,0,R,R*0.98,0,0,6.28); g.clip();
+    g.strokeStyle=rgbaC(sp.c2,0.8); g.lineWidth=2.6;      // вертикальные волнистые полосы
+    for(let i=-2;i<=2;i++){
+      g.beginPath(); g.moveTo(i*6.5,-R);
+      g.quadraticCurveTo(i*6.5+4,0,i*6.5,R); g.stroke();
+    }
+    bellyLight(g,R,R*0.9); g.restore();
+    g.fillStyle=rgbaC(sp.c2,0.55);                        // мягкие плавниковые каймы
+    g.beginPath(); g.ellipse(0,0,R,R*0.98,0,0,6.28); g.stroke();
+    fishEye(g,10,-5,4,'#C43A2E');
+    g.strokeStyle=ink; g.lineWidth=2.2; g.beginPath(); g.arc(R-2,1,2.4,-0.5,0.8); g.stroke();
+  }
+  else if(S==='parrot'){ // ── Цихлида-попугай: пухлое тело и клювовидный рот ──
+    const bw=18,bh=15;
+    g.save(); g.translate(-bw+3,0); g.rotate(wag*0.3);
+    g.fillStyle=rgbaC(sp.c1,0.95);
+    g.beginPath(); g.moveTo(0,0); g.quadraticCurveTo(-8,-11,-15,-8); g.quadraticCurveTo(-11,0,-15,8);
+    g.quadraticCurveTo(-8,11,0,0); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.clip();
+    g.fillStyle='rgba(255,255,255,0.2)';
+    g.beginPath(); g.ellipse(-2,-bh*0.5,bw*0.7,bh*0.3,0,0,6.28); g.fill();
+    bellyLight(g,bw,bh); g.restore();
+    g.save(); g.translate(3,5); g.rotate(0.32+wag*0.22);
+    g.fillStyle=rgbaC(sp.c2,0.9); g.beginPath(); g.ellipse(0,0,7,4,0,0,6.28); g.fill();
+    g.strokeStyle=ink; g.lineWidth=2.2; g.stroke(); g.restore();
+    g.fillStyle=shade(sp.c1,-0.15);                        // клювовидный рот
+    g.beginPath(); g.moveTo(bw-2,0); g.quadraticCurveTo(bw+5,2,bw-1,5); g.closePath(); g.fill(); stroke();
+    fishEye(g,10,-4.5,4,'#8A2E1E');
+  }
+  else if(S==='oscar'){ // ── Оскар: крупная овальная цихлида с мраморным узором ──
+    const bw=21,bh=15;
+    g.save(); g.translate(-bw+4,0); g.rotate(wag*0.28);
+    g.fillStyle=rgbaC(sp.c1,0.95);
+    g.beginPath(); g.moveTo(0,0); g.quadraticCurveTo(-9,-12,-16,-9); g.quadraticCurveTo(-12,0,-16,9);
+    g.quadraticCurveTo(-9,12,0,0); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=rgbaC(sp.c1,0.95);
+    g.beginPath(); g.moveTo(-12,-bh+3); g.quadraticCurveTo(-2,-bh-7,10,-bh+2); g.quadraticCurveTo(0,-bh+1,-12,-bh+3); g.closePath(); g.fill(); stroke();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.clip();
+    g.fillStyle=rgbaC(sp.c2,0.85);                         // мраморные разводы
+    [[-12,2,7,5],[-2,-4,6,4],[6,4,7,5],[13,-3,5,4]].forEach(o=>{
+      g.beginPath(); g.ellipse(o[0],o[1],o[2],o[3],0.4,0,6.28); g.fill(); });
+    bellyLight(g,bw,bh); g.restore();
+    g.fillStyle=rgbaC(sp.c2,0.95);                         // «глазок» у хвоста
+    g.beginPath(); g.arc(-bw*0.7,0,4,0,6.28); g.fill(); stroke();
+    fishEye(g,11,-5,4.2,'#3E2A1E');
+    g.strokeStyle=ink; g.lineWidth=2.2; g.beginPath(); g.arc(bw-2,2,2.6,-0.4,0.9); g.stroke();
+  }
+  else if(S==='butterfly'){ // ── Рыба-бабочка: высокий диск, вытянутое рыло, тёмная маска ──
+    const bw=15,bh=15;
+    g.save(); g.translate(-bw+2,0); g.rotate(wag*0.28);
+    g.fillStyle=rgbaC(sp.c1,0.9);
+    g.beginPath(); g.moveTo(2,-6); g.lineTo(-10,-9); g.quadraticCurveTo(-6,0,-10,9); g.lineTo(2,6); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=rgbaC(sp.c1,0.95);
+    g.beginPath(); g.moveTo(-10,-bh+4); g.quadraticCurveTo(-2,-bh-6,8,-bh+3); g.closePath(); g.fill(); stroke();
+    g.beginPath(); g.moveTo(-9,bh-4); g.quadraticCurveTo(-1,bh+6,8,bh-3); g.closePath(); g.fill(); stroke();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(-1,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(-1,0,bw,bh,0,0,6.28); g.clip();
+    g.strokeStyle=rgbaC(sp.c2,0.5); g.lineWidth=1.6;      // диагональная штриховка
+    for(let i=-4;i<=4;i++){ g.beginPath(); g.moveTo(-bw+i*4,-bh); g.lineTo(-bw+i*4+10,bh); g.stroke(); }
+    g.fillStyle=rgbaC(sp.c2,0.9);                          // тёмная маска через глаз
+    g.beginPath(); g.moveTo(6,-bh); g.lineTo(12,-bh); g.lineTo(9,bh*0.2); g.lineTo(3,bh*0.2); g.closePath(); g.fill();
+    bellyLight(g,bw,bh); g.restore();
+    g.fillStyle=bodyGrad(g,sp.c1,6);                       // вытянутое рыло
+    g.beginPath(); g.moveTo(bw-4,-1); g.lineTo(bw+7,2); g.lineTo(bw-4,5); g.closePath(); g.fill(); stroke();
+    fishEye(g,9,-4.6,3.4,'#F2E2B0');
+  }
+  else if(S==='idol'){ // ── Мавританский идол: длинный спинной вымпел ──
+    const bw=13,bh=15;
+    g.save(); g.translate(-bw+2,0); g.rotate(wag*0.28);
+    g.fillStyle=rgbaC(sp.c2,0.9);
+    g.beginPath(); g.moveTo(2,-5); g.lineTo(-9,-8); g.quadraticCurveTo(-6,0,-9,8); g.lineTo(2,5); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.strokeStyle=rgbaC(sp.c1,0.95); g.lineWidth=5; g.lineCap='round';  // вымпел
+    g.beginPath(); g.moveTo(2,-bh+3); g.quadraticCurveTo(10+wag*3,-bh-16,22+wag*6,-bh-24); g.stroke();
+    g.strokeStyle=ink; g.lineWidth=1.6;
+    g.beginPath(); g.moveTo(2,-bh+3); g.quadraticCurveTo(10+wag*3,-bh-16,22+wag*6,-bh-24); g.stroke();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(-1,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(-1,0,bw,bh,0,0,6.28); g.clip();
+    g.fillStyle=rgbaC(sp.c2,0.92);                         // две широкие чёрные перевязи
+    [[-9,4.5],[5,4.5]].forEach(b=>{ g.fillRect(b[0]-b[1],-bh,b[1]*2,bh*2); });
+    g.fillStyle='#F2C14E'; g.fillRect(10,-bh*0.35,6,bh*0.7);
+    bellyLight(g,bw,bh); g.restore();
+    g.fillStyle=bodyGrad(g,sp.c1,5);
+    g.beginPath(); g.moveTo(bw-4,0); g.lineTo(bw+6,3); g.lineTo(bw-4,6); g.closePath(); g.fill(); stroke();
+    fishEye(g,7,-5,3.4,'#3E3A2E');
+  }
+  else if(S==='emperor'){ // ── Императорский ангел: синее тело в жёлтую полоску ──
+    const bw=17,bh=15;
+    g.save(); g.translate(-bw+3,0); g.rotate(wag*0.28);
+    g.fillStyle=rgbaC(sp.c2,0.95);
+    g.beginPath(); g.moveTo(1,-6); g.lineTo(-11,-9); g.quadraticCurveTo(-7,0,-11,9); g.lineTo(1,6); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=rgbaC(sp.c1,0.95);
+    g.beginPath(); g.moveTo(-11,-bh+3); g.quadraticCurveTo(-2,-bh-8,9,-bh+2); g.closePath(); g.fill(); stroke();
+    g.beginPath(); g.moveTo(-10,bh-3); g.quadraticCurveTo(-1,bh+8,9,bh-2); g.closePath(); g.fill(); stroke();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.clip();
+    g.strokeStyle=rgbaC(sp.c2,0.9); g.lineWidth=2.4;      // жёлтые продольные полосы
+    for(let i=-4;i<=4;i++){ g.beginPath(); g.moveTo(-bw,i*3.2); g.quadraticCurveTo(0,i*3.2-2,bw,i*3.2+1); g.stroke(); }
+    g.fillStyle='rgba(20,30,60,0.85)';                     // тёмная маска
+    g.beginPath(); g.moveTo(7,-bh); g.lineTo(14,-bh); g.lineTo(12,bh*0.1); g.lineTo(5,bh*0.1); g.closePath(); g.fill();
+    bellyLight(g,bw,bh); g.restore();
+    fishEye(g,10,-4.6,3.6,'#F2E2B0');
+    g.strokeStyle=ink; g.lineWidth=2; g.beginPath(); g.arc(bw-2,2,2.2,-0.4,0.9); g.stroke();
+  }
+  else if(S==='trigger'){ // ── Спинорог: ромбовидное тело и колючка на спине ──
+    const bw=18,bh=13;
+    g.save(); g.translate(-bw+3,0); g.rotate(wag*0.3);
+    g.fillStyle=rgbaC(sp.c1,0.95);
+    g.beginPath(); g.moveTo(1,-6); g.lineTo(-12,-10); g.quadraticCurveTo(-8,0,-12,10); g.lineTo(1,6); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.strokeStyle=ink; g.lineWidth=2.6;                     // спинная колючка-курок
+    g.beginPath(); g.moveTo(4,-bh+1); g.lineTo(6,-bh-9); g.stroke();
+    g.fillStyle=rgbaC(sp.c2,0.9);
+    g.beginPath(); g.moveTo(-9,-bh+3); g.quadraticCurveTo(0,-bh-4,9,-bh+2); g.closePath(); g.fill(); stroke();
+    g.beginPath(); g.moveTo(-9,bh-3); g.quadraticCurveTo(0,bh+4,9,bh-2); g.closePath(); g.fill(); stroke();
+    const body=()=>{ g.beginPath();
+      g.moveTo(bw,0); g.quadraticCurveTo(bw*0.55,-bh,-bw*0.15,-bh*0.95);
+      g.quadraticCurveTo(-bw*0.9,-bh*0.35,-bw,0);
+      g.quadraticCurveTo(-bw*0.9,bh*0.35,-bw*0.15,bh*0.95);
+      g.quadraticCurveTo(bw*0.55,bh,bw,0); g.closePath(); };
+    g.fillStyle=bodyGrad(g,sp.c1,bh); body(); g.fill(); stroke();
+    g.save(); body(); g.clip();
+    g.fillStyle=rgbaC(sp.c2,0.55);
+    for(let i=0;i<18;i++){ const a=i*1.9; g.beginPath(); g.arc(Math.cos(a)*bw*0.55, Math.sin(a*1.3)*bh*0.6, 1.8, 0, 6.28); g.fill(); }
+    bellyLight(g,bw,bh); g.restore();
+    fishEye(g,10,-5,3.6,'#2E4A3E');
+    g.strokeStyle=ink; g.lineWidth=2; g.beginPath(); g.arc(bw-2,1,2.2,-0.4,0.9); g.stroke();
+  }
+  else if(S==='lion'){ // ── Крылатка: веер ядовитых лучей вокруг полосатого тела ──
+    const bw=15,bh=10;
+    g.save(); g.strokeStyle=rgbaC(sp.c2,0.95); g.lineWidth=2.6; g.lineCap='round';
+    for(let i=0;i<7;i++){                                   // спинные лучи
+      const a=-1.9+i*0.28, L=20+((i%2)?6:0);
+      g.beginPath(); g.moveTo(-2+i*2.5,-bh+2);
+      g.quadraticCurveTo(-4+i*2.5+Math.cos(a)*L*0.5, -bh-L*0.5+wag*2, -2+i*2.5+Math.cos(a)*L*0.4, -bh-L);
+      g.stroke();
+    }
+    for(let i=0;i<5;i++){                                   // грудные лучи
+      const L=16+((i%2)?5:0);
+      g.beginPath(); g.moveTo(2,bh-2);
+      g.quadraticCurveTo(-2+i*3, bh+L*0.5, -6+i*4+wag*3, bh+L);
+      g.stroke();
+    }
+    g.restore();
+    g.save(); g.translate(-bw+2,0); g.rotate(wag*0.28);
+    g.fillStyle=rgbaC(sp.c2,0.9);
+    g.beginPath(); g.moveTo(0,0); g.lineTo(-11,-8); g.quadraticCurveTo(-7,0,-11,8); g.closePath(); g.fill(); stroke();
+    g.restore();
+    g.fillStyle=bodyGrad(g,sp.c1,bh);
+    g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.fill(); stroke();
+    g.save(); g.beginPath(); g.ellipse(0,0,bw,bh,0,0,6.28); g.clip();
+    g.fillStyle=rgbaC(sp.c2,0.9);                           // красно-белые перевязи
+    [[9,2.4],[3,2.4],[-3,2.4],[-9,2.4]].forEach(b=>{ g.fillRect(b[0]-b[1],-bh,b[1]*2,bh*2); });
+    bellyLight(g,bw,bh); g.restore();
+    fishEye(g,8.5,-3.4,3.4,'#F2C14E');
+    g.strokeStyle=ink; g.lineWidth=2; g.beginPath(); g.arc(bw-1,1,2,-0.4,0.9); g.stroke();
+  }
   else { // запасной силуэт (на случай нового вида без модели)
     g.fillStyle=bodyGrad(g,sp.c1,14);
     g.beginPath(); g.ellipse(0,0,20,13,0,0,6.28); g.fill(); stroke();
@@ -1309,8 +1841,10 @@ function drawSwimmers(t){
     ctx.restore();
     // над рыбкой — только компактная шкала (у малька рост, у взрослой сытость), без имени
     const adult=grown(f), sated=isSated(f);
-    const bw2=Math.max(26, 46*gscale), bh2=6, ny=s.y-30*gscale-10;
     const val=adult? f.sat : f.g;
+    // у взрослой ненакормленной рыбы шкалу не показываем — аквариум остаётся чистым
+    if(adult && val<0.02 && !dragSw) return;
+    const bw2=Math.max(26, 46*gscale), bh2=6, ny=s.y-30*gscale-10;
     ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillStyle='rgba(16,34,50,0.5)';
     roundRect(ctx, s.x-bw2/2, ny, bw2, bh2, 3); ctx.fill();
@@ -1370,6 +1904,7 @@ function frame(now){
   updateWorld(tSec,dt);
   drawSwimmers(tSec);
   drawFood();
+  drawTrail(dt);
   drawPopups();
   drawBubbles(tSec,dt);
   drawCrab(tSec,dt);
@@ -1429,6 +1964,7 @@ window.render_game_to_text = () => JSON.stringify({
   feed:S.feed, aer:S.aer, plant:S.plant,
   tapGain:tapGain(), best:S.best, x2:x2On(), multi:multiOn(),
   fishCost:fishCost(), foodCost:foodCost(), feedFill:feedFill(),
+  levels:LEVELS.length, musVol:S.musVol, sfxVol:S.sfxVol,
   shopLevels:LEVELS.map((lv,i)=>({lvl:i, open:unlocked(i), cost:fishCostAt(i)})),
   tank:S.tank.map(f=>({lvl:f.lvl, g:Math.round(f.g*1000)/1000, sat:Math.round(f.sat*1000)/1000})),
   grownCount:S.tank.filter(grown).length,
@@ -1452,6 +1988,8 @@ window.__mergeFirstPair = () => {
   return false;
 };
 window.__skipTut = () => tutAdvance(3);
+window.__setVolumes = (mus,sfxv) => { S.musVol=mus; S.sfxVol=sfxv; applyVolumes(); persist(true); };
+window.__behOf = lvl => LV(lvl).beh;
 
 // ---------- Boot ----------
 function boot(raw){
@@ -1466,13 +2004,21 @@ function boot(raw){
   $("x2Btn").onclick    = claimX2;
   $("fishBtn").onclick  = ()=>openModal('fish');
   $("upBtn").onclick    = ()=>openModal('up');
-  $("collBtn").onclick  = ()=>openModal('coll');
-  $("langBtn").onclick  = toggleLang;
+  $("setBtn").onclick   = openSettings;
+  $("sClose").onclick   = closeSettings;
+  $("settings").addEventListener('pointerdown', e=>{ if(e.target.id==='settings') closeSettings(); });
+  $("musVol").oninput = e=>{ S.musVol=e.target.value/100; applyVolumes(); $("musVal").textContent=e.target.value+"%"; };
+  $("sfxVol").oninput = e=>{ S.sfxVol=e.target.value/100; applyVolumes(); $("sfxVal").textContent=e.target.value+"%"; };
+  $("musVol").onchange = ()=>persist(true);
+  $("sfxVol").onchange = ()=>{ persist(true); sfx("tap"); };
+  $("langRu").onclick   = ()=>setLang('ru');
+  $("langEn").onclick   = ()=>setLang('en');
+  applyVolumes();
   $("mClose").onclick   = closeModal;
   $("modal").addEventListener('pointerdown', e=>{ if(e.target.id==='modal') closeModal(); });
   // ввод: короткий тап по рыбке = доход, перетаскивание = слияние, тап по воде = рябь
   cv.addEventListener('pointerdown', onDown);
-  cv.addEventListener('pointermove', onMove);
+  cv.addEventListener('pointermove', e=>{ addTrail(e.clientX, e.clientY); onMove(e); });
   cv.addEventListener('pointerup', onUp);
   cv.addEventListener('pointercancel', ()=>{ dragSw=null; });
   checkDaily();
