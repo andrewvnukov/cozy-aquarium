@@ -274,7 +274,7 @@ const priceMult = () => Math.max(0.5, 1 - 0.05*S.plant);
 const fishCostAt = lvl => Math.max(1, Math.floor(30 * Math.pow(3.2, lvl) * Math.pow(1.6, Math.max(0,S.bought-1)) * priceMult()));
 const fishCost  = () => fishCostAt(0);
 const unlocked  = lvl => S.seen.includes(lvl);   // открытые виды доступны в магазине
-const foodCost  = () => Math.max(8, Math.ceil(tapBase()*2.5));
+const foodCost  = () => Math.max(3, Math.ceil(tapBase()*0.85));
 const feedCost  = () => Math.floor(150 * Math.pow(1.7, S.feed));
 const aerCost   = () => Math.floor(400 * Math.pow(1.8, S.aer));
 const plantCost = () => Math.floor(600 * Math.pow(1.9, S.plant));
@@ -431,7 +431,8 @@ function doFeed(){
   const c=foodCost();
   if(S.coins<c){ toast(T("need")); sfx("error"); return false; }
   S.coins-=c;
-  spawnFood(Math.min(6+S.tank.length*2, 22));
+  // порция втрое меньше прежней, но каждой рыбе достаётся хотя бы по хлопику
+  spawnFood(Math.min(Math.max(S.tank.length, Math.round((6+S.tank.length*2)/3)), 12));
   refreshHud(); persist(true); sfx("tap");
   return true;
 }
@@ -869,7 +870,8 @@ function updateWorld(t,dt){
     if(s===dragSw) return; // перетаскиваемую ведёт палец
     s.phase+=dt*6;
     let tx=null,ty=null,best=1e9;
-    if(food.length){ food.forEach(f=>{ const d=(f.x-s.x)**2+(f.y-s.y)**2; if(d<best){best=d; tx=f.x; ty=f.y;} }); }
+    // почти сытая рыбка за кормом не гонится — маленькая порция достаётся голодным
+    if(food.length && s.f.sat<0.97){ food.forEach(f=>{ const d=(f.x-s.x)**2+(f.y-s.y)**2; if(d<best){best=d; tx=f.x; ty=f.y;} }); }
     if(tx!=null && best<460*460){ // плывёт к корму
       const dx=tx-s.x, dy=ty-s.y, L=Math.hypot(dx,dy)||1;
       s.x+=dx/L*s.spd*2.1*dt; s.y+=dy/L*s.spd*2.1*dt; s.dir=dx<0?-1:1;
