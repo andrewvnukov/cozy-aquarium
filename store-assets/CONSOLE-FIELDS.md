@@ -127,14 +127,14 @@ Upgrade the tank: rich food is more filling, the aerator raises background incom
 A living underwater world — light rays, plants, corals, a jellyfish and a crab on the sand — keeps things calm and cheerful.
 ```
 
-### Как играть (1006/1000)
+### Как играть (991/1000)
 
 ```
 1. Tap a fish — it pays out pearls. Tapping empty water gives nothing, just a ripple.
 
 2. Press "Buy fry" to add a fry; the shop sells every unlocked species. A fry is smaller than an adult and shows a blue growth bar: the first species grows in about five seconds, later ones take longer. Each species swims differently: some dart, some school, some potter along the bottom.
 
-3. When two fish of the same species are grown, press and drag one onto the other — a valid target lights up. Release to merge them into a fry of the next species, which then unlocks in the shop.
+3. When two fish of the same species are grown, drag one onto the other — a valid target lights up. Release to merge them into a fry of the next species, which unlocks in the shop.
 
 4. "Feed" drops food: the flakes sink and fish eat unhurriedly. Once the green bar reaches the golden mark the fish is full — double pearls per tap and faster growth. Satiety slowly fades.
 
