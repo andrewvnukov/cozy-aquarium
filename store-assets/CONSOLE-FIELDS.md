@@ -73,16 +73,16 @@
 Живой подводный мир — лучи света, водоросли, кораллы, медуза и краб на дне — успокаивает и радует.
 ```
 
-### Как играть (1087/1000)
+### Как играть (1020/1000)
 
 ```
 1. Тапайте по рыбке — за каждый тап она приносит жемчуг. Тап по пустой воде дохода не даёт, только рябь.
 
 2. Нажмите «Купить», чтобы завести малька; в магазине доступны все открытые виды. Малёк меньше взрослой рыбы, над ним голубая шкала роста: первый вид растёт около пяти секунд, старшие — дольше. У каждого вида свой характер: одни носятся, другие держатся стайкой, третьи копошатся у дна.
 
-3. Когда две рыбки одного уровня выросли, зажмите одну и перетащите на вторую — цель подсветится кругом. Отпустите: рыбки объединятся в малька следующего уровня, а новый вид попадёт в коллекцию и в магазин.
+3. Когда две рыбки одного вида выросли, зажмите одну и перетащите на вторую — цель подсветится кругом. Отпустите: получится малёк следующего вида, а сам вид откроется в магазине.
 
-4. Нажмите «Покормить», чтобы бросить корм. Хлопья тонут, рыбки подплывают и едят их не спеша. Когда зелёная шкала дойдёт до золотой риски, рыбка станет сытой: она платит вдвое больше за тап и растёт быстрее. Сытость постепенно тает.
+4. «Покормить» бросает корм: хлопья тонут, рыбки едят их не спеша. Когда зелёная шкала дойдёт до золотой риски, рыбка сыта — платит вдвое больше за тап и растёт быстрее. Сытость постепенно тает.
 
 5. «Мульти-тап» после видео на две минуты собирает жемчуг со всех рыбок любым тапом, «Доход ×2» удваивает фоновый доход на пять минут.
 
@@ -127,16 +127,16 @@ Upgrade the tank: rich food is more filling, the aerator raises background incom
 A living underwater world — light rays, plants, corals, a jellyfish and a crab on the sand — keeps things calm and cheerful.
 ```
 
-### Как играть (1064/1000)
+### Как играть (1029/1000)
 
 ```
 1. Tap a fish — every tap pays out pearls. Tapping empty water gives nothing, just a ripple.
 
 2. Press "Buy fry" to add a fry; the shop sells every unlocked species. A fry is smaller than an adult and shows a blue growth bar: the first species grows in about five seconds, later ones take longer. Each species swims differently: some dart, some school, some potter along the bottom.
 
-3. When two fish of the same level are grown up, press and drag one onto the other — a valid target lights up with a ring. Release to merge them into a fry of the next level and unlock a new species in your collection.
+3. When two fish of the same species are grown, press and drag one onto the other — a valid target lights up. Release to merge them into a fry of the next species, which then unlocks in the shop.
 
-4. Press "Feed" to drop food. The flakes sink and fish eat them unhurriedly. Once the green bar reaches the golden mark the fish is full: it pays double per tap and grows faster. Satiety slowly fades.
+4. "Feed" drops food: the flakes sink and fish eat unhurriedly. Once the green bar reaches the golden mark the fish is full — double pearls per tap and faster growth. Satiety slowly fades.
 
 5. "Multi-tap" after a video lets any tap collect from every fish for two minutes; "Income ×2" doubles background income for five minutes.
 
