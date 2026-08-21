@@ -22,9 +22,11 @@
 - **Мальки** покупаются за жемчуг; цена каждого следующего растёт (30 × 1.6ⁿ) — это основной
   сдерживающий фактор прогресса. Малёк меньше взрослой рыбы, у него голубая шкала роста; рыба первого
   уровня растёт 5 секунд, каждый следующий уровень — дольше (до ~170 c).
+- **Магазин**: уже открытые виды можно докупать за жемчуг (цена уровня × 3.2 за ступень), закрытые
+  показаны с замком — новые виды открываются только слиянием.
 - **Слияние**: выросшую рыбу можно перетащить пальцем на другую выросшую рыбу того же уровня —
   они объединяются в малька следующего уровня. Валидная цель подсвечивается кругом. Так открываются
-  все 9 видов: Пузырик → Персик → Нео → Пятныш → Уголёк → Небо → Уса → Королёк → Пуфик.
+  все 9 видов: гуппи → золотая рыбка → неон → клоун → моллинезия → хирург → сомик → скалярия → иглобрюх.
 - **Корм** покупается за жемчуг: хлопья тонут, рыбки едят их не спеша (одна штука в ~0.9 c, до полной
   сытости нужно ~7 хлопьев). Сытая рыба платит **×2** за тап и растёт в 1.6 раза быстрее. Сытость
   держится около минуты и плавно тает, в том числе пока игра закрыта.
@@ -66,22 +68,22 @@
 **RU:**
 Тёплый Аквариум — уютный мерж-кликер про домашний аквариум. Тапайте по рыбке — она приносит жемчуг, и над ней всплывает награда. Тап по воде рыбок не тревожит: по ней просто расходится рябь.
 
-На жемчуг покупайте мальков. Малёк подрастает всего за несколько секунд, а когда становится взрослым — перетащите его на такую же взрослую рыбку, и они объединятся в рыбку следующего уровня. Так из простых Пузыриков вырастают Персик, Нео, Пятныш, Уголёк, Небо, Уса, Королёк и колючий Пуфик — девять видов в коллекции.
+На жемчуг покупайте мальков. Малёк подрастает всего за несколько секунд, а когда становится взрослым — перетащите его на такую же взрослую рыбку, и они объединятся в рыбку следующего уровня. Так из простых гуппи получаются золотая рыбка, неон, клоун, моллинезия, хирург, сомик, скалярия и колючий иглобрюх — девять видов в коллекции.
 
 Корм тоже покупается за жемчуг: хлопья тонут, рыбки не спеша едят и наполняют шкалу сытости. Сытая рыбка платит вдвое больше за тап и быстрее растёт, поэтому кормить аквариум выгодно перед активной сессией. Сытость постепенно тает — загляните покормить питомцев снова.
 
-Посмотрите короткое видео — и два полных минуты любой тап будет собирать жемчуг сразу со всех рыбок. Улучшайте аквариум: сытный корм насыщает сильнее, аэратор повышает фоновый доход, водоросли удешевляют мальков. Заходите каждый день за подарком.
+Посмотрите короткое видео — и целые две минуты любой тап будет собирать жемчуг сразу со всех рыбок. Открытые виды можно докупать в магазине за жемчуг, а новые открываются только слиянием. Улучшайте аквариум: сытный корм насыщает сильнее, аэратор повышает фоновый доход, водоросли удешевляют мальков. Заходите каждый день за подарком.
 
 Живой подводный мир — лучи света, колышущиеся водоросли, кораллы, проплывающая медуза и краб на дне — успокаивает и радует. Короткое обучение введёт в курс за полминуты.
 
 **EN:**
 Cozy Aquarium is a warm little merge-clicker about a home fish tank. Tap a fish and it pays out pearls, with the reward popping up above it. Tapping the water leaves your fish alone — it just sends out a ripple.
 
-Spend pearls on fry. A fry grows up in seconds, and once it is an adult you can drag it onto a matching adult fish to merge them into the next level. Simple Bubblies grow into Peachy, Neo, Spotty, Ember, Sky, Whiskers, Regal and the spiky Puffy — nine species to collect.
+Spend pearls on fry. A fry grows up in seconds, and once it is an adult you can drag it onto a matching adult fish to merge them into the next level. Simple guppies become a goldfish, a neon tetra, a clownfish, a molly, a blue tang, a catfish, an angelfish and a spiky pufferfish — nine species to collect.
 
 Food costs pearls too: the flakes sink, fish eat unhurriedly and fill their satiety bar. A well-fed fish pays double per tap and grows faster, so feeding the tank before an active session pays off. Satiety slowly fades, so drop by to feed your pets again.
 
-Watch a short video and for two whole minutes every tap collects pearls from all your fish at once. Upgrade the tank: rich food is more filling, the aerator raises background income, water plants make fry cheaper. Come back daily for a gift.
+Watch a short video and for two whole minutes every tap collects pearls from all your fish at once. Species you have unlocked can be bought again in the shop, while new ones come only from merging. Upgrade the tank: rich food is more filling, the aerator raises background income, water plants make fry cheaper. Come back daily for a gift.
 
 A living underwater world — light rays, swaying plants, corals, a drifting jellyfish and a crab on the sand — keeps things calm and cheerful. A short tutorial gets you going in half a minute.
 
@@ -112,7 +114,7 @@ A living underwater world — light rays, swaying plants, corals, a drifting jel
 Кадры (RU=EN по составу, отличается только язык HUD):
 1. `d1-start` — самое начало: аквариум со стартовой рыбкой, карточка обучения, первый сбор жемчуга.
 2. `d2-feeding` — накормленный аквариум: золотые шкалы сытости, бейджи ×2 и двойные награды над рыбками.
-3. `d3-shop` — открыта панель «Рыбки аквариума»: подсказка про слияние, сводка по уровням, покупка малька.
+3. `d3-shop` — открыт магазин «Рыбки аквариума»: открытые виды с ценами, закрытые под замком, подсказка про слияние.
 4. `d4-upgrades` — открыты «Улучшения аквариума» (Сытный корм / Аэратор / Водоросли).
 5. `d5-collection` — открыта коллекция рыб (часть обнаружена, часть скрыта «?»), полный аквариум.
 

@@ -92,6 +92,10 @@
   .buy.owned{background:var(--mint);border-color:#5FB893}
 .hint{background:#EAF4F7;border:2px dashed var(--line);border-radius:12px;padding:9px 11px;
         font-weight:800;font-size:12.5px;color:var(--ink);margin-bottom:10px;line-height:1.25}
+  .hint.alt{background:#FFF3DF;border-style:solid;border-color:#E3C48A}
+  .row.locked{opacity:.6}
+  .row.locked .thumb{filter:grayscale(1) brightness(1.15)}
+  .lockico{font-size:20px;flex:none;padding:0 8px}
   .buy.wide{width:100%;margin-top:4px;padding:12px;font-size:15px}
   .coll{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
   .card{background:#FFF8E6;border:2.5px solid var(--line);border-radius:14px;padding:8px 4px 6px;
@@ -190,6 +194,10 @@ const STR = {
   lvl:{ru:"Ур.",en:"Lv."}, growing:{ru:"растут",en:"growing"}, adult:{ru:"взрослых",en:"adult"},
   perTap:{ru:"за тап",en:"per tap"},
   newFry:{ru:"Малёк поселился в аквариуме",en:"A fry joined your tank"},
+  locked:{ru:"Этот вид ещё не открыт — получи его слиянием",en:"Species not unlocked yet — merge to reveal it"},
+  inTank:{ru:"в аквариуме",en:"in tank"},
+  shopHint:{ru:"Покупать можно любой уже открытый вид. Новые открываются слиянием.",
+            en:"You can buy any species you have already unlocked. New ones come from merging."},
   newLevel:{ru:"Новый вид:",en:"New species:"},
   mergeHint:{ru:"Перетащи выросшую рыбку на такую же — получится рыбка выше уровнем",
              en:"Drag a grown fish onto a matching one to get a higher-level fish"},
@@ -207,15 +215,15 @@ const nm = sp => lang()==="ru"? sp.ru : sp.en;
 // ---------- Уровни рыб (мерж-цепочка: две выросшие рыбы Lv N -> малёк Lv N+1) ----------
 // tap — жемчуг за тап по взрослой рыбе; grow — сколько секунд растёт малёк этого уровня
 const LEVELS = [
-  {ru:'Пузырик', en:'Bubbly',   c1:'#F2A65A', c2:'#FFDDAF', shape:'guppy',  tap:1,     grow:5},
-  {ru:'Персик',  en:'Peachy',   c1:'#FF8C42', c2:'#FFC38A', shape:'gold',   tap:3,     grow:9},
-  {ru:'Нео',     en:'Neo',      c1:'#3BA7D6', c2:'#F25C69', shape:'neon',   tap:9,     grow:15},
-  {ru:'Пятныш',  en:'Spotty',   c1:'#FF7A2E', c2:'#FFFFFF', shape:'clown',  tap:26,    grow:24},
-  {ru:'Уголёк',  en:'Ember',    c1:'#4A4A57', c2:'#9AA0AC', shape:'molly',  tap:75,    grow:38},
-  {ru:'Небо',    en:'Sky',      c1:'#3E7CC4', c2:'#F2C14E', shape:'tang',   tap:210,   grow:58},
-  {ru:'Уса',     en:'Whiskers', c1:'#8A7358', c2:'#CBB89B', shape:'cat',    tap:600,   grow:85},
-  {ru:'Королёк', en:'Regal',    c1:'#F0E6C4', c2:'#4A6377', shape:'angel',  tap:1700,  grow:120},
-  {ru:'Пуфик',   en:'Puffy',    c1:'#C7D66B', c2:'#EEF5C6', shape:'puffer', tap:4800,  grow:170},
+  {ru:'Гуппи',        en:'Guppy',       c1:'#F2A65A', c2:'#FFDDAF', shape:'guppy',  tap:1,     grow:5},
+  {ru:'Золотая рыбка',en:'Goldfish',    c1:'#FF8C42', c2:'#FFC38A', shape:'gold',   tap:3,     grow:9},
+  {ru:'Неон',         en:'Neon Tetra',  c1:'#3BA7D6', c2:'#F25C69', shape:'neon',   tap:9,     grow:15},
+  {ru:'Клоун',        en:'Clownfish',   c1:'#FF7A2E', c2:'#FFFFFF', shape:'clown',  tap:26,    grow:24},
+  {ru:'Моллинезия',   en:'Molly',       c1:'#4A4A57', c2:'#9AA0AC', shape:'molly',  tap:75,    grow:38},
+  {ru:'Хирург',       en:'Blue Tang',   c1:'#3E7CC4', c2:'#F2C14E', shape:'tang',   tap:210,   grow:58},
+  {ru:'Сомик',        en:'Catfish',     c1:'#8A7358', c2:'#CBB89B', shape:'cat',    tap:600,   grow:85},
+  {ru:'Скалярия',     en:'Angelfish',   c1:'#F0E6C4', c2:'#4A6377', shape:'angel',  tap:1700,  grow:120},
+  {ru:'Иглобрюх',     en:'Pufferfish',  c1:'#C7D66B', c2:'#EEF5C6', shape:'puffer', tap:4800,  grow:170},
 ];
 const MAXLVL = LEVELS.length-1;
 const LV = l => LEVELS[Math.max(0,Math.min(MAXLVL,l))];
@@ -262,7 +270,10 @@ const ipsBase   = () => S.tank.reduce((a,f)=>a + LV(f.lvl).tap*0.04*f.g, 0);
 const ips       = () => ipsBase() * aerMult() * (x2On()?2:1);
 // цена малька растёт с каждой покупкой — главный сдерживающий фактор прогресса
 const priceMult = () => Math.max(0.5, 1 - 0.05*S.plant);
-const fishCost  = () => Math.max(1, Math.floor(30 * Math.pow(1.6, Math.max(0,S.bought-1)) * priceMult()));
+// цена рыбы уровня L: дороже, чем получить её мержем — покупка это ускорение, а не замена
+const fishCostAt = lvl => Math.max(1, Math.floor(30 * Math.pow(3.2, lvl) * Math.pow(1.6, Math.max(0,S.bought-1)) * priceMult()));
+const fishCost  = () => fishCostAt(0);
+const unlocked  = lvl => S.seen.includes(lvl);   // открытые виды доступны в магазине
 const foodCost  = () => Math.max(8, Math.ceil(tapBase()*2.5));
 const feedCost  = () => Math.floor(150 * Math.pow(1.7, S.feed));
 const aerCost   = () => Math.floor(400 * Math.pow(1.8, S.aer));
@@ -424,12 +435,14 @@ function doFeed(){
   refreshHud(); persist(true); sfx("tap");
   return true;
 }
-// Покупка малька — цена растёт с каждой покупкой
-function buyFish(){
-  const c=fishCost();
+// Покупка малька выбранного уровня (доступны только уже открытые виды)
+function buyFish(lvl){
+  lvl=Math.max(0,Math.min(MAXLVL, lvl|0));
+  if(!unlocked(lvl)){ toast(T("locked")); sfx("error"); return false; }
+  const c=fishCostAt(lvl);
   if(S.coins<c){ toast(T("need")); sfx("error"); return false; }
   S.coins-=c; S.bought++;
-  const f={lvl:0, g:0, sat:0};
+  const f={lvl, g:0, sat:0};
   S.tank.push(f); spawnSwimmer(f);
   if(S.tut===1) tutAdvance(2);
   refreshHud(); persist(true); sfx("buy");
@@ -511,25 +524,35 @@ function buildModal(kind){
   const body=$("mBody"); const can=(cost)=>S.coins>=cost;
   if(kind==='fish'){
     $("mTitle").textContent=T("fishTitle");
-    body.innerHTML='<div class="hint">'+T("mergeHint")+'</div>';
-    // сводка по уровням: сколько рыб каждого уровня и сколько уже выросло
+    body.innerHTML='<div class="hint">'+T("mergeHint")+'</div>'
+                  +'<div class="hint alt">'+T("shopHint")+'</div>';
     const byLvl={};
     S.tank.forEach(f=>{ (byLvl[f.lvl]=byLvl[f.lvl]||[]).push(f); });
-    Object.keys(byLvl).map(Number).sort((a,b)=>a-b).forEach(lvl=>{
-      const arr=byLvl[lvl], ready=arr.filter(grown).length;
-      const row=document.createElement('div'); row.className="row";
+    LEVELS.forEach((lv,lvl)=>{
+      const open=unlocked(lvl);
+      if(!open && lvl>maxLvl()+1) return;              // далёкие виды не показываем совсем
+      const arr=byLvl[lvl]||[], ready=arr.filter(grown).length;
+      const row=document.createElement('div'); row.className="row"+(open?"":" locked");
       const th=fishThumb(lvl); th.className="thumb"; row.appendChild(th);
       const info=document.createElement('div'); info.className="info";
-      info.innerHTML='<div class="nm">'+nm(LV(lvl))+' · '+T("lvl")+(lvl+1)+' ×'+arr.length+'</div>'
-        +'<div class="ds">+'+fmt(LV(lvl).tap)+' '+T("perTap")+' · '+T("adult")+': '+ready
-        +(arr.length-ready? ' · '+T("growing")+': '+(arr.length-ready):'')+'</div>';
+      info.innerHTML='<div class="nm">'+(open? nm(lv) : '???')+' · '+T("lvl")+(lvl+1)+'</div>'
+        +'<div class="ds">'+(open
+          ? '+'+fmt(lv.tap)+' '+T("perTap")+(arr.length? ' · '+T("inTank")+': '+arr.length
+              +(arr.length-ready? ' ('+T("growing")+': '+(arr.length-ready)+')':'') : '')
+          : T("locked"))+'</div>';
       row.appendChild(info);
+      if(open){
+        const c=fishCostAt(lvl);
+        const b=document.createElement('button'); b.className="buy"+(can(c)?"":" can-not");
+        b.textContent=fmt(c);
+        b.onclick=()=>{ if(buyFish(lvl)) buildModal('fish'); };
+        row.appendChild(b);
+      } else {
+        const lock=document.createElement('div'); lock.className="lockico"; lock.textContent='🔒';
+        row.appendChild(lock);
+      }
       body.appendChild(row);
     });
-    const b=document.createElement('button'); b.className="buy wide"+(can(fishCost())?"":" can-not");
-    b.textContent=T("buy")+" · "+fmt(fishCost());
-    b.onclick=()=>{ if(buyFish()) buildModal('fish'); };
-    body.appendChild(b);
   } else if(kind==='up'){
     $("mTitle").textContent=T("upTitle"); body.innerHTML="";
     const ups=[
@@ -867,10 +890,10 @@ function updateWorld(t,dt){
   });
   // рыбки не заплывают под боковую панель кнопок — их плашки остаются видимыми
   swimmers.forEach(s=>{
-    if(s.y < sideZoneBottom() && s.x > W-110){ s.x=W-110; s.dir=-1; }
+    if(s.y < sideZoneBottom() && s.x > W-76){ s.x=W-76; s.dir=-1; }
   });
   // мягкое расталкивание: рыбки не слипаются, именные плашки остаются читаемыми
-  const MINX=95, MINY=46, k=Math.min(1,dt*3);
+  const MINX=76, MINY=40, k=Math.min(1,dt*3);
   for(let i=0;i<swimmers.length;i++){
     for(let j=i+1;j<swimmers.length;j++){
       const a=swimmers[i], b=swimmers[j];
@@ -1282,37 +1305,28 @@ function drawSwimmers(t){
     if(s===dragSw){ ctx.globalAlpha=0.9; }
     drawFish(ctx, LV(f.lvl), s.x, s.y, sc, s.dir, wag);
     ctx.restore();
-    // именная плашка + шкала (у малька — рост, у взрослой — сытость)
-    const label=nm(LV(f.lvl))+(grown(f)?'':' 🌱').replace('🌱','');
-    ctx.font='800 12px Nunito, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    const wpx=ctx.measureText(label).width+16, ny=s.y-34*gscale-6;
-    const sated=isSated(f), adult=grown(f);
-    ctx.fillStyle=PAPER; ctx.strokeStyle=sated&&adult?'#C99A2E':INK; ctx.lineWidth=2;
-    roundRect(ctx, s.x-wpx/2, ny-10, wpx, 20, 8); ctx.fill(); ctx.stroke();
-    ctx.fillStyle=INK; ctx.fillText(label, s.x, ny);
-    const bw2=Math.max(30,wpx*0.8), bh2=6, val=adult? f.sat : f.g;
-    ctx.fillStyle='rgba(16,34,50,0.55)';
-    roundRect(ctx, s.x-bw2/2, ny+13, bw2, bh2, 3); ctx.fill();
+    // над рыбкой — только компактная шкала (у малька рост, у взрослой сытость), без имени
+    const adult=grown(f), sated=isSated(f);
+    const bw2=Math.max(26, 46*gscale), bh2=6, ny=s.y-30*gscale-10;
+    const val=adult? f.sat : f.g;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle='rgba(16,34,50,0.5)';
+    roundRect(ctx, s.x-bw2/2, ny, bw2, bh2, 3); ctx.fill();
     if(val>0.02){
       ctx.fillStyle=!adult? '#8FD0F0' : (sated?'#F2C14E':'#7FD1AE');
-      roundRect(ctx, s.x-bw2/2, ny+13, bw2*val, bh2, 3); ctx.fill();
+      roundRect(ctx, s.x-bw2/2, ny, bw2*val, bh2, 3); ctx.fill();
     }
-    ctx.strokeStyle='rgba(251,246,233,0.75)'; ctx.lineWidth=1.4;
-    roundRect(ctx, s.x-bw2/2, ny+13, bw2, bh2, 3); ctx.stroke();
+    ctx.strokeStyle='rgba(251,246,233,0.8)'; ctx.lineWidth=1.4;
+    roundRect(ctx, s.x-bw2/2, ny, bw2, bh2, 3); ctx.stroke();
     if(adult && !sated){ // риска порога сытости: докорми до неё — начнётся ×2
       const tx=s.x-bw2/2+bw2*SAT_FULL;
-      ctx.strokeStyle='rgba(242,193,78,0.9)'; ctx.lineWidth=1.6;
-      ctx.beginPath(); ctx.moveTo(tx,ny+12); ctx.lineTo(tx,ny+13+bh2+1); ctx.stroke();
+      ctx.strokeStyle='rgba(242,193,78,0.95)'; ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.moveTo(tx,ny-1); ctx.lineTo(tx,ny+bh2+1); ctx.stroke();
     }
     if(adult && sated){
       ctx.font='900 11px Nunito, sans-serif';
-      ctx.lineWidth=3; ctx.strokeStyle=PAPER; ctx.strokeText('×2', s.x+bw2/2+13, ny+15);
-      ctx.fillStyle='#C99A2E'; ctx.fillText('×2', s.x+bw2/2+13, ny+15);
-    }
-    if(adult && f.lvl<MAXLVL){ // выросшую можно мержить — маленькая метка
-      ctx.font='900 10px Nunito, sans-serif'; ctx.fillStyle='rgba(251,246,233,0.9)';
-      ctx.strokeStyle='rgba(16,34,50,0.5)'; ctx.lineWidth=2.5;
-      ctx.strokeText('⇄', s.x-bw2/2-11, ny+15); ctx.fillText('⇄', s.x-bw2/2-11, ny+15);
+      ctx.lineWidth=3; ctx.strokeStyle=PAPER; ctx.strokeText('×2', s.x+bw2/2+11, ny+3);
+      ctx.fillStyle='#C99A2E'; ctx.fillText('×2', s.x+bw2/2+11, ny+3);
     }
   });
 }
@@ -1413,14 +1427,17 @@ window.render_game_to_text = () => JSON.stringify({
   feed:S.feed, aer:S.aer, plant:S.plant,
   tapGain:tapGain(), best:S.best, x2:x2On(), multi:multiOn(),
   fishCost:fishCost(), foodCost:foodCost(), feedFill:feedFill(),
+  shopLevels:LEVELS.map((lv,i)=>({lvl:i, open:unlocked(i), cost:fishCostAt(i)})),
   tank:S.tank.map(f=>({lvl:f.lvl, g:Math.round(f.g*1000)/1000, sat:Math.round(f.sat*1000)/1000})),
   grownCount:S.tank.filter(grown).length,
   satMin:Math.min(...S.tank.map(f=>f.sat)), tut:S.tut
 });
 window.advanceTime = ms => { S.coins += ips()*(ms/1000); refreshHud(); };
 window.__grant = n => { S.coins+=n; refreshHud(); };
-window.__buyFish = () => buyFish();
-window.__buyNextFish = () => buyFish();          // совместимость со старым хуком
+window.__buyFish = (lvl=0) => buyFish(lvl);
+window.__buyNextFish = () => buyFish(0);         // совместимость со старым хуком
+window.__fishCostAt = lvl => fishCostAt(lvl);
+window.__unlocked = lvl => unlocked(lvl);
 window.__buyUp = k => buyUp(k);
 window.__feed = () => doFeed();
 window.__tap = () => doCollect();                 // сбор со всех (как при мульти-тапе)
