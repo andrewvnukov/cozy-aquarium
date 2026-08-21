@@ -31,23 +31,34 @@ const HERO = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">'
   + '</svg>';
 const CONFIG = {
   titleRu: 'Тёплый Аквариум', titleEn: 'Cozy Aquarium',
-  subRu: 'Корми рыбок · собери коллекцию', subEn: 'Feed fish · collect them all',
+  subRu: 'Тапай · расти · объединяй', subEn: 'Tap · grow · merge',
   heroSvg: HERO,
   accent: '#FF9E5A', bg: '#2C7FA6', ink: '#233A4E',
   // характерные экраны: [имя файла, скрипт подготовки состояния через хуки]
   shots: [
-    // d1 — начало с обучением: тап собирает жемчуг с первой рыбки
-    ['d1-start',      async p => { await p.evaluate(()=>window.__tap()); await p.waitForTimeout(250); }],
-    // d2 — сытые рыбки: золотые шкалы, бейджи ×2 и двойные награды над рыбками
-    ['d2-feeding',    async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(60000);
-                                     for(let i=0;i<4;i++) window.__buyNextFish(); });
-                                   await p.waitForTimeout(4000);          // рыбки расходятся по аквариуму
+    // d1 — начало: обучение и тап по стартовой рыбке
+    ['d1-start',      async p => { await p.evaluate(()=>{ const s=swimmers[0]; if(s) tapFish(s); refreshHud(); });
+                                   await p.waitForTimeout(250); }],
+    // d2 — сытый аквариум: золотые шкалы, ×2 и двойные награды
+    ['d2-feeding',    async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(2e6);
+                                     for(let i=0;i<5;i++) window.__buyFish(); window.__growAll(); });
+                                   await p.waitForTimeout(4000);
                                    await p.evaluate(()=>{ window.__sate(1); window.__tap(); });
                                    await p.waitForTimeout(200); }],
-    ['d3-shop',       async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(80000); }); await p.click('#fishBtn'); }],
-    ['d4-upgrades',   async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(250000); }); await p.click('#upBtn'); }],
-    ['d5-collection', async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(400000);
-                                     for(let i=0;i<6;i++) window.__buyNextFish(); });
+    // d3 — панель аквариума: сводка по уровням и покупка малька
+    ['d3-shop',       async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(2e6);
+                                     for(let i=0;i<3;i++) window.__buyFish(); window.__growAll();
+                                     window.__mergeFirstPair(); });
+                                   await p.click('#fishBtn'); }],
+    ['d4-upgrades',   async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(5e6); }); await p.click('#upBtn'); }],
+    // d5 — коллекция: несколько уровней уже открыто мержами
+    ['d5-collection', async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(1e7);
+                                     for(let lvl=0; lvl<5; lvl++){
+                                       for(let k=0;k<2;k++){ S.tank.push({lvl, g:1, sat:0}); }
+                                       if(!S.seen.includes(lvl)) S.seen.push(lvl);
+                                     }
+                                     rebuildSwimmers(); refreshHud(); });
+                                   await p.waitForTimeout(600);
                                    await p.click('#collBtn'); }],
   ],
 };

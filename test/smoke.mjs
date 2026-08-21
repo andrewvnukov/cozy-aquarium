@@ -1,8 +1,8 @@
 // Playwright smoke-тест «Тёплый Аквариум».
 // Запуск:  node test/smoke.mjs
-// Проверяет: загрузку без ошибок консоли, тест-хуки, кормление (тап-доход),
-// пассивный доход, покупку рыбки (доход+коллекция растут), апгрейды, награды,
-// сейв/перезагрузку.
+// Проверяет: загрузку без ошибок, тап по рыбке (и что вода дохода не даёт),
+// покупку малька, рост, слияние двух одинаковых рыб, кормление и сытость ×2,
+// мульти-тап, апгрейды, обучение, сейв/перезагрузку.
 import { chromium } from 'playwright';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
@@ -22,100 +22,143 @@ await page.waitForFunction(() => typeof window.render_game_to_text === 'function
 let pass = 0, fail = 0;
 const assert = (cond, msg) => { if (!cond) { console.error('FAIL:', msg); fail++; process.exitCode = 1; } else { console.log('ok  ', msg); pass++; } };
 const state = async () => JSON.parse(await page.evaluate(() => window.render_game_to_text()));
+const fishPos = async (i = 0) => page.evaluate(n => ({ x: Math.round(swimmers[n].x), y: Math.round(swimmers[n].y) }), i);
 
 let s0 = await state();
 assert(typeof s0.coins === 'number', 'render_game_to_text returns state');
-assert(s0.lvl === 1 && s0.fish === 1, 'starts with 1 fish (guppy)');
-assert(s0.seen === 1, 'collection seeded with starter');
-assert(s0.ips > 0, 'starter fish gives (slow) passive income');
+assert(s0.fish === 1 && s0.tank[0].lvl === 0, 'starts with one level-1 fish');
+assert(s0.tank[0].g === 1, 'starter fish is already grown');
 assert(s0.tut === 0, 'tutorial starts at step 1 on a fresh save');
+assert(s0.ips > 0, 'grown fish gives (slow) passive income');
 
-// тап собирает жемчуг со всех рыбок: хук __tap() и тап по canvas
-await page.evaluate(() => window.__tap());
+// тап по рыбке приносит жемчуг
+let p = await fishPos();
+await page.mouse.click(p.x, p.y);
 let s1 = await state();
-assert(s1.coins > s0.coins, 'tap collects pearls from fish');
-await page.mouse.click(240, 450);
-let s1b = await state();
-assert(s1b.coins > s1.coins, 'tap on water collects too');
+assert(s1.coins > s0.coins, 'tapping a fish gives pearls');
 
-// обучение: 3 тапа -> шаг 2
-await page.evaluate(() => window.__tap());
-let sT = await state();
-assert(sT.tut === 1, 'tutorial advances after 3 taps');
+// тап по воде дохода не даёт (пассив может капнуть, поэтому сравниваем с тап-доходом)
+const emptyWater = async () => page.evaluate(() => {
+  for (let y = 300; y < sandY - 40; y += 20) for (let x = 20; x < W * 0.9; x += 20)
+    if (!swimmers.some(s => Math.hypot(s.x - x, s.y - y) < 90)) return { x: Math.round(x), y: Math.round(y) };
+  return { x: 20, y: 300 };
+});
+let w = await emptyWater();
+let cw0 = (await state()).coins;
+await page.mouse.click(w.x, w.y);
+let cw1 = (await state()).coins;
+assert(cw1 - cw0 < s1.tapGain, 'tapping empty water gives no pearls');
 
-// кормление — платное действие
+// обучение: 3 тапа по рыбке -> шаг 2
+p = await fishPos();
+await page.mouse.click(p.x, p.y);
+p = await fishPos();
+await page.mouse.click(p.x, p.y);
+assert((await state()).tut === 1, 'tutorial advances after 3 fish taps');
+
+// покупка малька: платно, малёк начинает расти, обучение -> шаг 3
 await page.evaluate(() => window.__grant(1000));
+let bb = await state();
+assert(await page.evaluate(() => window.__buyFish()), 'can buy a fry when affordable');
+let ab = await state();
+assert(ab.coins === bb.coins - bb.fishCost, 'buying a fry costs pearls');
+assert(ab.fish === bb.fish + 1, 'fry joins the tank');
+assert(ab.tank.some(f => f.g < 1), 'new fry starts small and grows');
+assert(ab.fishCost > bb.fishCost, 'each fry costs more than the last');
+assert(ab.tut === 2, 'tutorial advances after buying a fry');
+
+// малёк вырастает примерно за 5 секунд (уровень 1)
+await page.waitForTimeout(5600);
+let ag = await state();
+assert(ag.grownCount === 2, 'a level-1 fry grows up in ~5 seconds');
+
+// слияние двух выросших рыб одного уровня -> одна рыба следующего уровня
+let bm = await state();
+assert(await page.evaluate(() => window.__mergeFirstPair()), 'two grown fish of the same level can merge');
+let am = await state();
+assert(am.fish === bm.fish - 1, 'merging replaces two fish with one');
+assert(am.tank.some(f => f.lvl === 1), 'merge produces the next level');
+assert(am.lvl === 2, 'max level grows after a merge');
+assert(am.seen === 2, 'new level is added to the collection');
+assert(am.tut === 3, 'tutorial completes after the first merge');
+
+// растущего малька слить нельзя
+await page.evaluate(() => { window.__grant(100000); window.__buyFish(); window.__buyFish(); });
+assert(await page.evaluate(() => window.__mergeFirstPair()) === false, 'fry that is still growing cannot merge');
+await page.evaluate(() => window.__growAll());
+assert(await page.evaluate(() => window.__mergeFirstPair()) === true, 'the same pair merges once grown');
+
+// кормление: платное, сытость растёт постепенно
+await page.evaluate(() => { window.__grant(100000); window.__sate(0); });
 let bf = await state();
 await page.evaluate(() => window.__feed());
 let af = await state();
 assert(af.coins === bf.coins - bf.foodCost, 'feeding costs pearls');
-assert(af.tut === 2, 'tutorial advances after feeding');
+await page.waitForTimeout(6000);
+let mid = await state();
+assert(mid.satMin > 0, 'fish start eating the food');
+assert(mid.satMin < 0.75, 'fish get full gradually, not instantly');
 
-// сытая рыбка даёт ровно x2 за тап
-await page.evaluate(() => window.__sate(0));
+// полная сытость даёт ×2 за тап
+await page.evaluate(() => { window.__growAll(); window.__sate(0); });
 let hungry = await state();
 await page.evaluate(() => window.__sate(1));
 let sated = await state();
 assert(sated.tapGain === hungry.tapGain * 2, 'fully fed fish pays x2 per tap');
-assert(sated.satMin === 1 && hungry.satMin === 0, 'satiety is tracked per fish');
 
-// пассивный доход через хук времени (медленный, но капает)
+// сытость ускоряет рост малька
+const growth = await page.evaluate(async () => {
+  const mk = sat => { const f = { lvl: 0, g: 0, sat }; S.tank.push(f); spawnSwimmer(f); return f; };
+  const hungryF = mk(0), fedF = mk(1);
+  await new Promise(r => setTimeout(r, 1500));
+  const res = { hungry: hungryF.g, fed: fedF.g };
+  [hungryF, fedF].forEach(f => {
+    S.tank.splice(S.tank.indexOf(f), 1);
+    const i = swimmers.findIndex(s => s.f === f); if (i >= 0) swimmers.splice(i, 1);
+  });
+  return res;
+});
+assert(growth.fed > growth.hungry, 'well-fed fry grows faster');
+
+// пассивный доход капает
 let sp0 = await state();
 await page.evaluate(() => window.advanceTime(60000));
-let sp1 = await state();
-assert(sp1.coins >= sp0.coins + 5, 'passive income accrues over time');
+assert((await state()).coins > sp0.coins, 'passive income accrues over time');
 
-// покупка новой рыбки -> растут виды, коллекция и доход
-await page.evaluate(() => window.__grant(2000));
-let before = await state();
-let bought = await page.evaluate(() => window.__buyNextFish());
-let after = await state();
-assert(bought === true, 'can add a new fish when affordable');
-assert(after.fish === before.fish + 1, 'fish count increases');
-assert(after.lvl === before.lvl + 1, 'lvl (species) increases -> upgrade path works');
-assert(after.seen === before.seen + 1, 'collection grows on new fish');
-assert(after.ips > before.ips, 'new fish raises passive income');
-assert(after.best >= after.fish, 'best (leaderboard) tracks species');
+// мульти-тап: после награды тап по воде собирает со всех рыбок
+let bmt = await state();
+await page.click('#multiBtn');
+await page.waitForTimeout(150);
+let amt = await state();
+assert(amt.multi === true, 'multi-tap reward activates');
+w = await emptyWater();
+await page.mouse.click(w.x, w.y);
+let water = await state();
+assert(water.coins >= amt.coins + amt.tapGain, 'during multi-tap even water taps collect from every fish');
 
-// апгрейд «корм» делает корм сытнее
-await page.evaluate(() => window.__grant(100000));
-let bF = await state();
-let okF = await page.evaluate(() => window.__buyUp('feed'));
-let aF = await state();
-assert(okF && aF.feed === bF.feed + 1, 'feed upgrade applies');
-assert(aF.feedFill > bF.feedFill, 'feed upgrade makes food more filling');
-
-// апгрейд «аэратор» повышает пассивный доход
-let bA = await state();
-let okA = await page.evaluate(() => window.__buyUp('aer'));
-let aA = await state();
-assert(okA && aA.aer === bA.aer + 1, 'aerator upgrade applies');
-assert(aA.ips > bA.ips, 'aerator upgrade raises income');
-
-// апгрейд «водоросли» удешевляет рыбок (upCost падает)
-let bP = await state();
-let okP = await page.evaluate(() => window.__buyUp('plant'));
-let aP = await state();
-assert(okP && aP.plant === bP.plant + 1, 'plant upgrade applies');
-assert(aP.upCost <= bP.upCost, 'plant upgrade lowers next fish price');
-
-// награда ×2 удваивает доход
+// награда ×2 удваивает пассивный доход
 let bx = await state();
-await page.evaluate(() => window.__grant(0));
 await page.click('#x2Btn');
 let ax = await state();
 assert(ax.x2 === true, 'income ×2 reward activates');
 assert(ax.ips >= bx.ips * 2 - 1e-9, 'income doubled while ×2 active');
 
-// подарок начисляет жемчуг
-let bg = await state();
-await page.click('#giftBtn');
-let ag = await state();
-assert(ag.coins > bg.coins, 'gift reward grants pearls');
+// апгрейды
+await page.evaluate(() => window.__grant(1e7));
+let bF = await state();
+assert(await page.evaluate(() => window.__buyUp('feed')), 'feed upgrade applies');
+let aF = await state();
+assert(aF.feedFill > bF.feedFill, 'feed upgrade makes food more filling');
+let bA = await state();
+assert(await page.evaluate(() => window.__buyUp('aer')), 'aerator upgrade applies');
+assert((await state()).ips > bA.ips, 'aerator upgrade raises income');
+let bP = await state();
+assert(await page.evaluate(() => window.__buyUp('plant')), 'plant upgrade applies');
+assert((await state()).fishCost < bP.fishCost, 'plant upgrade lowers fry price');
 
 // панели открываются без ошибок
 await page.click('#fishBtn'); await page.waitForTimeout(120);
-assert(await page.isVisible('#mBody .row'), 'fish shop renders rows');
+assert(await page.isVisible('#mBody .row'), 'aquarium panel renders fish rows');
 await page.click('#mClose'); await page.waitForTimeout(80);
 await page.click('#collBtn'); await page.waitForTimeout(120);
 assert(await page.isVisible('#mBody .coll'), 'collection grid renders');
@@ -123,13 +166,15 @@ await page.click('#mClose');
 
 // сейв переживает перезагрузку
 let pre = await state();
-await page.evaluate(() => window.__grant(0)); // форс-persist через действие
-await page.mouse.click(240, 450);
-await page.waitForTimeout(50);
+await page.evaluate(() => window.__grant(0));
+p = await fishPos();
+await page.mouse.click(p.x, p.y);
+await page.waitForTimeout(60);
 await page.reload();
 await page.waitForFunction(() => typeof window.render_game_to_text === 'function', { timeout: 8000 });
 let post = await state();
-assert(post.fish === pre.fish, 'fish roster survives reload');
+assert(post.fish === pre.fish, 'tank survives reload');
+assert(post.lvl === pre.lvl, 'fish levels survive reload');
 assert(post.seen === pre.seen, 'collection survives reload');
 assert(post.feed === pre.feed && post.aer === pre.aer, 'upgrades survive reload');
 
