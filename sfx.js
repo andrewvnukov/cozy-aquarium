@@ -27,10 +27,13 @@ addEventListener("pointerdown", ()=>{ const ctx=ensureAudio(); if(ctx&&ctx.state
 // если паузу ставили мы (не ломает autoplay-политику до первого тапа игрока).
 let audioPausedByGame=false;
 function pauseAudio(){
-  if(audioCtx && audioCtx.state==="running"){ audioPausedByGame=true; audioCtx.suspend().catch(()=>{}); }
+  audioPausedByGame=true;
+  if(audioCtx) audioCtx.suspend().catch(()=>{});
 }
 function resumeAudio(){
-  if(audioCtx && audioPausedByGame && !document.hidden){ audioPausedByGame=false; audioCtx.resume().catch(()=>{}); }
+  if(!audioPausedByGame) return;
+  audioPausedByGame=false;
+  if(audioCtx && !document.hidden) audioCtx.resume().catch(()=>{});
 }
 
 const rand = (a=1,b=0) => b+(a-b)*Math.random();
