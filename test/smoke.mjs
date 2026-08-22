@@ -140,11 +140,19 @@ await page.mouse.click(w.x, w.y);
 let water = await state();
 assert(water.coins >= amt.coins + amt.tapGain, 'during multi-tap even water taps collect from every fish');
 
-// награда ×2 удваивает пассивный доход
+// награда ×2 теперь приходит от краба с табличкой, кнопки внизу нет
+assert(await page.evaluate(() => !document.getElementById('x2Btn')), 'the income ×2 button is gone');
+assert(await page.evaluate(() => document.querySelectorAll('.bottom .abtn').length) === 3, 'bottom row has three buttons');
 let bx = await state();
-await page.click('#x2Btn');
+const crab = await page.evaluate(() => window.__crabSign());
+assert(await page.evaluate(() => window.__crabHasSign()), 'crab can bring an income ×2 sign');
+await page.mouse.click(crab.x + 200 < 460 ? crab.x + 200 : crab.x - 200, crab.y);
+assert((await state()).x2 === false, 'tapping away from the crab does not grant ×2');
+await page.mouse.click(crab.x, crab.y);
+await page.waitForTimeout(150);
 let ax = await state();
-assert(ax.x2 === true, 'income ×2 reward activates');
+assert(ax.x2 === true, 'tapping the crab with the sign activates income ×2');
+assert(!(await page.evaluate(() => window.__crabHasSign())), 'the sign is taken away after use');
 assert(ax.ips >= bx.ips * 2 - 1e-9, 'income doubled while ×2 active');
 
 // апгрейды

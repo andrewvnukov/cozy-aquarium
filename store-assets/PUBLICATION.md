@@ -50,8 +50,10 @@ bottom (коридорас, боция, таракатум рыскают у д�
 **Настройки** (кнопка-шестерёнка): раздельные ползунки громкости музыки и звуков, выбор языка RU/EN.
 Значения сохраняются в облачном сейве.
 
-Реклама-награды: **Мульти-тап** (2 минуты любой тап собирает жемчуг сразу со всех рыбок) и
-**Доход ×2** на 5 минут. Плюс бесплатный ежедневный подарок.
+Реклама-награды: **Мульти-тап** — кнопка внизу (2 минуты любой тап собирает жемчуг сразу со всех
+рыбок) и **Доход ×2** — отдельной кнопки нет: краб на дне раз в 70–130 секунд выносит табличку
+«Доход ×2» и держит её ~26 секунд; тап по крабу запускает ролик и удваивает фоновый доход на 5 минут.
+Плюс бесплатный ежедневный подарок.
 
 **Обучение**: на свежем сейве карточка из трёх шагов (тапай по рыбке → купи малька → перетащи рыбку
 на такую же), шаги закрываются по факту действия, есть кнопка пропуска.
@@ -88,7 +90,7 @@ bottom (коридорас, боция, таракатум рыскают у д�
 
 У каждого вида свой характер: данио и барбус носятся по всему аквариуму, неоны и расборы держатся стайкой, дискусы и скалярии плывут величаво, петушок зависает на месте, а коридорас, анциструс и боция копошатся у самого дна.
 
-Корм покупается за жемчуг: хлопья тонут, рыбки едят их не спеша. Сытая рыбка платит вдвое больше за тап и быстрее растёт. Улучшайте аквариум, смотрите видео за мульти-тап и заходите каждый день за подарком. В настройках — громкость музыки и звуков, а также язык.
+Корм покупается за жемчуг: хлопья тонут, рыбки едят их не спеша. Сытая рыбка платит вдвое больше за тап и быстрее растёт. Улучшайте аквариум и смотрите видео за мульти-тап. А по дну ходит краб: время от времени он выносит табличку «Доход ×2» — тапните по нему, и фоновый доход удвоится на пять минут. Заходите каждый день за подарком. В настройках — громкость музыки и звуков, а также язык.
 
 **EN:**
 Cozy Aquarium is a warm merge-clicker about a home fish tank with thirty real fish species.
@@ -99,7 +101,7 @@ Spend pearls on fry. A fry grows up in seconds, and once it is an adult you can 
 
 Every species has its own character: danios and barbs dart across the whole tank, neons and rasboras keep to a school, discus and angelfish glide slowly, a betta hovers in place, while corydoras, plecos and loaches potter about on the bottom.
 
-Food costs pearls: the flakes sink and fish eat them unhurriedly. A well-fed fish pays double per tap and grows faster. Upgrade the tank, watch a video for multi-tap and come back daily for a gift. Settings let you adjust music and sound volume and switch the language.
+Food costs pearls: the flakes sink and fish eat them unhurriedly. A well-fed fish pays double per tap and grows faster. Upgrade the tank and watch a video for multi-tap. A crab patrols the sand and now and then holds up an «Income ×2» sign — tap him to double your background income for five minutes. Come back daily for a gift. Settings let you adjust music and sound volume and switch the language.
 
 ## Ключевые слова
 
@@ -110,8 +112,9 @@ Food costs pearls: the flakes sink and fish eat them unhurriedly. A well-fed fis
 
 - **Fullscreen (interstitial)**: показывается не чаще раза в 3 минуты, триггер — покупка новой рыбки
   (`maybeInterstitial()` внутри `buyFish()`), никогда на старте игры.
-- **Rewarded video**: две явные кнопки с точной наградой (урок п.4.5.1) — «Мульти-тап» (2 минуты сбора со всех рыбок разом,
-  длительность показана на кнопке) и «Доход ×2» на 5 минут (таймер показан на кнопке). Награда выдаётся всегда, даже без SDK/офлайн (`showRewarded()`).
+- **Rewarded video**: два явных входа с точной наградой (урок п.4.5.1) — кнопка «Мульти-тап» (2 минуты
+  сбора со всех рыбок разом, длительность показана на кнопке) и табличка «Доход ×2» в клешне краба
+  (значок ▶ на табличке показывает, что будет ролик; награда — 5 минут двойного фонового дохода). Награда выдаётся всегда, даже без SDK/офлайн (`showRewarded()`).
 - Ежедневный подарок — не реклама, бесплатный бонус жемчуга при первом заходе за день.
 - Никаких платных заглушек, доната или пейволов — вся игра бесплатна и играбельна сразу.
 

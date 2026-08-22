@@ -39,6 +39,10 @@ const CONFIG = {
     // d1 — начало: обучение и тап по стартовой рыбке
     ['d1-start',      async p => { await p.evaluate(()=>{ const s=swimmers[0]; if(s) tapFish(s); refreshHud(); });
                                    await p.waitForTimeout(250); }],
+    // краб с табличкой «Доход ×2» — вход в rewarded вместо кнопки
+    ['d7-crab',       async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(5e5);
+                                     for(let i=0;i<3;i++) window.__buyFish(0); window.__growAll(); window.__crabSign(); });
+                                   await p.waitForTimeout(1200); }],
     // d2 — сытый аквариум: золотые шкалы, ×2 и двойные награды
     ['d2-feeding',    async p => { await p.evaluate(()=>{ window.__skipTut(); window.__grant(2e6);
                                      for(let i=0;i<5;i++) window.__buyFish(0); window.__growAll(); });

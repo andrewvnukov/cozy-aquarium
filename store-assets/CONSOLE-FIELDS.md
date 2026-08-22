@@ -73,7 +73,7 @@
 Живой подводный мир — лучи света, водоросли, кораллы, медуза и краб на дне — успокаивает и радует.
 ```
 
-### Как играть (983/1000)
+### Как играть (1010/1000)
 
 ```
 1. Тапайте по рыбке — она приносит жемчуг. Тап по пустой воде дохода не даёт, только рябь.
@@ -82,11 +82,11 @@
 
 3. Когда две рыбки одного вида выросли, зажмите одну и перетащите на вторую — цель подсветится кругом. Отпустите: получится малёк следующего вида, а сам вид откроется в магазине.
 
-4. «Покормить» бросает корм: хлопья тонут, рыбки едят их не спеша. Когда зелёная шкала дойдёт до золотой риски, рыбка сыта — платит вдвое больше за тап и растёт быстрее. Сытость постепенно тает.
+4. «Покормить» бросает корм: рыбки едят не спеша. Когда зелёная шкала дойдёт до золотой риски, рыбка сыта — платит вдвое больше за тап и растёт быстрее. Сытость постепенно тает.
 
-5. «Мульти-тап» после видео две минуты собирает жемчуг со всех рыбок любым тапом, «Доход ×2» удваивает фоновый доход на 5 минут.
+5. «Мульти-тап» после видео две минуты собирает жемчуг со всех рыбок любым тапом. А краб на дне иногда выносит табличку «Доход ×2» — тапните по нему, чтобы удвоить фоновый доход.
 
-6. Боковые кнопки — магазин рыбок, улучшения и настройки: громкость музыки и звуков, выбор языка.
+6. Боковые кнопки — магазин, улучшения и настройки: громкость музыки и звуков, выбор языка.
 ```
 
 ---
@@ -127,7 +127,7 @@ Upgrade the tank: rich food is more filling, the aerator raises background incom
 A living underwater world — light rays, plants, corals, a jellyfish and a crab on the sand — keeps things calm and cheerful.
 ```
 
-### Как играть (991/1000)
+### Как играть (1002/1000)
 
 ```
 1. Tap a fish — it pays out pearls. Tapping empty water gives nothing, just a ripple.
@@ -136,9 +136,9 @@ A living underwater world — light rays, plants, corals, a jellyfish and a crab
 
 3. When two fish of the same species are grown, drag one onto the other — a valid target lights up. Release to merge them into a fry of the next species, which unlocks in the shop.
 
-4. "Feed" drops food: the flakes sink and fish eat unhurriedly. Once the green bar reaches the golden mark the fish is full — double pearls per tap and faster growth. Satiety slowly fades.
+4. "Feed" drops food and fish eat unhurriedly. Once the green bar reaches the golden mark the fish is full — double pearls per tap and faster growth. Satiety slowly fades.
 
-5. "Multi-tap" after a video lets any tap collect from every fish for two minutes; "Income ×2" doubles background income for five minutes.
+5. "Multi-tap" after a video lets any tap collect from every fish for two minutes. The crab on the sand sometimes holds an "Income ×2" sign — tap him to double background income.
 
-6. The side buttons open the fish shop, upgrades and settings: volume sliders and the language choice.
+6. The side buttons open the shop, upgrades and settings: volume sliders and the language.
 ```

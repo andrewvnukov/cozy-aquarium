@@ -153,7 +153,6 @@
     <button class="abtn buyfish" id="buyBtn"><span class="bt" id="buyT">Купить</span><span class="bs"><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="#F7EAB0" stroke="#fff" stroke-width="1.2"/></svg><span id="buyS">60</span></span></button>
     <button class="abtn main" id="feedBtn"><span class="bt" id="feedT">Покормить</span><span class="bs"><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="#F7EAB0" stroke="#fff" stroke-width="1.2"/></svg><span id="feedS">8</span></span></button>
     <button class="abtn blue" id="multiBtn"><span class="bt" id="multiT">Мульти-тап</span><span class="bs"><svg viewBox="0 0 12 12"><path d="M3 2l7 4-7 4z" fill="#fff"/></svg><span id="multiS">2 мин</span></span></button>
-    <button class="abtn lav" id="x2Btn"><span class="bt" id="x2T">Доход ×2</span><span class="bs"><svg viewBox="0 0 12 12"><path d="M3 2l7 4-7 4z" fill="#fff"/></svg><span id="x2S">5 мин</span></span></button>
   </div>
 </div>
 <div id="side">
@@ -205,6 +204,8 @@ const STR = {
   tut3:{ru:"3/3 · Перетащи рыбку на такую же — они объединятся",en:"3/3 · Drag a fish onto a matching one to merge"},
   tutDone:{ru:"Обучение пройдено!",en:"Tutorial complete!"},
   x2:{ru:"Доход ×2",en:"Income ×2"}, x2on:{ru:"×2 идёт",en:"×2 active"},
+  crabSign:{ru:"Краб принёс табличку «Доход ×2» — тапни по нему!",
+            en:"The crab is holding an \u00abIncome \u00d72\u00bb sign — tap him!"},
   need:{ru:"Не хватает жемчуга",en:"Not enough pearls"},
   fishTitle:{ru:"Рыбки аквариума",en:"Your aquarium"},
   upTitle:{ru:"Улучшения аквариума",en:"Aquarium upgrades"},
@@ -436,10 +437,6 @@ function refreshHud(){
   $("multiT").textContent = mOn? T("multiOn") : T("multi");
   $("multiS").textContent = mOn? mins(S.multiUntil-Date.now()) : (lang()==="ru"?"2 мин":"2 min");
   $("multiBtn").classList.toggle("off", mOn);
-  const on=x2On();
-  $("x2T").textContent    = on? T("x2on") : T("x2");
-  $("x2S").textContent    = on? mins(S.x2Until-Date.now()) : (lang()==="ru"?"5 мин":"5 min");
-  $("x2Btn").classList.toggle("off", on);
   renderTut();
   if(modalOpen) buildModal(modalOpen);
 }
@@ -678,7 +675,9 @@ function buildScenery(){
   motes=[]; for(let i=0;i<Math.max(14,Math.round(W/40));i++)
     motes.push({ x:rr(0,W), y:rr(0,H*0.8), r:rr(0.8,2), sp:rr(2,7), dr:rr(2,9), ph:rr(0,6.28) });
   jelly={ x:rr(0,W), y:rr(H*0.28,H*0.5), dir:Math.random()<0.5?1:-1, sp:rr(9,16), ph:0 };
-  crab={ x:rr(60,W-60), dir:Math.random()<0.5?1:-1, sp:rr(10,18), ph:0 };
+  crab = Object.assign({ x:rr(60,W-60), dir:Math.random()<0.5?1:-1, sp:rr(10,18), ph:0,
+    sign:false, signLife:0, signCd:rr(20,40) }, crab||{});
+  crab.x=Math.max(40, Math.min(W-40, crab.x));
 }
 function buildBg(){
   bgCan=document.createElement('canvas'); bgCan.width=Math.max(1,W*DPR); bgCan.height=Math.max(1,H*DPR);
@@ -855,9 +854,40 @@ function drawJelly(t,dt){
   ctx.beginPath(); ctx.ellipse(-bell*0.35,-bell*0.38,bell*0.28,bell*0.13,-0.5,0,6.28); ctx.fill();
   ctx.restore();
 }
+// краб периодически выносит табличку «Доход ×2» — тап по нему запускает ролик
+const SIGN_LIFE=26, SIGN_CD=[70,130];
+function crabY(t){ return sandY+6+Math.abs(Math.sin(t*6))*2; }
+function updateCrab(dt){
+  const c=crab; if(!c) return;
+  if(x2On()){ c.sign=false; c.signCd=Math.max(c.signCd, 20); return; }  // пока ×2 идёт — таблички нет
+  if(c.sign){ c.signLife-=dt; if(c.signLife<=0){ c.sign=false; c.signCd=rr(SIGN_CD[0],SIGN_CD[1]); } }
+  else { c.signCd-=dt; if(c.signCd<=0){ c.sign=true; c.signLife=SIGN_LIFE; if(S.tut>=3) toast(T("crabSign")); sfx("coin"); } }
+}
+function crabHit(x,y,t){
+  const c=crab; if(!c||!c.sign) return false;
+  return Math.hypot(c.x-x, crabY(t||tSec)-y) < 46;
+}
 function drawCrab(t,dt){
   const c=crab; c.x+=c.dir*c.sp*dt; if(c.x>W-40) c.dir=-1; if(c.x<40) c.dir=1;
-  const y=sandY+6+Math.abs(Math.sin(t*6))*2;
+  const y=crabY(t);
+  if(c.sign){ // табличка на шесте в клешне + мягкое свечение, чтобы заметили
+    const sy=y-58+Math.sin(t*2)*3;
+    ctx.save();
+    const gl=ctx.createRadialGradient(c.x,sy,2,c.x,sy,54);
+    gl.addColorStop(0,'rgba(255,235,170,0.30)'); gl.addColorStop(1,'rgba(255,235,170,0)');
+    ctx.fillStyle=gl; ctx.beginPath(); ctx.arc(c.x,sy,54,0,6.28); ctx.fill();
+    ctx.strokeStyle='#8A6B3E'; ctx.lineWidth=3; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(c.x-12,y-6); ctx.lineTo(Math.max(20,Math.min(W-20,c.x))-4,sy+12); ctx.stroke();
+    ctx.font='900 13px Nunito, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    const label=T("x2"), wpx=ctx.measureText(label).width+30;
+    const sx=Math.max(wpx/2+6, Math.min(W-wpx/2-6, c.x));     // табличка не уезжает за край экрана
+    ctx.fillStyle=PAPER; ctx.strokeStyle=INK; ctx.lineWidth=2.5;
+    roundRect(ctx, sx-wpx/2, sy-13, wpx, 26, 9); ctx.fill(); ctx.stroke();
+    ctx.fillStyle='#B0472E';                                  // значок «посмотреть видео»
+    ctx.beginPath(); ctx.moveTo(sx-wpx/2+9,sy-5); ctx.lineTo(sx-wpx/2+17,sy); ctx.lineTo(sx-wpx/2+9,sy+5); ctx.closePath(); ctx.fill();
+    ctx.fillStyle=INK; ctx.fillText(label, sx+5, sy);
+    ctx.restore();
+  }
   ctx.save(); ctx.translate(c.x,y); ctx.scale(c.dir,1);
   ctx.fillStyle='#E06A4C'; ctx.strokeStyle=INK; ctx.lineWidth=2.5; ctx.lineCap='round';
   // лапки
@@ -1907,6 +1937,7 @@ function frame(now){
   drawTrail(dt);
   drawPopups();
   drawBubbles(tSec,dt);
+  updateCrab(dt);
   drawCrab(tSec,dt);
   requestAnimationFrame(frame);
 }
@@ -1942,6 +1973,10 @@ function onUp(e){
     const target=swimmers.find(s=> s!==dragSw && canMerge(dragSw,s) && Math.hypot(s.x-e.clientX, s.y-e.clientY)<70);
     if(target) mergeFish(dragSw,target);
     dragSw=null; downSw=null; return;
+  }
+  if(!downSw && !moved && crabHit(e.clientX, e.clientY)){  // тап по крабу с табличкой
+    crab.sign=false; crab.signCd=rr(SIGN_CD[0],SIGN_CD[1]);
+    claimX2(); downSw=null; return;
   }
   if(downSw && !moved){                    // короткий тап по рыбке
     if(multiOn()) doCollect(e.clientX,e.clientY);
@@ -1990,6 +2025,8 @@ window.__mergeFirstPair = () => {
 window.__skipTut = () => tutAdvance(3);
 window.__setVolumes = (mus,sfxv) => { S.musVol=mus; S.sfxVol=sfxv; applyVolumes(); persist(true); };
 window.__behOf = lvl => LV(lvl).beh;
+window.__crabSign = () => { crab.sign=true; crab.signLife=SIGN_LIFE; return {x:Math.round(crab.x), y:Math.round(crabY(tSec))}; };
+window.__crabHasSign = () => !!(crab && crab.sign);
 
 // ---------- Boot ----------
 function boot(raw){
@@ -2001,7 +2038,6 @@ function boot(raw){
   $("tutSkip").onclick  = ()=>tutAdvance(3);
   $("buyBtn").onclick   = buyFish;
   $("multiBtn").onclick = claimMulti;
-  $("x2Btn").onclick    = claimX2;
   $("fishBtn").onclick  = ()=>openModal('fish');
   $("upBtn").onclick    = ()=>openModal('up');
   $("setBtn").onclick   = openSettings;
