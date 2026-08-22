@@ -73,7 +73,7 @@
 Живой подводный мир — лучи света, водоросли, кораллы, медуза и краб на дне — успокаивает и радует.
 ```
 
-### Как играть (1010/1000)
+### Как играть (989/1000)
 
 ```
 1. Тапайте по рыбке — она приносит жемчуг. Тап по пустой воде дохода не даёт, только рябь.
@@ -86,7 +86,7 @@
 
 5. «Мульти-тап» после видео две минуты собирает жемчуг со всех рыбок любым тапом. А краб на дне иногда выносит табличку «Доход ×2» — тапните по нему, чтобы удвоить фоновый доход.
 
-6. Боковые кнопки — магазин, улучшения и настройки: громкость музыки и звуков, выбор языка.
+6. Боковые кнопки — магазин, улучшения и настройки (громкость и язык).
 ```
 
 ---
@@ -127,7 +127,7 @@ Upgrade the tank: rich food is more filling, the aerator raises background incom
 A living underwater world — light rays, plants, corals, a jellyfish and a crab on the sand — keeps things calm and cheerful.
 ```
 
-### Как играть (1002/1000)
+### Как играть (991/1000)
 
 ```
 1. Tap a fish — it pays out pearls. Tapping empty water gives nothing, just a ripple.
@@ -140,5 +140,5 @@ A living underwater world — light rays, plants, corals, a jellyfish and a crab
 
 5. "Multi-tap" after a video lets any tap collect from every fish for two minutes. The crab on the sand sometimes holds an "Income ×2" sign — tap him to double background income.
 
-6. The side buttons open the shop, upgrades and settings: volume sliders and the language.
+6. The side buttons open the shop, upgrades and settings (volume and language).
 ```
