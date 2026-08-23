@@ -129,6 +129,14 @@ let sp0 = await state();
 await page.evaluate(() => window.advanceTime(60000));
 assert((await state()).coins > sp0.coins, 'passive income accrues over time');
 
+// ценность видов растёт мягко — числа остаются читаемыми
+const curve = await page.evaluate(() => ({
+  first: LEVELS[0].tap, last: LEVELS[LEVELS.length - 1].tap,
+  step: LEVELS[10].tap / LEVELS[9].tap,
+}));
+assert(curve.step > 1.1 && curve.step < 1.3, 'each species is ~1.2× the previous one, not 1.5×+');
+assert(curve.last < 5000, 'top species stays a readable number: ' + curve.last);
+
 // мульти-тап: после награды тап по воде собирает со всех рыбок
 let bmt = await state();
 await page.click('#multiBtn');
@@ -180,6 +188,32 @@ await page.click('#langEn'); await page.waitForTimeout(120);
 assert(await page.evaluate(() => document.documentElement.lang) === 'en', 'language switch in settings works');
 await page.click('#langRu'); await page.waitForTimeout(120);
 await page.click('#sClose'); await page.waitForTimeout(100);
+
+// офлайн-доход: пока игра закрыта, рыбки продолжают приносить жемчуг (потолок 4 часа)
+const off = await page.evaluate(async () => {
+  const ips = ipsBase() * aerMult();
+  window.persist = () => {};
+  const save = JSON.parse(localStorage.getItem('cozy_aquarium_v1'));
+  save.time = Date.now() - 2 * 3600 * 1000;
+  localStorage.setItem('cozy_aquarium_v1', JSON.stringify(save));
+  return { ips, coins: Math.floor(save.coins) };
+});
+await page.reload();
+await page.waitForFunction(() => typeof window.render_game_to_text === 'function', { timeout: 8000 });
+let back = await state();
+assert(back.offlineGain > 0, 'coming back after a break grants offline income');
+assert(Math.abs(back.offlineGain - off.ips * 7200) < off.ips * 60, 'offline income matches two hours of passive rate');
+const capped = await page.evaluate(async () => {
+  window.persist = () => {};
+  const save = JSON.parse(localStorage.getItem('cozy_aquarium_v1'));
+  save.time = Date.now() - 48 * 3600 * 1000;
+  localStorage.setItem('cozy_aquarium_v1', JSON.stringify(save));
+  return ipsBase() * aerMult();
+});
+await page.reload();
+await page.waitForFunction(() => typeof window.render_game_to_text === 'function', { timeout: 8000 });
+let long = await state();
+assert(Math.abs(long.offlineGain - capped * 14400) < capped * 60, 'offline income is capped at four hours');
 
 // сейв переживает перезагрузку
 let pre = await state();

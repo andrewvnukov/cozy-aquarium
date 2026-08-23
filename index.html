@@ -184,7 +184,7 @@
 // ============================================================
 const SAVE_KEY = "cozy_aquarium_v1";        // GAME: уникальный ключ сейва
 const LB_NAME  = "species";                  // техимя лидерборда (рекорд = число видов)
-let ysdk=null, player=null, lb=null, saveT=0, booted=false;
+let ysdk=null, player=null, lb=null, saveT=0, booted=false, offlineGain=0;
 
 // ---------- i18n (авто-язык через SDK, урок модерации п.2.14) ----------
 function lang(){
@@ -226,6 +226,7 @@ const STR = {
   upPlant:{ru:"Водоросли",en:"Water plants"}, upPlantD:{ru:"−5% к цене мальков",en:"−5% fry price"},
   ipsUnit:{ru:"ж/с",en:"p/s"},
   daily:{ru:"Ежедневный подарок:",en:"Daily gift:"},
+  offline:{ru:"Пока вас не было, рыбки накопили:",en:"While you were away the fish earned:"},
   x2got:{ru:"Доход удвоен на 5 минут!",en:"Income doubled for 5 min!"},
   cooldown:{ru:"Ещё рано — подожди",en:"Not ready yet"},
 };
@@ -238,36 +239,36 @@ const LEVELS = [
   // beh — характер: dart (снуёт), school (стайная), calm, slow, hover (зависает),
   // bottom (у дна), glass (ползёт по дну/стеклу), drift (медленно дрейфует)
   // depth — любимая глубина 0 (у поверхности) .. 1 (у дна)
-  {ru:'Гуппи',            en:'Guppy',            c1:'#F2A65A', c2:'#FFDDAF', shape:'guppy',   beh:'calm',   depth:0.25, tap:1,       grow:5},
-  {ru:'Кардинал',         en:'White Cloud',      c1:'#8FB6C9', c2:'#F2846A', shape:'danio',   beh:'school', depth:0.30, tap:2,       grow:7},
-  {ru:'Неон',             en:'Neon Tetra',       c1:'#3BA7D6', c2:'#F25C69', shape:'neon',    beh:'school', depth:0.38, tap:4,       grow:9},
-  {ru:'Данио-рерио',      en:'Zebra Danio',      c1:'#C9D6E0', c2:'#3E6E9E', shape:'danio',   beh:'dart',   depth:0.20, tap:7,       grow:11},
-  {ru:'Пецилия',          en:'Platy',            c1:'#F2762E', c2:'#FFCF9E', shape:'guppy',   beh:'calm',   depth:0.35, tap:12,      grow:13},
-  {ru:'Меченосец',        en:'Swordtail',        c1:'#E8453C', c2:'#FFD9A0', shape:'sword',   beh:'calm',   depth:0.32, tap:20,      grow:16},
-  {ru:'Моллинезия',       en:'Molly',            c1:'#4A4A57', c2:'#9AA0AC', shape:'molly',   beh:'calm',   depth:0.40, tap:34,      grow:19},
-  {ru:'Тернеция',         en:'Black Tetra',      c1:'#6B6E82', c2:'#2E3140', shape:'tetra',   beh:'school', depth:0.42, tap:56,      grow:22},
-  {ru:'Расбора',          en:'Harlequin Rasbora',c1:'#E4A05C', c2:'#3A2F44', shape:'tetra',   beh:'school', depth:0.34, tap:92,      grow:25},
-  {ru:'Барбус',           en:'Tiger Barb',       c1:'#E8B44A', c2:'#2E2A33', shape:'barb',    beh:'dart',   depth:0.45, tap:150,     grow:29},
-  {ru:'Золотая рыбка',    en:'Goldfish',         c1:'#FF8C42', c2:'#FFC38A', shape:'gold',    beh:'slow',   depth:0.50, tap:245,     grow:33},
-  {ru:'Гурами',           en:'Pearl Gourami',    c1:'#B9A7C4', c2:'#E8D6B0', shape:'gourami', beh:'slow',   depth:0.30, tap:400,     grow:38},
-  {ru:'Петушок',          en:'Betta',            c1:'#C2384F', c2:'#5B7FD1', shape:'betta',   beh:'hover',  depth:0.28, tap:650,     grow:43},
-  {ru:'Коридорас',        en:'Corydoras',        c1:'#C4B49A', c2:'#6E5F4E', shape:'cory',    beh:'bottom', depth:0.95, tap:1050,    grow:48},
-  {ru:'Анциструс',        en:'Bristlenose Pleco',c1:'#4E4A42', c2:'#8C8578', shape:'pleco',   beh:'glass',  depth:0.97, tap:1700,    grow:54},
-  {ru:'Боция-клоун',      en:'Clown Loach',      c1:'#F2A03C', c2:'#2E2A33', shape:'loach',   beh:'bottom', depth:0.88, tap:2750,    grow:60},
-  {ru:'Апистограмма',     en:'Apistogramma',     c1:'#F2C14E', c2:'#3E7CC4', shape:'cichlid', beh:'calm',   depth:0.62, tap:4400,    grow:67},
-  {ru:'Скалярия',         en:'Angelfish',        c1:'#F0E6C4', c2:'#4A6377', shape:'angel',   beh:'slow',   depth:0.45, tap:7100,    grow:74},
-  {ru:'Дискус',           en:'Discus',           c1:'#E8734A', c2:'#3E7CC4', shape:'discus',  beh:'slow',   depth:0.50, tap:11500,   grow:82},
-  {ru:'Цихлида-попугай',  en:'Blood Parrot',     c1:'#F2603C', c2:'#FFB08A', shape:'parrot',  beh:'calm',   depth:0.58, tap:18500,   grow:90},
-  {ru:'Оскар',            en:'Oscar',            c1:'#3E3A38', c2:'#E8873C', shape:'oscar',   beh:'slow',   depth:0.60, tap:30000,   grow:99},
-  {ru:'Сомик-таракатум',  en:'Hoplo Catfish',    c1:'#8A7358', c2:'#CBB89B', shape:'cat',     beh:'bottom', depth:0.92, tap:48000,   grow:108},
-  {ru:'Рыба-клоун',       en:'Clownfish',        c1:'#FF7A2E', c2:'#FFFFFF', shape:'clown',   beh:'hover',  depth:0.55, tap:78000,   grow:118},
-  {ru:'Рыба-хирург',      en:'Blue Tang',        c1:'#3E7CC4', c2:'#F2C14E', shape:'tang',    beh:'calm',   depth:0.48, tap:126000,  grow:128},
-  {ru:'Рыба-бабочка',     en:'Butterflyfish',    c1:'#F2D24E', c2:'#2E3140', shape:'butterfly',beh:'calm',  depth:0.40, tap:205000,  grow:139},
-  {ru:'Мавританский идол',en:'Moorish Idol',     c1:'#F5F0DC', c2:'#2E3140', shape:'idol',    beh:'drift',  depth:0.44, tap:330000,  grow:150},
-  {ru:'Рыба-ангел',       en:'Emperor Angelfish',c1:'#3B5EA8', c2:'#F2C14E', shape:'emperor', beh:'slow',   depth:0.52, tap:535000,  grow:162},
-  {ru:'Спинорог',         en:'Triggerfish',      c1:'#4E8C7A', c2:'#F2E2B0', shape:'trigger', beh:'dart',   depth:0.56, tap:865000,  grow:175},
-  {ru:'Крылатка',         en:'Lionfish',         c1:'#C4442E', c2:'#F5EAD6', shape:'lion',    beh:'hover',  depth:0.66, tap:1400000, grow:188},
-  {ru:'Иглобрюх',         en:'Pufferfish',       c1:'#C7D66B', c2:'#EEF5C6', shape:'puffer',  beh:'drift',  depth:0.70, tap:2270000, grow:200},
+  {ru:'Гуппи',            en:'Guppy',            c1:'#F2A65A', c2:'#FFDDAF', shape:'guppy',   beh:'calm',   depth:0.25, tap:10,        grow:5},
+  {ru:'Кардинал',         en:'White Cloud',      c1:'#8FB6C9', c2:'#F2846A', shape:'danio',   beh:'school', depth:0.30, tap:12,        grow:7},
+  {ru:'Неон',             en:'Neon Tetra',       c1:'#3BA7D6', c2:'#F25C69', shape:'neon',    beh:'school', depth:0.38, tap:14,        grow:9},
+  {ru:'Данио-рерио',      en:'Zebra Danio',      c1:'#C9D6E0', c2:'#3E6E9E', shape:'danio',   beh:'dart',   depth:0.20, tap:17,        grow:11},
+  {ru:'Пецилия',          en:'Platy',            c1:'#F2762E', c2:'#FFCF9E', shape:'guppy',   beh:'calm',   depth:0.35, tap:21,        grow:13},
+  {ru:'Меченосец',        en:'Swordtail',        c1:'#E8453C', c2:'#FFD9A0', shape:'sword',   beh:'calm',   depth:0.32, tap:25,        grow:16},
+  {ru:'Моллинезия',       en:'Molly',            c1:'#4A4A57', c2:'#9AA0AC', shape:'molly',   beh:'calm',   depth:0.40, tap:30,        grow:19},
+  {ru:'Тернеция',         en:'Black Tetra',      c1:'#6B6E82', c2:'#2E3140', shape:'tetra',   beh:'school', depth:0.42, tap:36,        grow:22},
+  {ru:'Расбора',          en:'Harlequin Rasbora',c1:'#E4A05C', c2:'#3A2F44', shape:'tetra',   beh:'school', depth:0.34, tap:43,        grow:25},
+  {ru:'Барбус',           en:'Tiger Barb',       c1:'#E8B44A', c2:'#2E2A33', shape:'barb',    beh:'dart',   depth:0.45, tap:52,        grow:29},
+  {ru:'Золотая рыбка',    en:'Goldfish',         c1:'#FF8C42', c2:'#FFC38A', shape:'gold',    beh:'slow',   depth:0.50, tap:62,        grow:33},
+  {ru:'Гурами',           en:'Pearl Gourami',    c1:'#B9A7C4', c2:'#E8D6B0', shape:'gourami', beh:'slow',   depth:0.30, tap:74,        grow:38},
+  {ru:'Петушок',          en:'Betta',            c1:'#C2384F', c2:'#5B7FD1', shape:'betta',   beh:'hover',  depth:0.28, tap:89,        grow:43},
+  {ru:'Коридорас',        en:'Corydoras',        c1:'#C4B49A', c2:'#6E5F4E', shape:'cory',    beh:'bottom', depth:0.95, tap:107,        grow:48},
+  {ru:'Анциструс',        en:'Bristlenose Pleco',c1:'#4E4A42', c2:'#8C8578', shape:'pleco',   beh:'glass',  depth:0.97, tap:128,        grow:54},
+  {ru:'Боция-клоун',      en:'Clown Loach',      c1:'#F2A03C', c2:'#2E2A33', shape:'loach',   beh:'bottom', depth:0.88, tap:154,        grow:60},
+  {ru:'Апистограмма',     en:'Apistogramma',     c1:'#F2C14E', c2:'#3E7CC4', shape:'cichlid', beh:'calm',   depth:0.62, tap:185,        grow:67},
+  {ru:'Скалярия',         en:'Angelfish',        c1:'#F0E6C4', c2:'#4A6377', shape:'angel',   beh:'slow',   depth:0.45, tap:222,        grow:74},
+  {ru:'Дискус',           en:'Discus',           c1:'#E8734A', c2:'#3E7CC4', shape:'discus',  beh:'slow',   depth:0.50, tap:266,        grow:82},
+  {ru:'Цихлида-попугай',  en:'Blood Parrot',     c1:'#F2603C', c2:'#FFB08A', shape:'parrot',  beh:'calm',   depth:0.58, tap:319,        grow:90},
+  {ru:'Оскар',            en:'Oscar',            c1:'#3E3A38', c2:'#E8873C', shape:'oscar',   beh:'slow',   depth:0.60, tap:383,        grow:99},
+  {ru:'Сомик-таракатум',  en:'Hoplo Catfish',    c1:'#8A7358', c2:'#CBB89B', shape:'cat',     beh:'bottom', depth:0.92, tap:460,        grow:108},
+  {ru:'Рыба-клоун',       en:'Clownfish',        c1:'#FF7A2E', c2:'#FFFFFF', shape:'clown',   beh:'hover',  depth:0.55, tap:552,        grow:118},
+  {ru:'Рыба-хирург',      en:'Blue Tang',        c1:'#3E7CC4', c2:'#F2C14E', shape:'tang',    beh:'calm',   depth:0.48, tap:662,        grow:128},
+  {ru:'Рыба-бабочка',     en:'Butterflyfish',    c1:'#F2D24E', c2:'#2E3140', shape:'butterfly',beh:'calm',  depth:0.40, tap:795,        grow:139},
+  {ru:'Мавританский идол',en:'Moorish Idol',     c1:'#F5F0DC', c2:'#2E3140', shape:'idol',    beh:'drift',  depth:0.44, tap:954,        grow:150},
+  {ru:'Рыба-ангел',       en:'Emperor Angelfish',c1:'#3B5EA8', c2:'#F2C14E', shape:'emperor', beh:'slow',   depth:0.52, tap:1145,        grow:162},
+  {ru:'Спинорог',         en:'Triggerfish',      c1:'#4E8C7A', c2:'#F2E2B0', shape:'trigger', beh:'dart',   depth:0.56, tap:1374,        grow:175},
+  {ru:'Крылатка',         en:'Lionfish',         c1:'#C4442E', c2:'#F5EAD6', shape:'lion',    beh:'hover',  depth:0.66, tap:1648,        grow:188},
+  {ru:'Иглобрюх',         en:'Pufferfish',       c1:'#C7D66B', c2:'#EEF5C6', shape:'puffer',  beh:'drift',  depth:0.70, tap:1978,        grow:200},
 ];
 const MAXLVL = LEVELS.length-1;
 const LV = l => LEVELS[Math.max(0,Math.min(MAXLVL,l))];
@@ -296,6 +297,7 @@ const x2On      = () => Date.now() < S.x2Until;
 const multiOn   = () => Date.now() < S.multiUntil;
 const MULTI_MS  = 120000;                                // мульти-тап: 2 минуты после рекламы
 
+const OFFLINE_CAP = 4*3600;                              // офлайн-доход копится максимум за 4 часа
 const SAT_FULL  = 0.75;                                  // порог «сыта» — с него идёт ×2
 const SAT_DECAY = 0.0016;                                // сытость/сек: ×2 живёт ~2.5 мин, тает ~10 мин
 const EAT_CD    = 0.9;                                   // рыбка ест не чаще раза в 0.9 c
@@ -316,7 +318,7 @@ const ips       = () => ipsBase() * aerMult() * (x2On()?2:1);
 // цена малька растёт с каждой покупкой — главный сдерживающий фактор прогресса
 const priceMult = () => Math.max(0.5, 1 - 0.05*S.plant);
 // цена рыбы уровня L: дороже, чем получить её мержем — покупка это ускорение, а не замена
-const fishCostAt = lvl => Math.max(1, Math.floor(30 * Math.pow(1.85, lvl) * Math.pow(1.35, Math.max(0,S.bought-1)) * priceMult()));
+const fishCostAt = lvl => Math.max(1, Math.floor(40 * Math.pow(1.55, lvl) * Math.pow(1.12, Math.max(0,S.bought-1)) * priceMult()));
 const fishCost  = () => fishCostAt(0);
 const unlocked  = lvl => S.seen.includes(lvl);   // открытые виды доступны в магазине
 const foodCost  = () => Math.max(3, Math.ceil(tapBase()*0.85));
@@ -369,6 +371,9 @@ function restore(raw){
     }
     f.sat=Math.max(0, f.sat-SAT_DECAY*off);
   });
+  // офлайн-доход: рыбки приносили жемчуг, пока игра была закрыта (не дольше 4 часов)
+  offlineGain = Math.floor(ipsBase()*aerMult()*Math.min(off, OFFLINE_CAP));
+  if(offlineGain>0) S.coins += offlineGain;
   // старый сейв без обучения: опытному игроку обучение не показываем
   if(typeof S.tut!=='number') S.tut=(S.tank.length>1||S.coins>50)?3:0;
 }
@@ -409,8 +414,8 @@ function onFocusChange(hidden){
   if(hidden){ pauseAudio(); gameplayStop(); }
   else { resumeAudio(); gameplayStart(); }
 }
-document.addEventListener('visibilitychange', ()=>onFocusChange(document.hidden));
-addEventListener('pagehide', ()=>onFocusChange(true));
+document.addEventListener('visibilitychange', ()=>{ onFocusChange(document.hidden); if(document.hidden && booted) persist(true); });
+addEventListener('pagehide', ()=>{ onFocusChange(true); if(booted) persist(true); });
 addEventListener('pageshow', ()=>onFocusChange(false));
 
 // ---------- Лидерборд ----------
@@ -1999,7 +2004,7 @@ window.render_game_to_text = () => JSON.stringify({
   feed:S.feed, aer:S.aer, plant:S.plant,
   tapGain:tapGain(), best:S.best, x2:x2On(), multi:multiOn(),
   fishCost:fishCost(), foodCost:foodCost(), feedFill:feedFill(),
-  levels:LEVELS.length, musVol:S.musVol, sfxVol:S.sfxVol,
+  levels:LEVELS.length, musVol:S.musVol, sfxVol:S.sfxVol, offlineGain:offlineGain,
   shopLevels:LEVELS.map((lv,i)=>({lvl:i, open:unlocked(i), cost:fishCostAt(i)})),
   tank:S.tank.map(f=>({lvl:f.lvl, g:Math.round(f.g*1000)/1000, sat:Math.round(f.sat*1000)/1000})),
   grownCount:S.tank.filter(grown).length,
@@ -2057,6 +2062,7 @@ function boot(raw){
   cv.addEventListener('pointermove', e=>{ addTrail(e.clientX, e.clientY); onMove(e); });
   cv.addEventListener('pointerup', onUp);
   cv.addEventListener('pointercancel', ()=>{ dragSw=null; });
+  if(offlineGain>0) setTimeout(()=>toast(T("offline")+" +"+fmt(offlineGain)), 1200);
   checkDaily();
   startMusic();
   setInterval(()=>refreshHud(), 1000); // обновляет таймер ×2 и цены

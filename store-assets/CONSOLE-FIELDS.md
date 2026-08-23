@@ -73,7 +73,7 @@
 Живой подводный мир — лучи света, водоросли, кораллы, медуза и краб на дне — успокаивает и радует.
 ```
 
-### Как играть (989/1000)
+### Как играть (997/1000)
 
 ```
 1. Тапайте по рыбке — она приносит жемчуг. Тап по пустой воде дохода не даёт, только рябь.
@@ -84,9 +84,9 @@
 
 4. «Покормить» бросает корм: рыбки едят не спеша. Когда зелёная шкала дойдёт до золотой риски, рыбка сыта — платит вдвое больше за тап и растёт быстрее. Сытость постепенно тает.
 
-5. «Мульти-тап» после видео две минуты собирает жемчуг со всех рыбок любым тапом. А краб на дне иногда выносит табличку «Доход ×2» — тапните по нему, чтобы удвоить фоновый доход.
+5. «Мульти-тап» после видео две минуты собирает жемчуг со всех рыбок. А краб на дне иногда выносит табличку «Доход ×2» — тапните по нему, чтобы удвоить фоновый доход.
 
-6. Боковые кнопки — магазин, улучшения и настройки (громкость и язык).
+6. Боковые кнопки — магазин, улучшения и настройки. Пока игра закрыта, рыбки копят жемчуг.
 ```
 
 ---
@@ -127,7 +127,7 @@ Upgrade the tank: rich food is more filling, the aerator raises background incom
 A living underwater world — light rays, plants, corals, a jellyfish and a crab on the sand — keeps things calm and cheerful.
 ```
 
-### Как играть (991/1000)
+### Как играть (1000/1000)
 
 ```
 1. Tap a fish — it pays out pearls. Tapping empty water gives nothing, just a ripple.
@@ -138,7 +138,7 @@ A living underwater world — light rays, plants, corals, a jellyfish and a crab
 
 4. "Feed" drops food and fish eat unhurriedly. Once the green bar reaches the golden mark the fish is full — double pearls per tap and faster growth. Satiety slowly fades.
 
-5. "Multi-tap" after a video lets any tap collect from every fish for two minutes. The crab on the sand sometimes holds an "Income ×2" sign — tap him to double background income.
+5. "Multi-tap" after a video collects from every fish on any tap for two minutes. The crab sometimes holds an "Income ×2" sign — tap him to double background income.
 
-6. The side buttons open the shop, upgrades and settings (volume and language).
+6. The side buttons open the shop, upgrades and settings. Fish keep earning while the game is closed.
 ```
