@@ -1,0 +1,198 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Nunito',system-ui,sans-serif;background:#fff}
+  .one{width:512px;height:512px;display:flex;align-items:center;justify-content:center}
+  svg{display:block}
+</style></head><body>
+<div class="one" id="stage"></div>
+<script>
+// ── Общие элементы бренда серии: тёплая бумага, чернильный контур, мягкие блики ──
+const INK='#2B3F52', PAPER='#FFF6E3';
+const defs = `
+<defs>
+  <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8FD6E8"/><stop offset="1" stop-color="#2E86AE"/>
+  </linearGradient>
+  <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#EAF7FC" stop-opacity=".95"/>
+    <stop offset=".45" stop-color="#FFFFFF" stop-opacity=".55"/>
+    <stop offset="1" stop-color="#CFE9F4" stop-opacity=".95"/>
+  </linearGradient>
+  <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFD98A"/><stop offset="1" stop-color="#F2A63C"/>
+  </linearGradient>
+  <linearGradient id="coral" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFAE72"/><stop offset="1" stop-color="#F2762E"/>
+  </linearGradient>
+  <linearGradient id="pearlG" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#FFFFFF"/><stop offset=".5" stop-color="#F7EAC6"/><stop offset="1" stop-color="#E6C79A"/>
+  </linearGradient>
+  <linearGradient id="paperG" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFFBF0"/><stop offset="1" stop-color="#FFEFD2"/>
+  </linearGradient>
+  <linearGradient id="deep" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#3E9BC4"/><stop offset="1" stop-color="#1E5C82"/>
+  </linearGradient>
+  <radialGradient id="gloss" cx=".35" cy=".3" r=".7">
+    <stop offset="0" stop-color="#fff" stop-opacity=".85"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+</defs>`;
+
+// круглая подложка + мягкая тень внутри
+const disc = (fill) => `
+  <clipPath id="discclip"><circle cx="100" cy="100" r="91"/></clipPath>
+  <circle cx="100" cy="100" r="94" fill="${fill}" stroke="${INK}" stroke-width="7"/>`;
+// рамка поверх знака, чтобы контур диска оставался чистым
+const rim = () => `
+  <circle cx="100" cy="100" r="94" fill="url(#gloss)" opacity=".45" pointer-events="none"/>
+  <circle cx="100" cy="100" r="94" fill="none" stroke="${INK}" stroke-width="7"/>`;
+
+// маленькая рыбка (переиспользуется в нескольких знаках)
+const fish = (x,y,s,body='url(#coral)',dir=1) => `
+  <g transform="translate(${x} ${y}) scale(${dir*s} ${s})" stroke="${INK}" stroke-width="${3.4/s}" stroke-linejoin="round">
+    <path d="M-8 0 L-20 -10 Q-15 0 -20 10 Z" fill="${body}"/>
+    <path d="M2 -9 Q8 -18 14 -10 Q9 -7 5 -6 Z" fill="#FFD9A8"/>
+    <ellipse cx="0" cy="0" rx="16" ry="11" fill="${body}"/>
+    <path d="M-1 3 Q5 12 -4 13 Q-6 7 -3 3 Z" fill="#FFD9A8"/>
+    <circle cx="8" cy="-3" r="3.6" fill="#fff"/>
+    <circle cx="9" cy="-3" r="1.8" fill="${INK}" stroke="none"/>
+  </g>`;
+
+const bubbles = (pts) => pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}" fill="#EAF8FF" stroke="${INK}" stroke-width="2.4" opacity=".95"/>`).join('');
+
+const LOGOS = {
+// 1. Банка с рыбкой — прямая склейка двух игр серии
+jar: `${defs}${disc('url(#paperG)')}
+  <g clip-path="url(#discclip)">
+  <g stroke="${INK}" stroke-width="6.5" stroke-linejoin="round">
+    <rect x="58" y="46" width="84" height="20" rx="8" fill="#F2A63C"/>
+    <path d="M64 66 L58 148 Q58 166 76 166 L124 166 Q142 166 142 148 L136 66 Z" fill="url(#water)"/>
+  </g>
+  <g clip-path="url(#jarclip)">
+    <clipPath id="jarclip"><path d="M64 66 L58 148 Q58 166 76 166 L124 166 Q142 166 142 148 L136 66 Z"/></clipPath>
+    ${bubbles([[76,92,5],[120,84,4],[92,76,3.4],[112,120,4.6]])}
+    ${fish(100,124,1.15)}
+    <path d="M52 66 L148 66 L148 84 Q100 96 52 84 Z" fill="#fff" opacity=".28"/>
+  </g>
+  <path d="M64 66 L58 148 Q58 166 76 166 L124 166 Q142 166 142 148 L136 66 Z" fill="url(#glass)" opacity=".5" stroke="${INK}" stroke-width="6.5" stroke-linejoin="round"/>
+  <path d="M76 78 L71 146" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".75" fill="none"/>
+  </g>${rim()}`,
+
+// 2. Волна и солнце — «уютные игры», без привязки к жанру
+wave: `${defs}${disc('#FFF6E3')}
+  <g clip-path="url(#discclip)">
+  <circle cx="100" cy="80" r="34" fill="url(#sun)" stroke="${INK}" stroke-width="6.5"/>
+  <path d="M100 46 v-14 M100 128 v14 M66 80 h-14 M134 80 h14 M76 56 l-10-10 M124 104 l10 10 M76 104 l-10 10 M124 56 l10-10"
+        stroke="${INK}" stroke-width="6" stroke-linecap="round" opacity=".9"/>
+  <g stroke="${INK}" stroke-width="6.5" stroke-linejoin="round">
+    <path d="M14 128 Q42 108 70 128 T126 128 T186 128 L186 176 Q100 196 14 176 Z" fill="url(#water)"/>
+  </g>
+  <path d="M24 146 Q52 130 80 146 T136 146 T180 142" stroke="#EAF8FF" stroke-width="5" fill="none" opacity=".8" stroke-linecap="round"/>
+  </g>${rim()}`,
+
+// 3. Жемчужина в ракушке — «сокровище», перекликается с валютой аквариума
+pearl: `${defs}${disc('#EAF6FB')}
+  <g clip-path="url(#discclip)">
+    <g stroke="${INK}" stroke-width="6" stroke-linejoin="round">
+      <path d="M100 96 Q40 96 34 44 Q100 22 166 44 Q160 96 100 96 Z" fill="#F7C9D8"/>
+    </g>
+    <g stroke="${INK}" stroke-width="3" opacity=".4" fill="none">
+      <path d="M100 96 L58 40"/><path d="M100 96 L79 32"/><path d="M100 96 L100 28"/>
+      <path d="M100 96 L121 32"/><path d="M100 96 L142 40"/>
+    </g>
+    <circle cx="100" cy="112" r="26" fill="url(#pearlG)" stroke="${INK}" stroke-width="6"/>
+    <ellipse cx="90" cy="103" rx="9" ry="6" fill="#fff" opacity=".92" transform="rotate(-25 90 103)"/>
+    <g stroke="${INK}" stroke-width="6" stroke-linejoin="round">
+      <path d="M100 118 Q34 118 28 168 Q100 190 172 168 Q166 118 100 118 Z" fill="url(#coral)"/>
+    </g>
+    <g stroke="${INK}" stroke-width="3.2" opacity=".45" fill="none">
+      <path d="M100 122 L54 166"/><path d="M100 122 L77 176"/><path d="M100 122 L100 180"/>
+      <path d="M100 122 L123 176"/><path d="M100 122 L146 166"/>
+    </g>
+  </g>${rim()}`,
+
+// 4. Кружка с рыбкой — самый «уютный» вариант серии
+mug: `${defs}${disc('url(#paperG)')}
+  <g clip-path="url(#discclip)">
+  <path d="M138 92 q30 0 30 22 t-30 22" fill="none" stroke="${INK}" stroke-width="9" stroke-linecap="round"/>
+  <g stroke="${INK}" stroke-width="6.5" stroke-linejoin="round">
+    <path d="M48 74 L58 152 Q60 168 78 168 L118 168 Q136 168 138 152 L148 74 Z" fill="#fff"/>
+  </g>
+  <clipPath id="mugclip"><path d="M48 74 L58 152 Q60 168 78 168 L118 168 Q136 168 138 152 L148 74 Z"/></clipPath>
+  <g clip-path="url(#mugclip)">
+    <path d="M44 96 q26 -12 52 0 t56 0 v80 h-108 Z" fill="url(#water)"/>
+    ${bubbles([[70,120,4],[122,112,3.4]])}
+    ${fish(98,140,0.95)}
+  </g>
+  <ellipse cx="98" cy="74" rx="50" ry="12" fill="#EAF7FC" stroke="${INK}" stroke-width="6.5"/>
+  <g stroke="#B9D9E8" stroke-width="5" stroke-linecap="round" fill="none" opacity=".95">
+    <path d="M80 52 q8 -10 0 -20 M100 46 q8 -10 0 -20 M120 52 q8 -10 0 -20"/>
+  </g>
+  </g>${rim()}`,
+
+// 5. Пузырь-геймпад — знак «игры», читается даже в 32px
+pad: `${defs}${disc('url(#deep)')}
+  <g clip-path="url(#discclip)">
+    ${bubbles([[150,54,8],[166,34,5],[44,150,6]])}
+    <g stroke="${INK}" stroke-width="6.5" stroke-linejoin="round">
+      <path d="M62 76 h76 q26 0 32 26 l10 40 q4 18 -14 20 q-14 2 -24 -12 l-10 -14 h-64 l-10 14
+               q-10 14 -24 12 q-18 -2 -14 -20 l10 -40 q6 -26 32 -26 Z" fill="#FFF6E3"/>
+    </g>
+    <g stroke="${INK}" stroke-width="6" stroke-linecap="round">
+      <path d="M62 106 h24 M74 94 v24"/>
+    </g>
+    <circle cx="132" cy="96" r="9" fill="url(#coral)" stroke="${INK}" stroke-width="5.5"/>
+    <circle cx="150" cy="114" r="9" fill="#7FD1AE" stroke="${INK}" stroke-width="5.5"/>
+    <circle cx="114" cy="114" r="9" fill="#8FD6E8" stroke="${INK}" stroke-width="5.5"/>
+  </g>${rim()}`,
+
+// 6. Рыбка-капля — минималистичный знак, отлично работает мелким
+drop: `${defs}${disc('#FFF6E3')}
+  <g clip-path="url(#discclip)">
+  <path d="M100 34 C132 76 152 100 152 122 a52 52 0 0 1 -104 0 c0 -22 20 -46 52 -88 Z"
+        fill="url(#water)" stroke="${INK}" stroke-width="7" stroke-linejoin="round"/>
+  <clipPath id="dropclip"><path d="M100 34 C132 76 152 100 152 122 a52 52 0 0 1 -104 0 c0 -22 20 -46 52 -88 Z"/></clipPath>
+  <g clip-path="url(#dropclip)">
+    ${fish(100,126,1.25)}
+    ${bubbles([[74,96,4.4],[126,88,3.4]])}
+  </g>
+  <path d="M74 116 q-4 -20 12 -34" stroke="#fff" stroke-width="7" fill="none" opacity=".7" stroke-linecap="round"/>
+  </g>${rim()}`,
+
+// 7. Домик-аквариум — «уютный дом для игр»
+home: `${defs}${disc('url(#paperG)')}
+  <g clip-path="url(#discclip)">
+  <g stroke="${INK}" stroke-width="6.5" stroke-linejoin="round">
+    <path d="M100 34 L166 84 L166 158 Q166 166 158 166 L42 166 Q34 166 34 158 L34 84 Z" fill="url(#water)"/>
+    <path d="M100 26 L176 84 L164 96 L100 47 L36 96 L24 84 Z" fill="url(#coral)"/>
+  </g>
+  <clipPath id="homeclip"><path d="M100 34 L166 84 L166 158 Q166 166 158 166 L42 166 Q34 166 34 158 L34 84 Z"/></clipPath>
+  <g clip-path="url(#homeclip)">
+    ${bubbles([[62,110,4.6],[140,100,3.6]])}
+    ${fish(100,128,1.1)}
+    <path d="M34 150 q34 -10 66 0 t66 0 v22 h-132 Z" fill="#F0DBA8" stroke="${INK}" stroke-width="5"/>
+  </g>
+  </g>${rim()}`,
+
+// 8. Монограмма «А» из рыбки и волны — знак-буква для аватара
+mono: `${defs}${disc('#FFF6E3')}
+  <g clip-path="url(#discclip)">
+  <g stroke="${INK}" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M56 152 L100 48 L144 152" fill="none"/>
+    <path d="M74 116 L126 116" fill="none"/>
+  </g>
+  <path d="M28 168 Q56 154 84 168 T140 168 T188 164" stroke="url(#water)" stroke-width="10" fill="none" stroke-linecap="round"/>
+  ${fish(150,74,0.8,'url(#coral)',-1)}
+  ${bubbles([[52,72,5],[64,54,3.4]])}
+  </g>${rim()}`,
+};
+
+const params = new URLSearchParams(location.search);
+const key = params.get('logo') || 'jar';
+const size = +(params.get('size')||512);
+const stage = document.getElementById('stage');
+stage.style.width = size+'px'; stage.style.height = size+'px';
+stage.innerHTML = `<svg width="${size}" height="${size}" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${LOGOS[key]}</svg>`;
+</script></body></html>
