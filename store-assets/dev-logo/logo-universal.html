@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#fff}.one{display:flex;align-items:center;justify-content:center}svg{display:block}
+</style></head><body>
+<div class="one" id="stage"></div>
+<script>
+// ── Универсальные знаки для студии уютных игр: тёплая палитра, чернильный контур ──
+const INK='#3A3140', CREAM='#FFF3DE';
+const defs = `
+<defs>
+  <linearGradient id="warm" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFE9C2"/><stop offset="1" stop-color="#FFCE94"/>
+  </linearGradient>
+  <linearGradient id="ember" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFB067"/><stop offset="1" stop-color="#F07A3C"/>
+  </linearGradient>
+  <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#5B4E7A"/><stop offset="1" stop-color="#332C4D"/>
+  </linearGradient>
+  <linearGradient id="night" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#3E3660"/><stop offset="1" stop-color="#241F3A"/>
+  </linearGradient>
+  <linearGradient id="moonG" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#FFF6D8"/><stop offset="1" stop-color="#F5D98E"/>
+  </linearGradient>
+  <linearGradient id="mint" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#A8E0C8"/><stop offset="1" stop-color="#6FBF9B"/>
+  </linearGradient>
+  <linearGradient id="rose" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFA9B8"/><stop offset="1" stop-color="#E8687F"/>
+  </linearGradient>
+  <radialGradient id="glowR" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#FFE6A8" stop-opacity=".95"/><stop offset="1" stop-color="#FFE6A8" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="gloss" cx=".35" cy=".28" r=".72">
+    <stop offset="0" stop-color="#fff" stop-opacity=".8"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+</defs>`;
+const disc = (fill) => `
+  <clipPath id="dc"><circle cx="100" cy="100" r="91"/></clipPath>
+  <circle cx="100" cy="100" r="94" fill="${fill}" stroke="${INK}" stroke-width="7"/>`;
+const rim = () => `
+  <circle cx="100" cy="100" r="94" fill="url(#gloss)" opacity=".4"/>
+  <circle cx="100" cy="100" r="94" fill="none" stroke="${INK}" stroke-width="7"/>`;
+const steam = (x,y,sc=1) => `
+  <g stroke="#C9BBD6" stroke-width="${6/sc}" stroke-linecap="round" fill="none" opacity=".95"
+     transform="translate(${x} ${y}) scale(${sc})">
+    <path d="M-20 0 q10 -12 0 -24"/><path d="M0 -6 q10 -12 0 -24"/><path d="M20 0 q10 -12 0 -24"/>
+  </g>`;
+const stars = (pts) => pts.map(p=>`
+  <path d="M${p[0]} ${p[1]-p[2]} L${p[0]+p[2]*0.3} ${p[1]-p[2]*0.3} L${p[0]+p[2]} ${p[1]}
+           L${p[0]+p[2]*0.3} ${p[1]+p[2]*0.3} L${p[0]} ${p[1]+p[2]} L${p[0]-p[2]*0.3} ${p[1]+p[2]*0.3}
+           L${p[0]-p[2]} ${p[1]} L${p[0]-p[2]*0.3} ${p[1]-p[2]*0.3} Z"
+        fill="#FFEFB8" stroke="${INK}" stroke-width="2.6" stroke-linejoin="round"/>`).join('');
+
+const LOGOS = {
+// 1. Кот клубком — самый прямой символ уюта
+cat: `${defs}${disc('url(#warm)')}
+  <g clip-path="url(#dc)">
+    <ellipse cx="100" cy="158" rx="62" ry="9" fill="#E2B98C" opacity=".5"/>
+    <g stroke="${INK}" stroke-width="6.5" stroke-linejoin="round" stroke-linecap="round">
+      <path d="M154 132 q18 -6 14 -24 q-4 -18 -22 -14 q-16 4 -12 20" fill="url(#ember)"/>
+      <path d="M46 128 q0 -44 54 -44 q54 0 54 44 q0 26 -54 26 q-54 0 -54 -26 Z" fill="url(#ember)"/>
+      <path d="M60 96 l-4 -26 l24 14 Z" fill="url(#ember)"/>
+      <path d="M104 84 l20 -22 l4 26 Z" fill="url(#ember)"/>
+      <path d="M56 118 q6 -30 34 -30 q30 0 34 28 q-32 16 -68 2 Z" fill="#FFE3BE"/>
+    </g>
+    <g stroke="${INK}" stroke-width="4.5" fill="none" stroke-linecap="round">
+      <path d="M68 110 q7 -8 14 0"/><path d="M96 108 q7 -8 14 0"/>
+    </g>
+    <path d="M84 118 l8 0 l-4 6 Z" fill="${INK}"/>
+    <path d="M88 124 q-5 6 -11 3 M88 124 q5 6 11 3" stroke="${INK}" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+    <g stroke="${INK}" stroke-width="3" stroke-linecap="round" opacity=".75">
+      <path d="M62 120 l-14 3 M64 128 l-13 7 M112 118 l14 2 M111 126 l13 7"/>
+    </g>
+    <g stroke="#D9873F" stroke-width="4.5" stroke-linecap="round" opacity=".85">
+      <path d="M150 112 h12 M148 124 h13"/>
+    </g>
+    ${steam(150,52,0.5)}
+  </g>${rim()}`,
+
+// 2. Кружка с паром — классика cozy
+mug: `${defs}${disc('#FFF7E8')}
+  <g clip-path="url(#dc)">
+    ${steam(100,66,1)}
+    <path d="M140 108 q30 0 30 20 t-30 20" fill="none" stroke="${INK}" stroke-width="9" stroke-linecap="round"/>
+    <g stroke="${INK}" stroke-width="6.5" stroke-linejoin="round">
+      <path d="M48 92 L58 154 Q60 170 78 170 L120 170 Q138 170 140 154 L150 92 Z" fill="url(#ember)"/>
+      <ellipse cx="99" cy="92" rx="51" ry="13" fill="#FFF3DE"/>
+    </g>
+    <ellipse cx="99" cy="93" rx="40" ry="9" fill="#8A5A3C"/>
+    <ellipse cx="88" cy="91" rx="12" ry="4" fill="#C99A6E" opacity=".8"/>
+    <path d="M62 106 L70 152" stroke="#fff" stroke-width="6" opacity=".45" stroke-linecap="round" fill="none"/>
+  </g>${rim()}`,
+
+// 3. Домик с тёплым окном — уют и «дом для игр»
+house: `${defs}${disc('url(#dusk)')}
+  <g clip-path="url(#dc)">
+    ${stars([[44,44,7],[160,60,6],[142,32,4.5]])}
+    <g stroke="${INK}" stroke-width="6.5" stroke-linejoin="round">
+      <path d="M124 44 h18 v22 l-18 -12 Z" fill="#C9705A"/>
+      <path d="M52 96 L100 56 L148 96 L148 156 Q148 164 140 164 L60 164 Q52 164 52 156 Z" fill="#FFE0B0"/>
+      <path d="M100 44 L166 100 L154 112 L100 68 L46 112 L34 100 Z" fill="#C9705A"/>
+      <rect x="84" y="124" width="32" height="40" rx="4" fill="#8A5A3C"/>
+    </g>
+    <circle cx="110" cy="146" r="3.4" fill="#FFD98A"/>
+    <rect x="82" y="86" width="36" height="28" rx="5" fill="#FFD98A" stroke="${INK}" stroke-width="5.5"/>
+    <path d="M100 86 v28 M82 100 h36" stroke="${INK}" stroke-width="4"/>
+    ${steam(132,34,0.5)}
+  </g>${rim()}`,
+
+// 4. Геймпад в тёплом круге — прямо «игры», но не холодный
+pad: `${defs}${disc('url(#warm)')}
+  <g clip-path="url(#dc)">
+    <g stroke="${INK}" stroke-width="6.5" stroke-linejoin="round">
+      <path d="M62 74 h76 q26 0 32 26 l10 40 q4 18 -14 20 q-14 2 -24 -12 l-10 -14 h-64 l-10 14
+               q-10 14 -24 12 q-18 -2 -14 -20 l10 -40 q6 -26 32 -26 Z" fill="#FFF7E8"/>
+    </g>
+    <g stroke="${INK}" stroke-width="6" stroke-linecap="round">
+      <path d="M60 104 h24 M72 92 v24"/>
+    </g>
+    <circle cx="130" cy="94" r="9" fill="url(#ember)" stroke="${INK}" stroke-width="5.5"/>
+    <circle cx="148" cy="112" r="9" fill="url(#mint)" stroke="${INK}" stroke-width="5.5"/>
+    <circle cx="112" cy="112" r="9" fill="url(#rose)" stroke="${INK}" stroke-width="5.5"/>
+  </g>${rim()}`,
+
+// 5. Месяц и звёзды — вечерний уют, подходит любой теме
+moon: `${defs}${disc('url(#night)')}
+  <g clip-path="url(#dc)">
+    ${stars([[52,60,8],[150,52,7],[142,124,6],[64,132,5]])}
+    <circle cx="104" cy="98" r="52" fill="url(#glowR)" opacity=".55"/>
+    <path d="M126 56 a48 48 0 1 0 22 62 a38 38 0 1 1 -22 -62 Z"
+          fill="url(#moonG)" stroke="${INK}" stroke-width="6.5" stroke-linejoin="round"/>
+    <g fill="#E8CC8E" opacity=".8">
+      <circle cx="98" cy="82" r="7"/><circle cx="86" cy="108" r="5"/><circle cx="108" cy="112" r="4"/>
+    </g>
+  </g>${rim()}`,
+
+// 6. Фонарь — тёплый свет в темноте
+lamp: `${defs}${disc('url(#dusk)')}
+  <g clip-path="url(#dc)">
+    <circle cx="100" cy="106" r="66" fill="url(#glowR)" opacity=".75"/>
+    <g stroke="${INK}" stroke-width="6.5" stroke-linejoin="round">
+      <path d="M100 26 q-16 8 0 20" fill="none"/>
+      <rect x="70" y="46" width="60" height="14" rx="6" fill="#C9705A"/>
+      <path d="M76 60 L68 146 q-1 12 12 12 h40 q13 0 12 -12 L124 60 Z" fill="#FFE6A8"/>
+      <rect x="66" y="152" width="68" height="16" rx="7" fill="#C9705A"/>
+    </g>
+    <path d="M86 74 q14 30 0 66" stroke="#fff" stroke-width="7" opacity=".55" fill="none" stroke-linecap="round"/>
+    <path d="M100 88 q10 14 0 28 q-10 -14 0 -28 Z" fill="#F0873C" stroke="${INK}" stroke-width="4"/>
+    ${stars([[40,52,6],[164,80,5]])}
+  </g>${rim()}`,
+
+// 7. Солнце над холмами — спокойный пейзаж, самый нейтральный знак
+hills: `${defs}${disc('#FFF7E8')}
+  <g clip-path="url(#dc)">
+    <circle cx="100" cy="82" r="30" fill="url(#ember)" stroke="${INK}" stroke-width="6.5"/>
+    <g stroke="${INK}" stroke-width="5.5" stroke-linecap="round">
+      <path d="M100 32 v14 M62 46 l10 10 M138 46 l-10 10 M48 84 h14 M138 84 h14"/>
+    </g>
+    <g stroke="${INK}" stroke-width="6.5" stroke-linejoin="round">
+      <path d="M4 152 q34 -44 70 -18 q30 22 62 -6 q30 -26 60 4 v72 h-192 Z" fill="url(#mint)"/>
+      <path d="M4 176 q40 -30 78 -8 q34 20 68 -4 q26 -18 46 -2 v42 h-192 Z" fill="#4FA98A"/>
+    </g>
+  </g>${rim()}`,
+
+// 8. Пиксельное сердце — «игры» + тепло, максимально простой силуэт
+heart: `${defs}${disc('url(#warm)')}
+  <g clip-path="url(#dc)">
+    <g fill="url(#rose)" stroke="url(#rose)" stroke-width="2"><rect x="61" y="67" width="13" height="13"/><rect x="74" y="67" width="13" height="13"/><rect x="113" y="67" width="13" height="13"/><rect x="126" y="67" width="13" height="13"/><rect x="48" y="80" width="13" height="13"/><rect x="61" y="80" width="13" height="13"/><rect x="74" y="80" width="13" height="13"/><rect x="87" y="80" width="13" height="13"/><rect x="100" y="80" width="13" height="13"/><rect x="113" y="80" width="13" height="13"/><rect x="126" y="80" width="13" height="13"/><rect x="139" y="80" width="13" height="13"/><rect x="35" y="93" width="13" height="13"/><rect x="48" y="93" width="13" height="13"/><rect x="61" y="93" width="13" height="13"/><rect x="74" y="93" width="13" height="13"/><rect x="87" y="93" width="13" height="13"/><rect x="100" y="93" width="13" height="13"/><rect x="113" y="93" width="13" height="13"/><rect x="126" y="93" width="13" height="13"/><rect x="139" y="93" width="13" height="13"/><rect x="152" y="93" width="13" height="13"/><rect x="35" y="106" width="13" height="13"/><rect x="48" y="106" width="13" height="13"/><rect x="61" y="106" width="13" height="13"/><rect x="74" y="106" width="13" height="13"/><rect x="87" y="106" width="13" height="13"/><rect x="100" y="106" width="13" height="13"/><rect x="113" y="106" width="13" height="13"/><rect x="126" y="106" width="13" height="13"/><rect x="139" y="106" width="13" height="13"/><rect x="152" y="106" width="13" height="13"/><rect x="48" y="119" width="13" height="13"/><rect x="61" y="119" width="13" height="13"/><rect x="74" y="119" width="13" height="13"/><rect x="87" y="119" width="13" height="13"/><rect x="100" y="119" width="13" height="13"/><rect x="113" y="119" width="13" height="13"/><rect x="126" y="119" width="13" height="13"/><rect x="139" y="119" width="13" height="13"/><rect x="61" y="132" width="13" height="13"/><rect x="74" y="132" width="13" height="13"/><rect x="87" y="132" width="13" height="13"/><rect x="100" y="132" width="13" height="13"/><rect x="113" y="132" width="13" height="13"/><rect x="126" y="132" width="13" height="13"/><rect x="74" y="145" width="13" height="13"/><rect x="87" y="145" width="13" height="13"/><rect x="100" y="145" width="13" height="13"/><rect x="113" y="145" width="13" height="13"/><rect x="87" y="158" width="13" height="13"/><rect x="100" y="158" width="13" height="13"/></g>
+    <g fill="#FFF3DE" opacity=".9"><rect x="63" y="82" width="9" height="9" rx="2"/><rect x="76" y="82" width="9" height="9" rx="2"/><rect x="50" y="95" width="9" height="9" rx="2"/></g>
+  </g>${rim()}`,
+};
+
+const params = new URLSearchParams(location.search);
+const key = params.get('logo') || 'cat';
+const size = +(params.get('size')||512);
+const stage = document.getElementById('stage');
+stage.style.width = size+'px'; stage.style.height = size+'px';
+stage.innerHTML = `<svg width="${size}" height="${size}" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${LOGOS[key]}</svg>`;
+</script></body></html>

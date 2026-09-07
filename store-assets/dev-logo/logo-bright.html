@@ -1,0 +1,173 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"><style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#fff}.one{display:flex;align-items:center;justify-content:center}svg{display:block}
+</style></head><body>
+<div class="one" id="stage"></div>
+<script>
+// ── Яркий набор: сочные градиенты, белые силуэты, лучи. Читается мелким. ──
+const W='#FFFFFF';
+const defs = `
+<defs>
+  <linearGradient id="punch" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#FF8A3D"/><stop offset="1" stop-color="#FF2E63"/>
+  </linearGradient>
+  <linearGradient id="candy" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#FF87E1"/><stop offset="1" stop-color="#F0327E"/>
+  </linearGradient>
+  <linearGradient id="aqua" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#3FE0F0"/><stop offset="1" stop-color="#1E6FE0"/>
+  </linearGradient>
+  <linearGradient id="grape" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#B15CFF"/><stop offset="1" stop-color="#5B2BE0"/>
+  </linearGradient>
+  <linearGradient id="lime" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#B9FF4B"/><stop offset="1" stop-color="#22C55E"/>
+  </linearGradient>
+  <linearGradient id="sunny" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#FFE94A"/><stop offset="1" stop-color="#FF9A1F"/>
+  </linearGradient>
+  <linearGradient id="berry" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#FF5FA2"/><stop offset="1" stop-color="#7A2BE0"/>
+  </linearGradient>
+  <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#5BF5C8"/><stop offset="1" stop-color="#0EA5A5"/>
+  </linearGradient>
+  <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#FFF6B0"/><stop offset="1" stop-color="#FFD23F"/>
+  </linearGradient>
+  <radialGradient id="shine" cx=".32" cy=".24" r=".78">
+    <stop offset="0" stop-color="#fff" stop-opacity=".26"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+  <radialGradient id="halo" cx=".5" cy=".5" r=".5">
+    <stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </radialGradient>
+</defs>`;
+
+// яркий диск с внутренним светом
+const disc = (fill) => `
+  <clipPath id="dc"><circle cx="100" cy="100" r="100"/></clipPath>
+  <circle cx="100" cy="100" r="100" fill="${fill}"/>`;
+const rim = () => `
+  <circle cx="100" cy="100" r="100" fill="url(#shine)"/>`;
+// лучи из центра — «энергия»
+const rays = (n=12, op=.20, rot=0) => {
+  let s = '';
+  for (let i=0;i<n;i++){
+    const a0 = rot + i*360/n, a1 = a0 + 360/n/2;
+    const p = (a)=>[100+200*Math.cos(a*Math.PI/180), 100+200*Math.sin(a*Math.PI/180)];
+    const [x0,y0]=p(a0), [x1,y1]=p(a1);
+    s += `<path d="M100 100 L${x0.toFixed(1)} ${y0.toFixed(1)} L${x1.toFixed(1)} ${y1.toFixed(1)} Z" fill="#fff" opacity="${op}"/>`;
+  }
+  return `<g clip-path="url(#dc)">${s}</g>`;
+};
+// звезда со скруглёнными лучами
+const star = (cx,cy,R,r,n,rot,fill,round=7) => {
+  let d='';
+  for(let i=0;i<n*2;i++){
+    const rad = i%2 ? r : R, a = (rot + i*180/n)*Math.PI/180;
+    d += (i?'L':'M') + (cx+rad*Math.cos(a)).toFixed(2) + ' ' + (cy+rad*Math.sin(a)).toFixed(2) + ' ';
+  }
+  return `<path d="${d}Z" fill="${fill}" stroke="${fill}" stroke-width="${round}" stroke-linejoin="round"/>`;
+};
+const sparks = (pts) => pts.map(p=>star(p[0],p[1],p[2],p[2]*0.34,4,-90,'#fff',2)).join('');
+
+const LOGOS = {
+
+// 1. Звезда — самый яркий и универсальный знак «игры»
+star: `${defs}${disc('url(#punch)')}${rays(14,.18,-8)}
+  <g clip-path="url(#dc)">
+    <circle cx="100" cy="98" r="66" fill="url(#halo)"/>
+    ${star(100,98,60,25,5,-90,'url(#gold)',9)}
+    <path d="M78 84 q10 -12 22 -13" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".85"/>
+    ${sparks([[44,44,11],[160,58,9],[150,150,8]])}
+  </g>${rim()}`,
+
+// 2. Кот — уют, но в сочной подаче
+cat: `${defs}${disc('url(#candy)')}${rays(12,.14,6)}
+  <g clip-path="url(#dc)">
+    <circle cx="100" cy="104" r="70" fill="url(#halo)"/>
+    <path d="M52 74 L58 26 L96 54 Z" fill="${W}"/>
+    <path d="M148 74 L142 26 L104 54 Z" fill="${W}"/>
+    <path d="M62 63 L66 37 L86 52 Z" fill="#FF6FB5"/>
+    <path d="M138 63 L134 37 L114 52 Z" fill="#FF6FB5"/>
+    <g stroke="${W}" stroke-width="6" stroke-linecap="round" opacity=".9">
+      <path d="M40 100 h-22 M40 118 h-24 M160 100 h22 M160 118 h24"/>
+    </g>
+    <ellipse cx="100" cy="106" rx="60" ry="53" fill="${W}"/>
+    <g stroke="#F0327E" stroke-width="8" stroke-linecap="round" fill="none">
+      <path d="M64 100 q12 14 24 0"/><path d="M112 100 q12 14 24 0"/>
+    </g>
+    <path d="M92 122 h16 l-8 9 Z" fill="#FF5FA2"/>
+    <path d="M100 131 q0 10 -12 11 M100 131 q0 10 12 11" fill="none" stroke="#F0327E" stroke-width="6.5" stroke-linecap="round"/>
+    <g fill="#FFB3DC"><ellipse cx="60" cy="124" rx="13" ry="9"/><ellipse cx="140" cy="124" rx="13" ry="9"/></g>
+  </g>${rim()}`,
+
+// 3. Геймпад — прямо «игры», максимально контрастно
+pad: `${defs}${disc('url(#aqua)')}${rays(16,.16,4)}
+  <g clip-path="url(#dc)">
+    <circle cx="100" cy="102" r="70" fill="url(#halo)"/>
+    <path d="M62 60 h76 q30 0 36 30 l10 44 q6 26 -19 30 q-19 3 -30 -16 l-8 -14 h-54 l-8 14
+             q-11 19 -30 16 q-25 -4 -19 -30 l10 -44 q6 -30 36 -30 Z" fill="${W}"/>
+    <g fill="#1E6FE0"><rect x="52" y="96" width="34" height="11" rx="5.5"/><rect x="63.5" y="84.5" width="11" height="34" rx="5.5"/></g>
+    <circle cx="130" cy="92" r="10" fill="#FF2E63"/><circle cx="150" cy="112" r="10" fill="#FFD23F"/>
+    <circle cx="130" cy="112" r="7" fill="#22C55E" opacity=".9"/>
+    ${sparks([[42,48,11],[164,52,9]])}
+  </g>${rim()}`,
+
+// 4. Сердце — тепло + яркость
+heart: `${defs}${disc('url(#berry)')}${rays(12,.16,-6)}
+  <g clip-path="url(#dc)">
+    <circle cx="100" cy="100" r="70" fill="url(#halo)"/>
+    <path d="M100 158 C40 118 34 82 54 62 C72 44 96 50 100 72 C104 50 128 44 146 62
+             C166 82 160 118 100 158 Z" fill="${W}"/>
+    ${sparks([[46,52,11],[158,60,9],[146,148,8]])}
+  </g>${rim()}`,
+
+// 5. Солнце — тёплое и максимально светлое
+sun: `${defs}${disc('url(#sunny)')}${rays(18,.22,0)}
+  <g clip-path="url(#dc)">
+    <circle cx="100" cy="100" r="78" fill="url(#halo)"/>
+    <circle cx="100" cy="100" r="52" fill="${W}"/>
+    <g stroke="${W}" stroke-width="12" stroke-linecap="round">
+      <path d="M100 20 v14 M100 166 v14 M20 100 h14 M166 100 h14
+               M43 43 l10 10 M147 147 l10 10 M157 43 l-10 10 M53 147 l-10 10"/>
+    </g>
+    <g fill="#FF9A1F"><circle cx="82" cy="94" r="7"/><circle cx="118" cy="94" r="7"/></g>
+    <path d="M80 116 q20 18 40 0" fill="none" stroke="#FF9A1F" stroke-width="8" stroke-linecap="round"/>
+  </g>${rim()}`,
+
+// 6. Месяц и звёзды — ночь, но сочная
+moon: `${defs}${disc('url(#grape)')}
+  <g clip-path="url(#dc)">
+    <circle cx="112" cy="96" r="72" fill="url(#halo)"/>
+    <path d="M128 26 a76 76 0 1 0 42 118 a60 60 0 1 1 -42 -118 Z" fill="url(#gold)"/>
+    ${sparks([[52,52,14],[46,132,10],[152,158,11],[168,66,8]])}
+  </g>${rim()}`,
+
+// 7. Улыбка-капля — фирменный «блоб», самый простой силуэт
+blob: `${defs}${disc('url(#lime)')}${rays(12,.16,10)}
+  <g clip-path="url(#dc)">
+    <circle cx="100" cy="100" r="70" fill="url(#halo)"/>
+    <path d="M100 30 q56 34 56 74 a56 56 0 1 1 -112 0 q0 -40 56 -74 Z" fill="${W}"/>
+    <g fill="#16A34A"><circle cx="80" cy="104" r="8"/><circle cx="120" cy="104" r="8"/></g>
+    <path d="M76 126 q24 22 48 0" fill="none" stroke="#16A34A" stroke-width="9" stroke-linecap="round"/>
+    ${sparks([[44,58,10],[158,64,9]])}
+  </g>${rim()}`,
+
+// 8. Молния — энергия, лучший силуэт в мелком размере
+bolt: `${defs}${disc('url(#teal)')}${rays(14,.2,-4)}
+  <g clip-path="url(#dc)">
+    <circle cx="100" cy="100" r="70" fill="url(#halo)"/>
+    <path d="M116 18 L52 108 h34 l-14 74 l64 -92 h-34 Z" fill="url(#gold)"
+          stroke="${W}" stroke-width="9" stroke-linejoin="round"/>
+    ${sparks([[44,140,12],[156,50,10]])}
+  </g>${rim()}`,
+};
+
+const params = new URLSearchParams(location.search);
+const key = params.get('logo') || 'star';
+const size = +(params.get('size')||512);
+const stage = document.getElementById('stage');
+stage.style.width = size+'px'; stage.style.height = size+'px';
+stage.innerHTML = `<svg width="${size}" height="${size}" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">${LOGOS[key]}</svg>`;
+</script></body></html>
