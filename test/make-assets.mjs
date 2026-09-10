@@ -48,7 +48,8 @@ const CONFIG = {
   ],
 };
 
-const browser = await chromium.launch();
+// В окружении может лежать заранее скачанный Chromium другой сборки.
+const browser = await chromium.launch(process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {});
 
 async function shot(url, w, h, file, prep, locale) {
   const page = await browser.newPage({ viewport: { width: w, height: h }, deviceScaleFactor: 1, locale });

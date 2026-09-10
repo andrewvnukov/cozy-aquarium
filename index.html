@@ -95,6 +95,56 @@
   .card .cn{font-weight:900;font-size:12px;margin-top:3px}
   .card.locked{opacity:.72}
   .card .qm{font-weight:900;font-size:30px;color:var(--ink-soft);height:56px;line-height:56px}
+  /* ── низкий экран (альбом 640x360): четвёртая кнопка не должна уезжать за край ── */
+  @media (max-height:520px){
+    #side{top:84px;gap:8px}
+    .rbtn{width:46px;height:46px}
+    .rbtn svg{width:24px;height:24px}
+  }
+  /* ── скрытые элементы / гейт готовности (GameReady уходит раньше показа UI) ── */
+  .gone{display:none!important}
+  body:not(.ready) #hud,body:not(.ready) #side{opacity:0;pointer-events:none}
+  /* ── строки окон возвращения / престижа ── */
+  .hint{font-size:12.5px;font-weight:800;color:var(--ink-soft);line-height:1.35;margin:0 2px 10px}
+  .hint.warn{color:var(--accent-deep)}
+  .orow{display:flex;align-items:center;justify-content:space-between;gap:10px;
+        background:#FFF8E6;border:2.5px solid var(--line);border-radius:14px;
+        padding:8px 12px;margin-bottom:7px;box-shadow:0 2px 0 rgba(35,58,78,.18)}
+  .orow .on{font-weight:900;font-size:14px}
+  .orow .ov{font-weight:900;font-size:15px;color:var(--accent-deep)}
+  .orow.total{background:var(--gold);border-color:#C99A22}
+  .orow.total .ov,.orow.total .on{color:var(--ink)}
+  /* ── ежедневная серия ── */
+  .days{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:4px}
+  .dcell{background:#FFF8E6;border:2.5px solid var(--line);border-radius:12px;
+         padding:7px 3px;text-align:center;box-shadow:0 2px 0 rgba(35,58,78,.18)}
+  .dcell .dn{font-size:10.5px;font-weight:800;color:var(--ink-soft)}
+  .dcell .dv{font-size:12.5px;font-weight:900;margin-top:2px}
+  .dcell.done{opacity:.5}
+  .dcell.now{background:var(--gold);border-color:#C99A22;transform:scale(1.04)}
+  /* ── кнопки действий в окне ── */
+  #mAct{display:flex;gap:9px;margin-top:12px}
+  #mAct:empty{display:none}
+  .mbtn{flex:1;background:var(--paper);border:2.5px solid var(--line);border-radius:14px;
+        padding:11px 8px;font-family:inherit;font-weight:900;font-size:14px;color:var(--ink);
+        cursor:pointer;box-shadow:0 3px 0 rgba(35,58,78,.28)}
+  .mbtn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(35,58,78,.28)}
+  .mbtn.main{background:var(--accent);border-color:var(--accent-deep);color:#fff}
+  /* ── контекстная подсказка ── */
+  /* Ширина задана явно: при fixed+left+translate(-50%) браузер считает ширину из
+     остатка места справа от left ДО применения transform, и у кнопки в правом
+     краю экрана текст схлопывается в колонку по слову. */
+  #tip{position:fixed;width:230px;z-index:20;background:var(--paper);color:var(--ink);
+       border:2.5px solid var(--line);border-radius:14px;padding:9px 11px;
+       font-size:12.5px;font-weight:800;line-height:1.3;text-align:left;
+       box-shadow:0 4px 0 rgba(35,58,78,.28);pointer-events:none;
+       opacity:0;transition:opacity .2s;transform:translate(-50%,-100%)}
+  #tip.on{opacity:1}
+  #tip.side{transform:translate(-100%,-50%)}
+  .rbtn.ready{border-color:var(--accent-deep);box-shadow:0 0 0 3px rgba(242,193,78,.55),0 3px 0 rgba(35,58,78,.28)}
+  .tipTarget{position:relative;z-index:16;outline:3px solid var(--gold);outline-offset:2px;
+             border-radius:16px;animation:tipPulse 1.2s ease-in-out infinite}
+  @keyframes tipPulse{0%,100%{outline-color:var(--gold)}50%{outline-color:rgba(242,193,78,.35)}}
   #toast{position:absolute;left:50%;bottom:104px;transform:translateX(-50%) translateY(20px);
          background:var(--ink);color:#fff;font-weight:800;font-size:14px;padding:9px 16px;border-radius:99px;
          opacity:0;transition:.25s;pointer-events:none;z-index:8;text-align:center}
@@ -109,9 +159,13 @@
       <svg class="ic" viewBox="0 0 26 26"><circle cx="13" cy="13" r="9" fill="#F7EAB0" stroke="#233A4E" stroke-width="2.5"/><ellipse cx="10.5" cy="10" rx="2.6" ry="3.4" fill="#fff" opacity=".85"/></svg>
       <span class="tx"><span class="v" id="coinsV">0</span><span class="l" id="coinsL">ЖЕМЧУГ</span></span>
     </div>
-    <div class="chip">
+    <div class="chip" id="ipsChip">
       <svg class="ic" viewBox="0 0 26 26"><path d="M6 15c3-4 5 3 8-1s4 2 6-2" fill="none" stroke="#5B9BD5" stroke-width="2.6" stroke-linecap="round"/><circle cx="19" cy="8" r="2.2" fill="#7FD1AE" stroke="#233A4E" stroke-width="1.6"/></svg>
       <span class="tx"><span class="v" id="ipsV">0/с</span><span class="l" id="ipsL">ДОХОД</span></span>
+    </div>
+    <div class="chip gone" id="coralChip">
+      <svg class="ic" viewBox="0 0 26 26"><path d="M13 22V9M13 14l-4-4M13 15l4-5M9 22h8" fill="none" stroke="#E0555F" stroke-width="2.6" stroke-linecap="round"/><circle cx="13" cy="7" r="2.4" fill="#FF9E5A" stroke="#233A4E" stroke-width="1.8"/></svg>
+      <span class="tx"><span class="v" id="coralV">0</span><span class="l" id="coralL">КОРАЛЛЫ</span></span>
     </div>
     <div class="spacer"></div>
   </div>
@@ -129,11 +183,15 @@
   <button class="rbtn" id="upBtn" aria-label="Улучшения">
     <svg viewBox="0 0 27 27"><path d="M13.5 4l2.3 4.9 5.2.6-3.9 3.6 1.1 5.2-4.7-2.7-4.7 2.7 1.1-5.2L6 9.5l5.2-.6z" fill="#F2C14E" stroke="#233A4E" stroke-width="2.1" stroke-linejoin="round"/></svg>
   </button>
+  <button class="rbtn gone" id="presBtn" aria-label="Пересадить аквариум">
+    <svg viewBox="0 0 27 27"><path d="M13.5 23V10M13.5 15l-5-5M13.5 16l5-6M8.5 23h10" fill="none" stroke="#E0555F" stroke-width="2.4" stroke-linecap="round"/><circle cx="13.5" cy="7" r="3" fill="#FF9E5A" stroke="#233A4E" stroke-width="2.1"/></svg>
+  </button>
   <button class="rbtn" id="collBtn" aria-label="Коллекция">
     <svg viewBox="0 0 27 27"><rect x="4.5" y="4.5" width="8" height="8" rx="2" fill="#7FD1AE" stroke="#233A4E" stroke-width="2.1"/><rect x="14.5" y="4.5" width="8" height="8" rx="2" fill="#B9A3E3" stroke="#233A4E" stroke-width="2.1"/><rect x="4.5" y="14.5" width="8" height="8" rx="2" fill="#5B9BD5" stroke="#233A4E" stroke-width="2.1"/><rect x="14.5" y="14.5" width="8" height="8" rx="2" fill="#FF9E5A" stroke="#233A4E" stroke-width="2.1"/></svg>
   </button>
 </div>
-<div id="modal" class="hidden"><div class="sheet"><button id="mClose">×</button><div id="mTitle"></div><div id="mScroll"><div id="mBody"></div></div></div></div>
+<div id="modal" class="hidden"><div class="sheet"><button id="mClose">×</button><div id="mTitle"></div><div id="mScroll"><div id="mBody"></div></div><div id="mAct"></div></div></div>
+<div id="tip"></div>
 <div id="toast"></div>
 <script>
 'use strict';
@@ -147,13 +205,22 @@ const LB_NAME  = "species";                  // техимя лидерборд�
 let ysdk=null, player=null, lb=null, saveT=0, booted=false;
 
 // ---------- i18n (авто-язык через SDK, урок модерации п.2.14) ----------
+// Язык платформы читаем на КАЖДОМ запуске и ДО первой отрисовки: дебаг-панель
+// площадки считает i18n использованным только по факту обращения к свойству.
+// Автоопределённый язык нигде не сохраняем — иначе он перекроет язык платформы.
+let platLang = null;
+function readPlatformLang(){
+  try{ const l = ysdk && ysdk.environment && ysdk.environment.i18n && ysdk.environment.i18n.lang;
+       if(l) platLang = (l==="ru" ? "ru" : "en"); }catch(e){}
+  return platLang;
+}
 function lang(){
-  try{ if(ysdk&&ysdk.environment&&ysdk.environment.i18n&&ysdk.environment.i18n.lang)
-    return ysdk.environment.i18n.lang==="ru"?"ru":"en"; }catch(e){}
-  return (navigator.language||"ru").slice(0,2)==="ru"?"ru":"en";
+  if(platLang) return platLang;
+  return (navigator.language||"ru").slice(0,2)==="ru" ? "ru" : "en";
 }
 const STR = {
   coins:{ru:"ЖЕМЧУГ",en:"PEARLS"}, income:{ru:"ДОХОД",en:"INCOME"},
+  corals:{ru:"КОРАЛЛЫ",en:"CORALS"},
   feed:{ru:"Покормить",en:"Feed"},
   gift:{ru:"Подарок",en:"Gift"},
   x2:{ru:"Доход ×2",en:"Income ×2"}, x2on:{ru:"×2 идёт",en:"×2 active"},
@@ -162,124 +229,357 @@ const STR = {
   upTitle:{ru:"Улучшения аквариума",en:"Aquarium upgrades"},
   collTitle:{ru:"Коллекция рыб",en:"Fish collection"},
   buy:{ru:"Завести",en:"Add"}, owned:{ru:"В доме",en:"Owned"},
-  lvl:{ru:"Ур.",en:"Lv."},
-  upFeed:{ru:"Сытный корм",en:"Rich food"}, upFeedD:{ru:"+1 жемчуг за кормление",en:"+1 pearl per feed"},
+  lvl:{ru:"Ур.",en:"Lv."}, max:{ru:"МАКС",en:"MAX"},
+  upFeed:{ru:"Сытный корм",en:"Rich food"}, upFeedD:{ru:"Кормление даёт больше жемчуга",en:"Feeding yields more pearls"},
   upAer:{ru:"Аэратор",en:"Aerator"}, upAerD:{ru:"+25% к пассивному доходу",en:"+25% passive income"},
   upPlant:{ru:"Водоросли",en:"Water plants"}, upPlantD:{ru:"−5% к цене новых рыбок",en:"−5% new fish price"},
   ipsUnit:{ru:"ж/с",en:"p/s"},
-  daily:{ru:"Ежедневный подарок:",en:"Daily gift:"},
   x2got:{ru:"Доход удвоен на 5 минут!",en:"Income doubled for 5 min!"},
   giftGot:{ru:"Подарок:",en:"Gift:"},
-  cooldown:{ru:"Ещё рано — подожди",en:"Not ready yet"},
+  giftWait:{ru:"ждём",en:"wait"},
   newFish:{ru:"Новый житель:",en:"New resident:"},
-  allFish:{ru:"Все рыбки заведены!",en:"All fish collected!"},
+  // ── окно возвращения ──
+  offTitle:{ru:"С возвращением!",en:"Welcome back!"},
+  offWas:{ru:"Тебя не было",en:"You were away for"},
+  offWork:{ru:"Аквариум работал сам:",en:"The tank kept working:"},
+  offCap:{ru:"Рыбки наелись досыта — дольше {h} ч жемчуг не копится.",
+          en:"The fish were full — pearls stop piling up after {h} h."},
+  offTake:{ru:"Забрать",en:"Collect"}, offX2:{ru:"Забрать ×2",en:"Collect ×2"},
+  offLine:{ru:"Пока тебя нет: ≈{n} за {h} ч",en:"While you're away: ≈{n} per {h} h"},
+  hShort:{ru:"ч",en:"h"}, mShort:{ru:"мин",en:"min"},
+  // ── ежедневная серия ──
+  dayTitle:{ru:"Ежедневный подарок",en:"Daily gift"},
+  dayStreak:{ru:"Серия: {n} д.",en:"Streak: {n} d."},
+  dayN:{ru:"День {n}",en:"Day {n}"},
+  dayGot:{ru:"Забрано:",en:"Collected:"},
+  // ── престиж ──
+  presTitle:{ru:"Пересадить аквариум",en:"Replant the tank"},
+  presWhat:{ru:"Рыбки уезжают в большой пруд, а тебе остаются кораллы — они дают постоянную прибавку к доходу и не пропадают никогда.",
+            en:"The fish move to a big pond and leave you corals — a permanent income bonus that never resets."},
+  presGet:{ru:"Ты получишь: +{n} 🪸",en:"You will get: +{n} 🪸"},
+  presLose:{ru:"Обнулится: жемчуг, рыбки, улучшения. Коллекция останется.",
+            en:"Reset: pearls, fish, upgrades. The collection stays."},
+  presNow:{ru:"Сейчас: ×{n} к доходу",en:"Now: ×{n} income"},
+  presAfter:{ru:"Станет: ×{n}",en:"Will be: ×{n}"},
+  presDo:{ru:"Пересадить",en:"Replant"},
+  presSoon:{ru:"Пока рано — заработай ещё жемчуга",en:"Not yet — earn more pearls first"},
+  presDone:{ru:"Аквариум пересажен! +{n} кораллов",en:"Tank replanted! +{n} corals"},
+  // ── ярлык ──
+  scTitle:{ru:"Ярлык на экран",en:"Add to home screen"},
+  scWhat:{ru:"Поставь аквариум на главный экран — заходить будет в одно касание. За это дам жемчуга.",
+          en:"Put the tank on your home screen — one tap to come back. Here's some pearls for it."},
+  scAdd:{ru:"Добавить",en:"Add"}, scNo:{ru:"Не сейчас",en:"Not now"},
+  scGot:{ru:"Спасибо! +{n}",en:"Thanks! +{n}"},
+  // ── подсказки ──
+  tipX2:{ru:"Короткий ролик — и доход удвоится на 5 минут",en:"Watch a short video — income doubles for 5 minutes"},
+  tipOff:{ru:"Рыбки кормятся и без тебя. Загляни завтра — жемчуг будет ждать",
+          en:"The fish feed without you. Come back tomorrow — pearls will be waiting"},
+  tipPres:{ru:"Аквариум можно пересадить — доход станет больше навсегда",
+           en:"You can replant the tank — income grows permanently"},
 };
-const T = k => (STR[k]||{})[lang()] || (STR[k]||{}).ru || k;
+const T = (k,vars) => { let s=(STR[k]||{})[lang()] || (STR[k]||{}).ru || k;
+  if(vars) for(const key in vars) s=String(s).replace("{"+key+"}", vars[key]); return s; };
 const nm = sp => lang()==="ru"? sp.ru : sp.en;
 
 // ---------- Виды рыб (0-й — стартовый, заведён сразу) ----------
+// Кривая: доход ×1,6–1,75 за ступень, цена ×3,0–3,6. Цена держится в районе
+// 5–20 минут текущего дохода игрока, поэтому интервал между покупками растёт
+// плавно (30 с в начале → 10–30 мин в поздней игре), а не схлопывается.
 const SPECIES = [
   {id:'guppy', ru:'Пузырик', en:'Bubbly',   c1:'#F2A65A', c2:'#FFDDAF', shape:'guppy',  ips:1,    cost:0},
-  {id:'gold',  ru:'Персик',  en:'Peachy',   c1:'#FF8C42', c2:'#FFC38A', shape:'gold',   ips:3,    cost:30},
-  {id:'neon',  ru:'Нео',     en:'Neo',      c1:'#3BA7D6', c2:'#F25C69', shape:'neon',   ips:9,    cost:150},
-  {id:'clown', ru:'Пятныш',  en:'Spotty',   c1:'#FF7A2E', c2:'#FFFFFF', shape:'clown',  ips:24,   cost:560},
-  {id:'molly', ru:'Уголёк',  en:'Ember',    c1:'#4A4A57', c2:'#9AA0AC', shape:'molly',  ips:60,   cost:1800},
-  {id:'tang',  ru:'Небо',    en:'Sky',      c1:'#3E7CC4', c2:'#F2C14E', shape:'tang',   ips:140,  cost:5200},
-  {id:'cat',   ru:'Уса',     en:'Whiskers', c1:'#8A7358', c2:'#CBB89B', shape:'cat',    ips:320,  cost:15000},
-  {id:'angel', ru:'Королёк', en:'Regal',    c1:'#F0E6C4', c2:'#4A6377', shape:'angel',  ips:720,  cost:44000},
-  {id:'puffer',ru:'Пуфик',   en:'Puffy',    c1:'#C7D66B', c2:'#EEF5C6', shape:'puffer', ips:1600, cost:120000},
+  {id:'gold',  ru:'Персик',  en:'Peachy',   c1:'#FF8C42', c2:'#FFC38A', shape:'gold',   ips:2,    cost:40},
+  {id:'neon',  ru:'Нео',     en:'Neo',      c1:'#3BA7D6', c2:'#F25C69', shape:'neon',   ips:4,    cost:180},
+  {id:'clown', ru:'Пятныш',  en:'Spotty',   c1:'#FF7A2E', c2:'#FFFFFF', shape:'clown',  ips:7,    cost:700},
+  {id:'molly', ru:'Уголёк',  en:'Ember',    c1:'#4A4A57', c2:'#9AA0AC', shape:'molly',  ips:12,   cost:2600},
+  {id:'tang',  ru:'Небо',    en:'Sky',      c1:'#3E7CC4', c2:'#F2C14E', shape:'tang',   ips:20,   cost:9000},
+  {id:'cat',   ru:'Уса',     en:'Whiskers', c1:'#8A7358', c2:'#CBB89B', shape:'cat',    ips:34,   cost:30000},
+  {id:'angel', ru:'Королёк', en:'Regal',    c1:'#F0E6C4', c2:'#4A6377', shape:'angel',  ips:58,   cost:100000},
+  {id:'puffer',ru:'Пуфик',   en:'Puffy',    c1:'#C7D66B', c2:'#EEF5C6', shape:'puffer', ips:100,  cost:330000},
+  {id:'carm',  ru:'Кармин',  en:'Carmine',  c1:'#E0555F', c2:'#FFD5C2', shape:'tang',   ips:170,  cost:1100000},
+  {id:'lunar', ru:'Лунник',  en:'Lunar',    c1:'#DCE6F5', c2:'#8FA8CC', shape:'angel',  ips:290,  cost:3600000},
+  {id:'abyss', ru:'Глубик',  en:'Abyss',    c1:'#3A2E63', c2:'#7FE3E8', shape:'puffer', ips:500,  cost:12000000},
 ];
 const SP = id => SPECIES.find(s=>s.id===id);
+const KNOWN = SPECIES.map(s=>s.id);
 
 // ---------- Состояние ----------
 function fresh(){ return {
-  v:1, coins:0,
-  fish:['guppy'], seen:['guppy'],          // заведённые виды / обнаруженные для коллекции
+  v:2, coins:0, lifetime:0,                 // lifetime — суммарный заработок, метрика прогресса
+  fish:['guppy'], seen:['guppy'],           // заведённые виды / обнаруженные для коллекции
   feed:0, aer:0, plant:0,                   // уровни апгрейдов
+  corals:0, coralsGiven:0, resets:0,        // премиальная валюта: выдано всего / пересадок
   best:1,                                   // рекорд числа видов (лидерборд)
-  x2Until:0, lastGift:0, lastDaily:"",      // таймеры rewarded / ежедневки
+  x2Until:0, lastGift:0,                    // таймеры rewarded
+  dailyDay:"", streak:0,                    // ежедневная серия (по строке даты)
+  tips:{}, flags:{},                        // показанные подсказки / разовые события
   time:Date.now()
 };}
 let S = fresh();
 
 // ---------- Экономика ----------
-const x2On     = () => Date.now() < S.x2Until;
-const tapGain  = () => 1 + S.feed;
-const aerMult  = () => 1 + 0.25*S.aer;
-const ipsBase  = () => S.fish.reduce((a,id)=>a + SP(id).ips, 0);
-const ips      = () => Math.floor(ipsBase() * aerMult() * (x2On()?2:1));
-const priceMult= () => Math.max(0.5, 1 - 0.05*S.plant);
-const fishCost = sp => Math.max(1, Math.floor(sp.cost * priceMult()));
-const nextFish = () => SPECIES.find(s=> !S.fish.includes(s.id));
-const feedCost = () => Math.floor(20 * Math.pow(1.6, S.feed));
-const aerCost  = () => Math.floor(60 * Math.pow(1.7, S.aer));
-const plantCost= () => Math.floor(100 * Math.pow(1.9, S.plant));
+const FEED_MAX=8, PLANT_MAX=8;
+const x2On       = () => Date.now() < S.x2Until;
+const prestigeMult = () => 1 + CORAL_MULT*S.corals; // внутри источника — сложение (затухание)
+const aerMult    = () => 1 + 0.25*S.aer;
+const ipsBase    = () => S.fish.reduce((a,id)=>{ const s=SP(id); return a + (s?s.ips:0); }, 0);
+// ipsCalm — доход БЕЗ временных множителей. Всё, что считается «навсегда»
+// (офлайн, размер подарка, прогноз), берёт его, иначе ×2 за ролик размножается.
+const ipsCalm    = () => ipsBase() * aerMult() * prestigeMult();
+const ips        = () => Math.max(0, ipsCalm() * (x2On()?2:1));
+const tapGain    = () => Math.max(1+S.feed, ips() * (0.12 + 0.03*S.feed));
+const priceMult  = () => Math.max(0.6, 1 - 0.05*S.plant);
+const fishCost   = sp => Math.max(1, Math.floor(sp.cost * priceMult()));
+const nextFish   = () => SPECIES.find(s=> !S.fish.includes(s.id));
+const feedCost   = () => S.feed >=FEED_MAX  ? Infinity : Math.floor(25*Math.pow(2.2, S.feed));
+const aerCost    = () => Math.floor(60*Math.pow(1.7, S.aer));
+const plantCost  = () => S.plant>=PLANT_MAX ? Infinity : Math.floor(100*Math.pow(1.9, S.plant));
 // для базового тест-хука: lvl = число видов, upCost = цена следующей рыбки
-const upCost   = () => { const n=nextFish(); return n? fishCost(n) : 0; };
+const upCost     = () => { const n=nextFish(); return n? fishCost(n) : 0; };
+
+// Две функции вместо флага: подарки НЕ идут в метрики прогресса, иначе
+// подарки ускоряют престиж, престиж раздувает доход, доход — следующие подарки.
+function earn(n){  n=Math.max(0,n||0); S.coins+=n; S.lifetime+=n; return n; }
+function grant(n){ n=Math.max(0,n||0); S.coins+=n; return n; }
+
+// ---------- Престиж («пересадить аквариум») ----------
+const CORAL_BASE = 1500000, CORAL_MULT = 0.25;
+const coralsFor     = e => Math.floor(Math.sqrt(Math.max(0,e)/CORAL_BASE));   // сублинейно
+const coralsPending = () => Math.max(0, coralsFor(S.lifetime) - S.coralsGiven);
+const prestigeReady = () => coralsPending() >= 1 && S.fish.length >= 5;
+function doPrestige(){
+  const got = coralsPending();
+  if(got < 1 || S.fish.length < 5) return false;
+  S.corals += got; S.coralsGiven += got; S.resets++;
+  // lifetime НЕ обнуляем и coralsGiven храним отдельно — иначе каждая пересадка
+  // выдавала бы кораллы заново за одни и те же заслуги.
+  S.coins=0; S.fish=['guppy']; S.feed=0; S.aer=0; S.plant=0; S.x2Until=0;
+  rebuildSwimmers(); closeModal(); refreshHud(); persist(true); sfx('buy');
+  toast(T('presDone',{n:got}));
+  // Первая пересадка — лучшая точка в игре для запроса оценки; на последующих
+  // это уже естественная пауза «конца забега», куда уместна межстраничная.
+  if(S.resets===1) maybeAskReview(); else showInterstitial();
+  return true;
+}
+
+// ---------- Офлайн-доход ----------
+// Три НЕЗАВИСИМЫХ порога. CAP обязан быть больше REPORT, иначе появляется мёртвая
+// зона: вернувшийся между ними получает максимум, но окна не видит.
+const OFF_MIN=60, OFF_CAP=8*3600, OFF_REPORT=4*3600, OFF_MULT=0.5;
+function offlineFor(sec){
+  const t = Math.min(Math.max(0, sec), OFF_CAP);
+  return { sec:t, away:sec, capped: sec > OFF_CAP, amount: Math.floor(ipsCalm()*OFF_MULT*t) };
+}
+function applyOffline(sec){
+  const r = offlineFor(sec);
+  if(r.amount > 0) earn(r.amount);        // это настоящее производство, а не подарок
+  S.flags.sawOffline = true;
+  return r;
+}
+function humanTime(sec){
+  const h=Math.floor(sec/3600), m=Math.round((sec%3600)/60);
+  return h>0 ? (h+" "+T('hShort')+(m?" "+m+" "+T('mShort'):"")) : (Math.max(1,m)+" "+T('mShort'));
+}
 
 // ---------- Сейвы (throttle + облако, фолбэк localStorage) ----------
+function serialize(){
+  S.time=Date.now();
+  S.coins=Math.round(S.coins*100)/100; S.lifetime=Math.round(S.lifetime*100)/100;
+  return JSON.stringify(S);
+}
 function persist(force){
   const now=Date.now();
   if(!force && now-saveT<10000) return;
   saveT=now;
-  const raw=JSON.stringify(S);
+  const raw=serialize();
   try{ localStorage.setItem(SAVE_KEY,raw); }catch(e){}
   if(player){ try{ player.setData({save:raw}); }catch(e){} }
 }
+// Дожим при уходе со страницы: setData копит запись и может не успеть уйти.
+// Свой троттл 3 с — иначе дёрганое переключение вкладок сожжёт лимит (100/5 мин).
+let flushT=0;
+function saveNow(){
+  const now=Date.now(); if(now-flushT<3000) return; flushT=now; saveT=now;
+  const raw=serialize();
+  try{ localStorage.setItem(SAVE_KEY,raw); }catch(e){}
+  if(player){ try{ player.setData({save:raw}, true); }catch(e){} }
+}
+const numOr = (v,d) => Number.isFinite(v) ? v : d;
+const intIn = (v,lo,hi,d) => Number.isFinite(v) ? Math.max(lo, Math.min(hi, Math.floor(v))) : d;
 function restore(raw){
-  if(!raw) return;
-  try{ const d=(typeof raw==="string")?JSON.parse(raw):(raw.save?JSON.parse(raw.save):raw);
-       if(d&&typeof d==="object") S=Object.assign(fresh(),d); }catch(e){}
-  // подчистка на случай старых сейвов
-  if(!Array.isArray(S.fish)||!S.fish.length) S.fish=['guppy'];
-  if(!Array.isArray(S.seen)) S.seen=S.fish.slice();
-  S.fish.forEach(id=>{ if(!S.seen.includes(id)) S.seen.push(id); });
+  let d=null;
+  try{ d = (typeof raw==="string") ? JSON.parse(raw) : (raw && raw.save ? JSON.parse(raw.save) : raw); }
+  catch(e){ d=null; }
+  const s = fresh();          // разбираем в чистое состояние: при ошибке отдаём его же,
+  if(!d || typeof d!=="object"){ S=s; return; }   // а не наполовину слитый объект
+  s.coins    = Math.max(0, numOr(d.coins, 0));
+  s.feed     = intIn(d.feed, 0, FEED_MAX, 0);
+  s.aer      = intIn(d.aer, 0, 200, 0);
+  s.plant    = intIn(d.plant, 0, PLANT_MAX, 0);
+  s.corals   = Math.max(0, intIn(d.corals, 0, 1e9, 0));
+  s.resets   = Math.max(0, intIn(d.resets, 0, 1e9, 0));
+  s.x2Until  = Math.max(0, numOr(d.x2Until, 0));
+  s.lastGift = Math.max(0, numOr(d.lastGift, 0));
+  s.time     = numOr(d.time, Date.now());
+  s.dailyDay = (typeof d.dailyDay==="string") ? d.dailyDay : "";
+  s.streak   = intIn(d.streak, 0, 7, 0);
+  s.tips     = (d.tips  && typeof d.tips ==="object" && !Array.isArray(d.tips))  ? d.tips  : {};
+  s.flags    = (d.flags && typeof d.flags==="object" && !Array.isArray(d.flags)) ? d.flags : {};
+  // Незнакомый id вида — это «ничего», а не «самый дорогой»: сейв мог прийти
+  // с другого устройства из будущей версии, и подрезка к границе таблицы
+  // выдала бы самую дорогую рыбку бесплатно.
+  const clean = a => Array.isArray(a) ? a.filter((x,i,arr)=> KNOWN.includes(x) && arr.indexOf(x)===i) : [];
+  s.fish = clean(d.fish); if(!s.fish.length) s.fish=['guppy'];
+  if(!s.fish.includes('guppy')) s.fish.unshift('guppy');
+  s.seen = clean(d.seen);
+  s.fish.forEach(id=>{ if(!s.seen.includes(id)) s.seen.push(id); });
+  s.best = Math.max(1, intIn(d.best, 1, 1e6, 1), s.seen.length);
+  // Миграция сейвов без метрики суммарного заработка: считаем её от того, что
+  // у игрока уже есть, и сразу помечаем кораллы выданными — иначе действующие
+  // игроки при первом же запуске получат пачку премиальной валюты за прошлое.
+  if(Number.isFinite(d.lifetime)){
+    s.lifetime    = Math.max(0, d.lifetime);
+    s.coralsGiven = Math.max(0, intIn(d.coralsGiven, 0, 1e9, 0));
+  } else {
+    let est = s.coins;
+    s.fish.forEach(id=>{ const sp=SP(id); if(sp) est += sp.cost; });
+    for(let i=0;i<s.feed;i++)  est += Math.floor(25*Math.pow(2.2,i));
+    for(let i=0;i<s.aer;i++)   est += Math.floor(60*Math.pow(1.7,i));
+    for(let i=0;i<s.plant;i++) est += Math.floor(100*Math.pow(1.9,i));
+    s.lifetime = est;
+    s.coralsGiven = coralsFor(est);
+  }
+  S = s;
 }
 
-// ---------- Реклама (no-op вне платформы; награда всегда выдаётся) ----------
-let lastAd=0;
-function maybeInterstitial(){
-  if(!ysdk) return;
-  if(Date.now()-lastAd < 180000) return;
-  lastAd=Date.now();
-  try{ ysdk.adv.showFullscreenAdv({}); }catch(e){}
-}
+// ---------- Реклама ----------
+// Rewarded: ролик стартует только по явному нажатию, звук глушится на время
+// показа (страница фокус не теряет, поэтому visibilitychange тут не помогает),
+// награда выдаётся ровно один раз — onError может прийти ПОСЛЕ onRewarded.
 function showRewarded(onReward){
-  if(!ysdk){ onReward(); return; }
-  try{ ysdk.adv.showRewardedVideo({callbacks:{ onRewarded:onReward, onError:onReward, onClose:()=>{} }}); }
-  catch(e){ onReward(); }
+  if(!ysdk || !ysdk.adv || !ysdk.adv.showRewardedVideo){ onReward(); return; }
+  let paid=false; const pay=()=>{ if(!paid){ paid=true; onReward(); } };
+  try{
+    ysdk.adv.showRewardedVideo({callbacks:{
+      onOpen:     ()=>audioSuspend(),
+      onRewarded: pay,
+      onClose:    ()=>audioResume(),
+      onError:    ()=>{ audioResume(); pay(); },
+    }});
+  }catch(e){ onReward(); }
+}
+// Межстраничная: частотой управляет площадка. Свою паузу считаем от ФАКТА
+// показа (wasShown), при отказе возвращаемся раньше. Только в естественных
+// паузах — во время активной игры случайные клики считаются фродом.
+const AD_GAP_S=210, AD_WARMUP_S=90, AD_RETRY_S=45;
+let nextAdAt=0, adBusy=false, bootedAt=0;
+function adAllowed(){
+  if(!booted || adBusy || !ysdk || !ysdk.adv || !ysdk.adv.showFullscreenAdv) return false;
+  if(document.hidden) return false;
+  if(Date.now() < nextAdAt) return false;
+  if(Date.now() - bootedAt < AD_WARMUP_S*1000) return false;   // не встречаем игрока рекламой
+  if(modalOpen || tipNow) return false;
+  if(x2On()) return false;                                     // не рвём оплаченный бонус
+  return true;
+}
+function showInterstitial(){
+  if(!adAllowed()) return;
+  adBusy=true;
+  const finish = wasShown => { adBusy=false; audioResume();
+    nextAdAt = Date.now() + (wasShown?AD_GAP_S:AD_RETRY_S)*1000; };
+  try{
+    ysdk.adv.showFullscreenAdv({callbacks:{
+      onOpen:  ()=>audioSuspend(),
+      onClose: was=>finish(!!was),
+      onError: ()=>finish(false),
+    }});
+  }catch(e){ finish(false); }
 }
 
 // ---------- Лидерборд ----------
-function submitScore(v){ try{ if(lb&&LB_NAME) lb.setLeaderboardScore(LB_NAME, Math.floor(v)); }catch(e){} }
+// sdk.leaderboards — новое поколение API (setScore). Метод setLeaderboardScore
+// есть только у объекта из устаревшего getLeaderboards(); поддерживаем оба.
+let lbT=0, authed=false;
+function submitScore(v){
+  v=Math.floor(v||0);
+  if(!lb || !LB_NAME || v<=0 || !authed) return;       // нулевой результат не пишем
+  const now=Date.now(); if(now-lbT<1000) return; lbT=now;   // лимит: 1 запись в секунду
+  try{
+    if(typeof lb.setScore==='function') lb.setScore(LB_NAME, v);
+    else if(typeof lb.setLeaderboardScore==='function') lb.setLeaderboardScore(LB_NAME, v);
+  }catch(e){}
+}
+
+// ---------- Инструменты удержания от площадки ----------
+const scReward = () => Math.max(300, Math.floor(ipsCalm()*180));
+async function maybeOfferShortcut(){
+  if(S.flags.scAsked || !ysdk || !ysdk.shortcut || modalOpen) return;
+  if(S.fish.length < 4) return;                    // предлагаем втянувшемуся, не на старте
+  try{ const r = await ysdk.shortcut.canShowPrompt(); if(!r || !r.canShow) return; }catch(e){ return; }
+  openModal('shortcut');
+}
+// showPrompt() открывает нативный диалог — без жеста игрока браузер его не покажет,
+// поэтому зовём строго из обработчика нажатия по своей карточке.
+async function askShortcut(){
+  S.flags.scAsked = true; persist(true);
+  try{
+    const res = await ysdk.shortcut.showPrompt();
+    if(res && res.outcome === 'accepted'){
+      const g = grant(scReward()); sfx('coin'); toast(T('scGot',{n:fmt(g)}));
+    }
+  }catch(e){}
+  closeModal(); refreshHud();
+}
+async function maybeAskReview(){
+  if(S.flags.rvAsked || !ysdk || !ysdk.feedback) return;
+  S.flags.rvAsked = true;                          // запросить можно раз за сессию
+  try{
+    const can = await ysdk.feedback.canReview();   // обязателен перед requestReview()
+    if(can && can.value) await ysdk.feedback.requestReview();
+  }catch(e){}
+}
 
 // ---------- HUD ----------
 const $ = id => document.getElementById(id);
-const fmt = n => n>=1e6 ? (n/1e6).toFixed(2)+"M" : n>=1e4 ? (n/1e3).toFixed(1)+"K" : Math.floor(n).toString();
+const SUF = ["","K","M","B","T","Qa","Qi","Sx","Sp"];
+const fmtRate = n => (n=Math.max(0,n||0), n<100 ? String(Math.round(n*10)/10) : fmt(n));
+function fmt(n){
+  n = Math.floor(n||0);
+  if(n < 1000) return String(n);
+  let x=n, i=0;
+  while(x>=1000 && i<SUF.length-1){ x/=1000; i++; }
+  return (x<10 ? x.toFixed(2) : x<100 ? x.toFixed(1) : String(Math.round(x))) + SUF[i];
+}
+const GIFT_CD = 90000;
+const giftAmt  = () => Math.max(100, Math.floor(ipsCalm()*60));   // без ×2: множители не перемножаем
+const giftLeft = () => Math.max(0, GIFT_CD - (Date.now()-S.lastGift));
 function refreshHud(){
   $("coinsV").textContent = fmt(S.coins);
-  $("ipsV").textContent   = fmt(ips())+"/"+(lang()==="ru"?"с":"s");
+  $("ipsV").textContent   = fmtRate(ips())+"/"+(lang()==="ru"?"с":"s");
   $("coinsL").textContent = T("coins");
   $("ipsL").textContent   = T("income");
   $("tapT").textContent   = T("feed");
+  $("coralChip").classList.toggle("gone", S.corals<=0);
+  $("coralV").textContent = fmt(S.corals);
+  $("coralL").textContent = T("corals");
+  const gl = giftLeft();
   $("giftT").textContent  = T("gift");
-  $("giftS").textContent  = "+"+fmt(giftAmt());
+  $("giftS").textContent  = gl>0 ? T("giftWait")+" "+Math.ceil(gl/1000)+"s" : "+"+fmt(giftAmt());
+  $("giftBtn").classList.toggle("off", gl>0);
   const on=x2On();
   $("x2T").textContent    = on? T("x2on") : T("x2");
   $("x2S").textContent    = on? Math.ceil((S.x2Until-Date.now())/60000)+(lang()==="ru"?" мин":" min") : (lang()==="ru"?"5 мин":"5 min");
   $("x2Btn").classList.toggle("off", on);
-  if(modalOpen) buildModal(modalOpen); // живое обновление цен в открытой панели
+  $("presBtn").classList.toggle("gone", !(S.corals>0 || prestigeReady()));
+  $("presBtn").classList.toggle("ready", prestigeReady());
+  if(modalOpen==='fish' || modalOpen==='up') buildModal(modalOpen);  // живое обновление цен
 }
 let toastT;
 function toast(msg){ const el=$("toast"); el.textContent=msg; el.classList.add("on");
-  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("on"),1600); }
-
-// ---------- Награды ----------
-const giftAmt = () => Math.max(50, Math.floor(ips()*45));
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("on"),1800); }
 
 // ---------- Действия ----------
 function doFeed(x){
-  S.coins += tapGain();
+  earn(tapGain());
   spawnFood(x);
   refreshHud(); persist(); sfx("tap");
 }
@@ -289,43 +589,79 @@ function buyFish(id){
   if(S.coins<c){ toast(T("need")); sfx("error"); return false; }
   S.coins-=c; S.fish.push(id);
   if(!S.seen.includes(id)) S.seen.push(id);
-  S.best=Math.max(S.best,S.fish.length);
-  spawnSwimmer(sp); refreshHud(); persist(true); submitScore(S.best); maybeInterstitial(); sfx("buy");
-  toast(T("newFish")+" "+nm(sp)); return true;
+  S.best=Math.max(S.best,S.seen.length);
+  spawnSwimmer(sp); refreshHud(); persist(true); submitScore(S.best); sfx("buy");
+  toast(T("newFish")+" "+nm(sp));
+  return true;
 }
 function buyUp(key){
   const map={feed:feedCost,aer:aerCost,plant:plantCost};
-  const c=map[key](); if(S.coins<c){ toast(T("need")); sfx("error"); return false; }
+  const c=map[key](); if(!Number.isFinite(c) || S.coins<c){ toast(T("need")); sfx("error"); return false; }
   S.coins-=c; S[key]++; refreshHud(); persist(true); sfx("buy"); return true;
 }
 function claimGift(){
-  showRewarded(()=>{ const g=giftAmt(); S.coins+=g; refreshHud(); persist(true); sfx("coin");
-    toast(T("giftGot")+" +"+fmt(g)); });
+  if(giftLeft()>0){ sfx("error"); return; }
+  showRewarded(()=>{
+    S.lastGift=Date.now();
+    const g=grant(giftAmt());               // подарок — grant, не earn
+    refreshHud(); persist(true); sfx("coin"); toast(T("giftGot")+" +"+fmt(g));
+  });
 }
 function claimX2(){
   if(x2On()){ toast(T("x2on")); return; }
-  showRewarded(()=>{ S.x2Until=Date.now()+300000; refreshHud(); persist(true); sfx("buy");
-    toast(T("x2got")); });
-}
-function checkDaily(){
-  const today=new Date().toISOString().slice(0,10);
-  if(S.lastDaily!==today){
-    S.lastDaily=today; const g=Math.max(60, Math.floor(ips()*60));
-    S.coins+=g; persist(true);
-    setTimeout(()=>toast(T("daily")+" +"+fmt(g)), 700);
-  }
+  showRewarded(()=>{
+    S.x2Until=Date.now()+300000; S.flags.usedX2=true;
+    refreshHud(); persist(true); sfx("buy"); toast(T("x2got"));
+  });
 }
 
-// ---------- Модалки: магазин / апгрейды / коллекция ----------
+// ---------- Ежедневная серия ----------
+// День определяем по строке даты, а не по таймстемпу: иначе «сутки» едут
+// относительно того, во сколько игрок зашёл в первый раз.
+const dayStr = ms => new Date(ms).toISOString().slice(0,10);
+const dailyPending = () => S.dailyDay !== dayStr(Date.now());
+const dailyIndex   = () => { const y=dayStr(Date.now()-86400000);
+  return (S.dailyDay===y && S.streak<7) ? S.streak : 0; };            // 0..6
+function dayReward(i){
+  return { coins: Math.max(150, Math.round(ipsCalm()*60*(2+i))), corals: (i===2||i===6)?1:0 };
+}
+function claimDaily(x2){
+  if(!dailyPending()) return;
+  const i=dailyIndex(), r=dayReward(i);
+  const give=()=>{
+    const y=dayStr(Date.now()-86400000);
+    S.streak  = (S.dailyDay===y && S.streak<7) ? S.streak+1 : 1;
+    S.dailyDay= dayStr(Date.now());
+    const c = grant(r.coins * (x2?2:1));      // ежедневка — тоже подарок
+    if(r.corals) S.corals += r.corals;   // отдельный источник: coralsGiven не трогаем
+    closeModal(); refreshHud(); persist(true); sfx("coin");
+    toast(T("dayGot")+" +"+fmt(c)+(r.corals?" +"+r.corals+" 🪸":""));
+  };
+  if(x2) showRewarded(give); else give();
+}
+
+// ---------- Модалки: магазин / апгрейды / коллекция / окна ----------
 let modalOpen=null;
-function openModal(kind){ modalOpen=kind; buildModal(kind); $("modal").classList.remove("hidden"); }
-function closeModal(){ modalOpen=null; $("modal").classList.add("hidden"); }
+function openModal(kind, data){ modalOpen=kind; modalData=data||null; buildModal(kind);
+  $("modal").classList.remove("hidden"); if(tipNow) closeTip(); }
+function closeModal(){
+  const was=modalOpen; modalOpen=null; modalData=null;
+  $("modal").classList.add("hidden"); $("mAct").innerHTML="";
+  if(was==='offline') showInterstitial();       // естественная пауза, не активная игра
+  if(was) nextWindow();
+}
+let modalData=null;
+function actBtn(label, cls, fn){
+  const b=document.createElement('button'); b.className="mbtn "+(cls||""); b.textContent=label;
+  b.onclick=fn; $("mAct").appendChild(b); return b;
+}
 function fishThumb(sp){
   const c=document.createElement('canvas'); c.width=104; c.height=88;
   const g=c.getContext('2d'); drawFish(g,sp,52,46,1.15,1,0); return c;
 }
 function buildModal(kind){
-  const body=$("mBody"); const can=(cost)=>S.coins>=cost;
+  const body=$("mBody"), act=$("mAct"); const can=(cost)=>S.coins>=cost;
+  act.innerHTML="";
   if(kind==='fish'){
     $("mTitle").textContent=T("fishTitle"); body.innerHTML="";
     SPECIES.forEach(sp=>{
@@ -333,7 +669,7 @@ function buildModal(kind){
       const row=document.createElement('div'); row.className="row";
       const th=fishThumb(sp); th.className="thumb"; row.appendChild(th);
       const info=document.createElement('div'); info.className="info";
-      info.innerHTML='<div class="nm">'+nm(sp)+'</div><div class="ds">+'+fmt(sp.ips)+' '+T("ipsUnit")+'</div>';
+      info.innerHTML='<div class="nm">'+nm(sp)+'</div><div class="ds">+'+fmtRate(sp.ips)+' '+T("ipsUnit")+'</div>';
       row.appendChild(info);
       const b=document.createElement('button');
       if(owned){ b.className="buy owned"; b.textContent=T("owned"); }
@@ -344,6 +680,9 @@ function buildModal(kind){
     });
   } else if(kind==='up'){
     $("mTitle").textContent=T("upTitle"); body.innerHTML="";
+    const hint=document.createElement('div'); hint.className="hint";
+    hint.textContent=T('offLine',{n:fmt(ipsCalm()*OFF_MULT*OFF_CAP), h:OFF_CAP/3600});
+    body.appendChild(hint);
     const ups=[
       {k:'feed', ic:'<circle cx="26" cy="22" r="10" fill="#FF9E5A" stroke="#233A4E" stroke-width="2.5"/><circle cx="22" cy="19" r="2" fill="#fff"/>', c:feedCost()},
       {k:'aer',  ic:'<path d="M18 30c3-4 5 2 8-2s3 3 6-1" fill="none" stroke="#5B9BD5" stroke-width="3" stroke-linecap="round"/><circle cx="30" cy="14" r="3" fill="#7FD1AE" stroke="#233A4E" stroke-width="2"/><circle cx="20" cy="12" r="2.4" fill="#7FD1AE" stroke="#233A4E" stroke-width="1.8"/>', c:aerCost()},
@@ -354,12 +693,13 @@ function buildModal(kind){
       const th=document.createElement('div'); th.className="thumb";
       th.innerHTML='<svg viewBox="0 0 52 44" width="52" height="44">'+u.ic+'</svg>'; row.appendChild(th);
       const info=document.createElement('div'); info.className="info";
-      info.innerHTML='<div class="nm">'+T('up'+u.k.charAt(0).toUpperCase()+u.k.slice(1))+' · '+T("lvl")+(S[u.k]+1)+'</div>'
-        +'<div class="ds">'+T('up'+u.k.charAt(0).toUpperCase()+u.k.slice(1)+'D')+'</div>';
+      const key='up'+u.k.charAt(0).toUpperCase()+u.k.slice(1);
+      info.innerHTML='<div class="nm">'+T(key)+' · '+T("lvl")+(S[u.k]+1)+'</div><div class="ds">'+T(key+'D')+'</div>';
       row.appendChild(info);
-      const b=document.createElement('button'); b.className="buy"+(can(u.c)?"":" can-not");
-      b.textContent=fmt(u.c);
-      b.onclick=()=>{ if(buyUp(u.k)) buildModal('up'); };
+      const maxed=!Number.isFinite(u.c);
+      const b=document.createElement('button'); b.className="buy"+(maxed?" owned":(can(u.c)?"":" can-not"));
+      b.textContent=maxed?T("max"):fmt(u.c);
+      if(!maxed) b.onclick=()=>{ if(buyUp(u.k)) buildModal('up'); };
       row.appendChild(b); body.appendChild(row);
     });
   } else if(kind==='coll'){
@@ -369,7 +709,7 @@ function buildModal(kind){
       const seen=S.seen.includes(sp.id);
       const card=document.createElement('div'); card.className="card"+(seen?"":" locked");
       if(seen){
-        const th=fishThumb(sp); card.appendChild(th);
+        card.appendChild(fishThumb(sp));
         const n=document.createElement('div'); n.className="cn"; n.textContent=nm(sp); card.appendChild(n);
       } else {
         const q=document.createElement('div'); q.className="qm"; q.textContent="?"; card.appendChild(q);
@@ -378,7 +718,118 @@ function buildModal(kind){
       grid.appendChild(card);
     });
     body.appendChild(grid);
+  } else if(kind==='offline'){
+    // Построчно, а не одним числом: так видна отдача от вложений в рыбок.
+    const r=modalData;
+    $("mTitle").textContent=T("offTitle"); body.innerHTML="";
+    const head=document.createElement('div'); head.className="hint";
+    head.textContent=T("offWas")+" "+humanTime(r.away)+". "+T("offWork");
+    body.appendChild(head);
+    S.fish.forEach(id=>{
+      const sp=SP(id); if(!sp) return;
+      const part=Math.floor(sp.ips*aerMult()*prestigeMult()*OFF_MULT*r.sec);
+      if(part<=0) return;
+      const row=document.createElement('div'); row.className="orow";
+      row.innerHTML='<span class="on">'+nm(sp)+'</span><span class="ov">+'+fmt(part)+'</span>';
+      body.appendChild(row);
+    });
+    const tot=document.createElement('div'); tot.className="orow total";
+    tot.innerHTML='<span class="on">🪙</span><span class="ov">+'+fmt(r.amount)+'</span>';
+    body.appendChild(tot);
+    if(r.capped){
+      const c=document.createElement('div'); c.className="hint warn";
+      c.textContent=T('offCap',{h:OFF_CAP/3600}); body.appendChild(c);
+    }
+    actBtn(T('offTake'), "", closeModal);
+    if(r.amount>0) actBtn(T('offX2')+" ▶", "main", ()=>{
+      showRewarded(()=>{ const g=earn(r.amount); refreshHud(); persist(true); sfx("coin");
+        toast("+"+fmt(g)); closeModal(); });
+    });
+  } else if(kind==='daily'){
+    const i=dailyIndex();
+    $("mTitle").textContent=T("dayTitle"); body.innerHTML="";
+    const st=document.createElement('div'); st.className="hint";
+    st.textContent=T('dayStreak',{n:(S.dailyDay===dayStr(Date.now()-86400000)?S.streak:0)+1});
+    body.appendChild(st);
+    const grid=document.createElement('div'); grid.className="days";
+    for(let d=0; d<7; d++){
+      const r=dayReward(d);
+      const cell=document.createElement('div');
+      cell.className="dcell"+(d<i?" done":"")+(d===i?" now":"");
+      cell.innerHTML='<div class="dn">'+T('dayN',{n:d+1})+'</div>'
+        +'<div class="dv">'+(r.corals?('+'+r.corals+' 🪸'):('+'+fmt(r.coins)))+'</div>';
+      grid.appendChild(cell);
+    }
+    body.appendChild(grid);
+    actBtn(T('offTake'), "", ()=>claimDaily(false));
+    actBtn(T('offX2')+" ▶", "main", ()=>claimDaily(true));
+  } else if(kind==='prestige'){
+    const got=coralsPending();
+    $("mTitle").textContent=T("presTitle"); body.innerHTML="";
+    const w=document.createElement('div'); w.className="hint"; w.textContent=T("presWhat"); body.appendChild(w);
+    const g=document.createElement('div'); g.className="orow total";
+    g.innerHTML='<span class="on">'+T('presGet',{n:got})+'</span>'; body.appendChild(g);
+    const m=document.createElement('div'); m.className="hint";
+    m.textContent=T('presNow',{n:prestigeMult().toFixed(2)})+" → "+T('presAfter',{n:(1+CORAL_MULT*(S.corals+got)).toFixed(2)});
+    body.appendChild(m);
+    const l=document.createElement('div'); l.className="hint warn"; l.textContent=T("presLose"); body.appendChild(l);
+    if(prestigeReady()) actBtn(T('presDo'), "main", doPrestige);
+    else { const p=document.createElement('div'); p.className="hint"; p.textContent=T("presSoon"); body.appendChild(p); }
+  } else if(kind==='shortcut'){
+    $("mTitle").textContent=T("scTitle"); body.innerHTML="";
+    const w=document.createElement('div'); w.className="hint"; w.textContent=T("scWhat"); body.appendChild(w);
+    actBtn(T('scNo'), "", ()=>{ S.flags.scAsked=true; persist(true); closeModal(); });
+    actBtn(T('scAdd'), "main", askShortcut);
   }
+}
+
+// ---------- Очередь окон: возвращение → ежедневка → подсказки ----------
+let pendingOffline=null;
+function nextWindow(){
+  if(modalOpen) return;
+  if(pendingOffline){ const r=pendingOffline; pendingOffline=null; openModal('offline', r); return; }
+  if(dailyPending() && (S.fish.length>1 || S.lifetime>0)){ openModal('daily'); return; }
+  maybeOfferShortcut();                          // последним: он не срочный
+}
+
+// ---------- Контекстные подсказки ----------
+// Отдельная от обучения система: триггеры условные, а не последовательные,
+// и показываются в том числе давним игрокам, которые линейный туториал
+// никогда не пройдут заново.
+const TIPS = [
+  { id:'x2',   target:'x2Btn',    side:false,
+    text:()=>T('tipX2'),
+    when:()=> S.lifetime>0 && S.fish.length>=2 && !x2On() && !S.flags.usedX2 },
+  { id:'off',  target:'ipsChip',  side:false,
+    text:()=>T('tipOff'),
+    when:()=> S.fish.length>=2 && ipsCalm()>0 && !S.flags.sawOffline },
+  { id:'pres', target:'presBtn',  side:true,
+    text:()=>T('tipPres'),
+    when:()=> prestigeReady() && S.resets===0 },
+];
+let tipNow=null, tipT=0;
+function showTip(tip){
+  const el=$("tip"), tg=$(tip.target);
+  if(!tg) return;
+  tipNow=tip; el.textContent=tip.text();
+  el.classList.toggle("side", !!tip.side);
+  const r=tg.getBoundingClientRect();
+  if(tip.side){ el.style.left=(r.left-10)+"px"; el.style.top=(r.top+r.height/2)+"px"; }
+  else { el.style.left=Math.max(125, Math.min(innerWidth-125, r.left+r.width/2))+"px";
+         el.style.top=(r.top-12)+"px"; }
+  el.classList.add("on"); tg.classList.add("tipTarget");
+  clearTimeout(tipT); tipT=setTimeout(closeTip, 11000);       // висящая насовсем хуже, чем никакой
+}
+function closeTip(){
+  if(!tipNow) return;
+  const tg=$(tipNow.target); if(tg) tg.classList.remove("tipTarget");
+  S.tips[tipNow.id]=true; tipNow=null; $("tip").classList.remove("on");
+  clearTimeout(tipT); persist(true);
+}
+function tipTick(){
+  if(tipNow || !booted || modalOpen) return;                  // никогда поверх окна
+  const tip=TIPS.find(x=> !S.tips[x.id] && x.when());
+  if(tip) showTip(tip);
 }
 
 // ---------- Canvas ----------
@@ -633,7 +1084,12 @@ let lastT=performance.now(), acc=0, tSec=0;
 function frame(now){
   let dt=Math.max(0,Math.min(0.05,(now-lastT)/1000)); lastT=now; tSec+=dt;
   acc+=dt;
-  if(acc>=1){ const t=Math.floor(acc); acc-=t; if(ips()>0){ S.coins+=ips()*t; refreshHud(); persist(); } }
+  if(acc>=1){
+    const t=Math.floor(acc); acc-=t;
+    const r=ips();
+    if(r>0){ earn(r*t); refreshHud(); persist(); }
+    S.time=Date.now();          // отметка времени для офлайн-досчёта
+  }
   ctx.clearRect(0,0,W,H);
   drawBackground();
   drawRays(tSec);
@@ -651,33 +1107,84 @@ function frame(now){
 window.render_game_to_text = () => JSON.stringify({
   coins:Math.floor(S.coins), lvl:S.fish.length, ips:ips(), upCost:upCost(),
   fish:S.fish.length, seen:S.seen.length, feed:S.feed, aer:S.aer, plant:S.plant,
-  tapGain:tapGain(), best:S.best, x2:x2On()
+  tapGain:tapGain(), best:S.best, x2:x2On(),
+  lifetime:Math.floor(S.lifetime), corals:S.corals, coralsGiven:S.coralsGiven,
+  resets:S.resets, pending:coralsPending(), streak:S.streak, dailyDay:S.dailyDay,
+  giftLeft:Math.ceil(giftLeft()/1000), modal:modalOpen, tip:tipNow?tipNow.id:null,
+  tips:Object.keys(S.tips), muted:(typeof audioMuted==='function'?audioMuted():false)
 });
-window.advanceTime = ms => { S.coins += ips()*(ms/1000); refreshHud(); };
-window.__grant = n => { S.coins+=n; refreshHud(); };
+window.advanceTime = ms => { earn(ips()*(ms/1000)); refreshHud(); };
+window.__grant = n => { grant(n); refreshHud(); };
 window.__buyNextFish = () => { const n=nextFish(); return n? buyFish(n.id) : false; };
 window.__buyUp = k => buyUp(k);
 window.__feed = () => doFeed();
+window.__offline = sec => { const r=applyOffline(sec); refreshHud(); return JSON.stringify(r); };
+window.__prestige = () => doPrestige();
+window.__openModal = k => openModal(k, k==='offline'? offlineFor(5*3600) : null);
+window.__closeModal = () => closeModal();
+window.__setDaily = (day,streak) => { S.dailyDay=day; S.streak=streak; };
+window.__tipTick = () => { tipTick(); return tipNow? tipNow.id : null; };
+window.__state = () => S;
+window.__giftAmt = () => giftAmt();
+window.__ipsCalm = () => ipsCalm();
+window.__claimDaily = x2 => claimDaily(x2);
+window.__dailyPending = () => dailyPending();
 
 // ---------- Boot ----------
+let readySent=false;
+function sendReady(){
+  if(readySent) return; readySent=true;
+  try{ if(ysdk && ysdk.features && ysdk.features.LoadingAPI) ysdk.features.LoadingAPI.ready(); }catch(e){}
+}
 function boot(raw){
   if(booted) return; booted=true;
+  readPlatformLang();                     // до первой отрисовки интерфейса
   restore(raw);
-  resize(); rebuildSwimmers(); refreshHud();
+  resize(); rebuildSwimmers();
+  // Офлайн-досчёт: формулой, потому что в игре нет ограничений (склад, очередь),
+  // которые формула могла бы соврать. Считается до показа интерфейса.
+  const away = Math.floor((Date.now() - S.time)/1000);
+  if(away >= OFF_MIN){
+    const r = applyOffline(away);
+    if(r.amount>0 && away >= OFF_REPORT) pendingOffline = r;
+    else if(r.amount>0) setTimeout(()=>toast("+"+fmt(r.amount)), 600);
+  }
+  refreshHud();
   $("tapBtn").onclick   = ()=>doFeed();
   $("giftBtn").onclick  = claimGift;
   $("x2Btn").onclick    = claimX2;
   $("fishBtn").onclick  = ()=>openModal('fish');
   $("upBtn").onclick    = ()=>openModal('up');
   $("collBtn").onclick  = ()=>openModal('coll');
+  $("presBtn").onclick  = ()=>openModal('prestige');
   $("mClose").onclick   = closeModal;
   $("modal").addEventListener('pointerdown', e=>{ if(e.target.id==='modal') closeModal(); });
   // тап по воде = кормление в точке касания
   cv.addEventListener('pointerdown', e=>{ if(modalOpen) return; doFeed(e.clientX); });
-  checkDaily();
+  // любое действие игрока снимает подсказку: она уже сделала своё дело
+  document.addEventListener('pointerdown', ()=>{ if(tipNow) closeTip(); }, true);
+  // дожим сейва при уходе со страницы + пауза звука в фоне (звук — в sfx.js)
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden){ saveNow(); }
+    else {
+      const gap=Math.floor((Date.now()-S.time)/1000);
+      if(gap>=OFF_MIN){ const r=applyOffline(gap);
+        if(r.amount>0){ refreshHud(); persist(true);
+          if(gap>=OFF_REPORT && !modalOpen) openModal('offline', r); else toast("+"+fmt(r.amount)); } }
+      S.time=Date.now();
+    }
+  });
+  addEventListener('pagehide', saveNow);
   startMusic();
-  setInterval(()=>refreshHud(), 1000); // обновляет таймер ×2 и цены
+  bootedAt=Date.now();
+  submitScore(S.best);
+  setInterval(()=>{ refreshHud(); tipTick(); }, 1000);
   requestAnimationFrame(frame);
+  // Сигнал готовности — до того, как игра станет доступна для действий,
+  // ровно один раз и на всех путях запуска.
+  sendReady();
+  document.body.classList.add('ready');
+  nextWindow();
 }
 (function initSDK(){
   let localRaw=null; try{ localRaw=localStorage.getItem(SAVE_KEY); }catch(e){}
@@ -685,11 +1192,13 @@ function boot(raw){
     if(window.YaGames && !window.__noSDK){
       YaGames.init().then(sdk=>{
         ysdk=sdk;
-        try{ sdk.features.LoadingAPI && sdk.features.LoadingAPI.ready(); }catch(e){}
-        const pReady = sdk.getPlayer({scopes:false}).then(p=>{player=p;return p.getData(["save"]);})
-          .then(d=>boot(d&&d.save?d.save:localRaw)).catch(()=>boot(localRaw));
+        readPlatformLang();
         try{ lb = sdk.leaderboards; }catch(e){}
-        return pReady;
+        return sdk.getPlayer({scopes:false})
+          .then(p=>{ player=p; try{ authed = !!(p.isAuthorized && p.isAuthorized()); }catch(e){}
+                     return p.getData(["save"]); })
+          .then(d=>boot(d&&d.save?d.save:localRaw))
+          .catch(()=>boot(localRaw));
       }).catch(()=>boot(localRaw));
       setTimeout(()=>boot(localRaw),4000);
     } else boot(localRaw);

@@ -9,12 +9,14 @@
 // ============================================================
 const audioDefaultSampleRate = 44100;
 let audioCtx = null, masterGain = null;
+const MASTER_VOL = .6;
+let audioMutes = 0;          // счётчик приглушений (реклама / вкладка в фоне)
 function ensureAudio(){
   if(audioCtx) return audioCtx;
   try{
     audioCtx = new (window.AudioContext||window.webkitAudioContext)();
     masterGain = audioCtx.createGain();
-    masterGain.gain.value = .6;
+    masterGain.gain.value = audioMutes>0 ? 0 : MASTER_VOL;
     masterGain.connect(audioCtx.destination);
   }catch(e){}
   return audioCtx;
@@ -106,3 +108,20 @@ function startMusic(){
   }catch(e){}
 }
 function stopMusic(){ if(musicSrc){ try{ musicSrc.stop(); }catch(e){} musicSrc=null; } }
+
+// ---------- Приглушение звука (реклама + уход вкладки в фон) ----------
+// ВАЖНО: при показе рекламы страница фокус НЕ теряет, поэтому visibilitychange
+// тут не срабатывает — глушим вручную из onOpen/onClose колбэков рекламы.
+// Счётчик, а не флаг: ролик может открыться поверх уже свёрнутой вкладки.
+function audioSuspend(){
+  audioMutes++;
+  if(masterGain){ try{ masterGain.gain.value = 0; }catch(e){} }
+}
+function audioResume(){
+  audioMutes = Math.max(0, audioMutes-1);
+  if(audioMutes===0 && masterGain){ try{ masterGain.gain.value = MASTER_VOL; }catch(e){} }
+}
+function audioMuted(){ return audioMutes>0; }
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden) audioSuspend(); else audioResume();
+});
