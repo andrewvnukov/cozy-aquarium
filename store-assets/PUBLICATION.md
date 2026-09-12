@@ -29,6 +29,11 @@
 которые дают постоянную прибавку к доходу и не обнуляются никогда. Рекорд по числу открытых видов
 идёт в лидерборд.
 
+Цель на экране всегда одна и всегда ближайшая: полоса **заданий смотрителя** под счётчиками
+говорит, что сделать прямо сейчас («завести третий вид», «аэратор до ур. 2», «доход 50 ж/с»),
+показывает, сколько осталось, и выдаёт награду по нажатию. За рукописной цепочкой из 12 заданий
+идёт бесконечная ветка по суммарному заработку — игроку всегда есть к чему идти.
+
 Аквариум работает и без игрока: пассивный доход копится офлайн (потолок 8 часов), а при возвращении
 после долгой отлучки показывается построчная сводка «кто сколько принёс». Ежедневный подарок —
 цикл из 7 дней с растущей наградой и кораллами на 3-й и 7-й день.
@@ -69,6 +74,10 @@
 пассивный доход, водоросли удешевляют новых рыбок. Когда аквариум станет тесным, пересадите его:
 рыбки уедут в большой пруд, а вам останутся кораллы — постоянная прибавка к доходу навсегда.
 
+Смотритель всегда даёт задание: завести новый вид, поставить аэратор, разогнать доход. Полоса
+цели видна прямо на экране — видно, сколько осталось и что дадут за выполнение, а награды не
+кончаются никогда.
+
 Аквариум живёт и без вас: жемчуг копится, пока игра закрыта, а при возвращении вы увидите, кто
 сколько принёс. Открывайте коллекцию из двенадцати видов, заходите каждый день за подарком и
 собирайте серию из семи дней.
@@ -89,6 +98,10 @@ the shared tank, swims around with its own name and raises your income.
 Upgrade your aquarium in the shop: rich food earns more pearls per feed, the aerator boosts passive
 income, and water plants make new fish cheaper. When the tank gets crowded, replant it: the fish move
 to a big pond and leave you corals — a permanent income bonus that never resets.
+
+The keeper always has a goal for you: add a new species, install the aerator, push your income up.
+The goal bar sits right on screen — you can see how far you are and what you'll get, and the chain
+never runs out.
 
 The tank keeps working while the game is closed, and you'll see exactly who earned what when you come
 back. Unlock a collection of twelve species, come back daily for a gift and build a seven-day streak.

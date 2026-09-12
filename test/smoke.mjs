@@ -331,6 +331,58 @@ const day = off => new Date(Date.now() + off * 86400000).toISOString().slice(0, 
   await page.close();
 }
 
+// ── 13. задания смотрителя ─────────────────────────────────────
+{
+  const page = await open();
+  const g0 = JSON.parse(await page.evaluate(() => window.__goal()));
+  assert(g0.i === 0 && g0.ready === false, 'a new player starts on the first goal, not completed');
+  assert(g0.rew.coins > 0, 'the current goal always shows a reward');
+  assert((await page.textContent('#goalT')).length > 0, 'the goal is written out on the HUD');
+
+  await page.evaluate(() => { window.__grant(100000); window.__buyNextFish(); });
+  const g1 = JSON.parse(await page.evaluate(() => window.__goal()));
+  assert(g1.ready === true, 'the goal turns claimable once its condition holds');
+  assert(await page.evaluate(() => document.getElementById('goalBar').classList.contains('done')),
+         'a claimable goal is marked on the bar itself');
+
+  const before = await page.state();
+  await page.click('#goalBar');
+  const after = await page.state();
+  assert(after.coins > before.coins, 'claiming the goal pays the reward');
+  assert(after.lifetime === before.lifetime, 'goal rewards do NOT move the progress metric (grant, not earn)');
+  assert(after.goal === 1, 'claiming advances the chain to the next goal');
+
+  const g2 = JSON.parse(await page.evaluate(() => window.__goal()));
+  assert(g2.i === 1 && g2.id !== g1.id, 'the next goal is a different one');
+  const c2 = (await page.state()).coins;
+  await page.click('#goalBar');
+  assert((await page.state()).coins === c2, 'an unfinished goal pays nothing');
+  await page.close();
+}
+{
+  // цепочка не кончается: за списком идёт бесконечная ветка по заработку
+  const page = await open();
+  await page.evaluate(() => { window.__state().goal = 500; });
+  const g = JSON.parse(await page.evaluate(() => window.__goal()));
+  assert(g.need > 0 && Number.isFinite(g.need), 'past the hand-written list the goal chain keeps going');
+  assert(g.ready === false, 'the endless goal is not handed out for free');
+  await page.close();
+}
+{
+  // старый сейв без поля goal: выполненное уже не должно превращаться в пачку наград
+  const page = await open({ save: JSON.stringify({
+    v: 2, coins: 5000, fish: ['guppy', 'gold', 'neon'], seen: ['guppy', 'gold', 'neon'],
+    feed: 2, aer: 2, plant: 0, lifetime: 40000, coralsGiven: 0, corals: 0,
+    dailyDay: day(0), streak: 1, time: Date.now(),
+  }) });
+  const s = await page.state();
+  assert(s.goal > 0, 'an old save skips the goals it has already satisfied');
+  const g = JSON.parse(await page.evaluate(() => window.__goal()));
+  assert(g.ready === false, 'after the skip the player is on a goal that still has to be earned');
+  assert(s.coins === 5000, 'skipped goals pay nothing');
+  await page.close();
+}
+
 assert(errors.length === 0, 'no console/page errors: ' + errors.slice(0, 3).join(' | '));
 await browser.close();
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
