@@ -677,10 +677,21 @@ function toast(msg){ const el=$("toast"); el.textContent=msg; el.classList.add("
   clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("on"),1800); }
 
 // ---------- Действия ----------
+// Кормление ограничено по времени, а не по числу событий: на сенсорном экране
+// удержание нескольких пальцев даёт поток pointerdown (каждый касание — своё
+// событие, плюс дрожание пятна контакта перезапускает их), и доход с тапов становится
+// бесконечным. Потолок 10 кормлений в секунду выше человеческого темпа тапанья,
+// честному игроку он не мешает.
+const FEED_MIN_MS = 100;
+let lastFeed = 0;
 function doFeed(x){
+  const now = Date.now();
+  if(now - lastFeed < FEED_MIN_MS) return false;
+  lastFeed = now;
   earn(tapGain());
   spawnFood(x);
   refreshHud(); persist(); sfx("tap");
+  return true;
 }
 function buyFish(id){
   const sp=SP(id); if(!sp || S.fish.includes(id)) return false;
@@ -1225,6 +1236,7 @@ window.__grant = n => { grant(n); refreshHud(); };
 window.__buyNextFish = () => { const n=nextFish(); return n? buyFish(n.id) : false; };
 window.__buyUp = k => buyUp(k);
 window.__feed = () => doFeed();
+window.__feedNow = () => { lastFeed = 0; return doFeed(); };
 window.__offline = sec => { const r=applyOffline(sec); refreshHud(); return JSON.stringify(r); };
 window.__prestige = () => doPrestige();
 window.__openModal = k => openModal(k, k==='offline'? offlineFor(5*3600) : null);
@@ -1271,7 +1283,8 @@ function boot(raw){
   $("mClose").onclick   = closeModal;
   $("modal").addEventListener('pointerdown', e=>{ if(e.target.id==='modal') closeModal(); });
   // тап по воде = кормление в точке касания
-  cv.addEventListener('pointerdown', e=>{ if(modalOpen) return; doFeed(e.clientX); });
+  // только основной указатель: второй и третий палец не должны кормить параллельно
+  cv.addEventListener('pointerdown', e=>{ if(modalOpen || e.isPrimary===false) return; doFeed(e.clientX); });
   // любое действие игрока снимает подсказку: она уже сделала своё дело
   document.addEventListener('pointerdown', ()=>{ if(tipNow) closeTip(); }, true);
   // дожим сейва при уходе со страницы + пауза звука в фоне (звук — в sfx.js)

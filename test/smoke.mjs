@@ -98,6 +98,7 @@ const day = off => new Date(Date.now() + off * 86400000).toISOString().slice(0, 
   let s1 = await page.state();
   assert(s1.coins > s0.coins, 'feed (tap) increases pearls');
 
+  await page.waitForTimeout(150);          // между кормлениями есть минимальный интервал
   await page.mouse.click(240, 450);
   let s1b = await page.state();
   assert(s1b.coins > s1.coins, 'tap on water feeds too');
@@ -380,6 +381,39 @@ const day = off => new Date(Date.now() + off * 86400000).toISOString().slice(0, 
   const g = JSON.parse(await page.evaluate(() => window.__goal()));
   assert(g.ready === false, 'after the skip the player is on a goal that still has to be earned');
   assert(s.coins === 5000, 'skipped goals pay nothing');
+  await page.close();
+}
+
+// ── 14. мультитач: кормление не должно быть бесконечным ────────────────
+{
+  const page = await open();
+  await page.evaluate(() => { window.__grant(200000); for (let i = 0; i < 6; i++) window.__buyNextFish(); });
+  // удержание нескольких пальцев даёт поток pointerdown — именно так игра доилась
+  const before = await page.state();
+  const burst = await page.evaluate(() => {
+    const cv = document.getElementById('cv');
+    for (let i = 0; i < 40; i++)
+      cv.dispatchEvent(new PointerEvent('pointerdown',
+        { clientX: 100 + (i % 7) * 20, clientY: 400, pointerId: 2 + (i % 5), isPrimary: i % 5 === 0, bubbles: true }));
+    return true;
+  });
+  const after = await page.state();
+  assert(burst, 'a multi-finger pointerdown burst reaches the canvas');
+  assert(after.coins - before.coins <= after.tapGain * 2 + 1,
+    'holding several fingers does not pay more than a couple of taps');
+
+  // обычный тап после паузы по-прежнему кормит
+  await page.waitForTimeout(150);
+  const c0 = (await page.state()).coins;
+  await page.click('#tapBtn');
+  assert((await page.state()).coins > c0, 'a normal tap still feeds the fish');
+
+  // второй палец сам по себе не кормит вообще
+  await page.waitForTimeout(150);
+  const c1 = (await page.state()).coins;
+  await page.evaluate(() => document.getElementById('cv').dispatchEvent(
+    new PointerEvent('pointerdown', { clientX: 200, clientY: 400, pointerId: 9, isPrimary: false, bubbles: true })));
+  assert((await page.state()).coins === c1, 'a secondary finger never feeds on its own');
   await page.close();
 }
 
