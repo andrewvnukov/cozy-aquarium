@@ -62,22 +62,42 @@
   .abtn.blue{background:var(--sky);border-color:#3E77AD}
   .abtn.lav{background:var(--lav);border-color:#8E76C0}
   .abtn.off{filter:grayscale(.55) brightness(.92)}
-  /* ── полоса цели (задание смотрителя) ── */
-  #goalBar{margin-top:8px;align-self:stretch;max-width:340px;pointer-events:auto;cursor:default;
-           background:var(--paper);border:2.5px solid var(--line);border-radius:14px;
-           padding:6px 10px 7px;box-shadow:0 3px 0 rgba(35,58,78,.28)}
-  #goalBar.done{background:var(--gold);border-color:#C99A22;cursor:pointer;
-                animation:goalPulse 1.1s ease-in-out infinite}
+  /* ── полоса маршрута: где я сейчас и что осталось до переезда ── */
+  #routeBar{margin-top:8px;align-self:stretch;max-width:340px;pointer-events:auto;cursor:pointer;
+            background:var(--paper);border:2.5px solid var(--line);border-radius:14px;
+            padding:6px 10px 7px;box-shadow:0 3px 0 rgba(35,58,78,.28)}
+  #routeBar.done{background:var(--gold);border-color:#C99A22;
+                 animation:goalPulse 1.1s ease-in-out infinite}
   @keyframes goalPulse{0%,100%{box-shadow:0 3px 0 rgba(35,58,78,.28)}
                        50%{box-shadow:0 3px 0 rgba(35,58,78,.28),0 0 0 4px rgba(242,193,78,.45)}}
-  #goalBar .gtop{display:flex;align-items:baseline;gap:8px}
-  #goalBar .gn{flex:1;min-width:0;font-size:12.5px;font-weight:900;line-height:1.15;
-               overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  #goalBar .gr{font-size:11.5px;font-weight:900;color:var(--accent-deep);white-space:nowrap}
-  #goalBar.done .gr{color:var(--ink)}
-  #goalBar .gtrack{height:7px;margin-top:5px;border-radius:99px;background:rgba(35,58,78,.15);overflow:hidden}
-  #goalBar .gfill{height:100%;width:0;border-radius:99px;background:var(--mint);transition:width .3s}
-  #goalBar.done .gfill{background:var(--ink)}
+  #routeBar .gtop{display:flex;align-items:baseline;gap:8px}
+  #routeBar .gn{flex:1;min-width:0;font-size:12.5px;font-weight:900;line-height:1.15;
+                overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #routeBar .gr{font-size:11.5px;font-weight:900;color:var(--accent-deep);white-space:nowrap}
+  #routeBar.done .gr{color:var(--ink)}
+  .pills{display:flex;gap:5px;margin-top:5px}
+  .pill{flex:1;min-width:0;font-size:10.5px;font-weight:900;text-align:center;
+        padding:3px 2px;border-radius:99px;background:rgba(35,58,78,.12);color:var(--ink);
+        overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pill.ok{background:var(--mint)}
+  /* ── карта маршрута ── */
+  .mstop{display:flex;gap:10px;align-items:flex-start;background:#FFF8E6;border:2.5px solid var(--line);
+         border-radius:16px;padding:9px 11px;margin-bottom:9px;box-shadow:0 2px 0 rgba(35,58,78,.18)}
+  .mstop.past{opacity:.62}
+  .mstop.now{background:var(--gold);border-color:#C99A22}
+  .mstop.fog{opacity:.5;border-style:dashed}
+  .mstop .num{width:26px;height:26px;flex:none;border-radius:50%;background:var(--line);color:#fff;
+              font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .mstop.past .num{background:var(--mint);color:var(--ink)}
+  .mstop .mi{flex:1;min-width:0}
+  .mstop .mn{font-weight:900;font-size:14.5px;line-height:1.15}
+  .mstop .md{font-size:11.5px;font-weight:800;color:var(--ink-soft);margin-top:2px;line-height:1.3}
+  .tasks{margin-top:6px}
+  .task{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;margin-top:4px}
+  .task .bx{width:16px;height:16px;flex:none;border:2.5px solid var(--line);border-radius:5px;
+            background:#fff;font-size:11px;line-height:12px;text-align:center;font-weight:900}
+  .task.ok .bx{background:var(--mint)}
+  .task .tv{margin-left:auto;font-weight:900;color:var(--ink-soft);white-space:nowrap}
   /* ── модалка (магазин/апгрейды/коллекция) ── */
   #modal{position:absolute;inset:0;background:rgba(20,40,58,.55);display:flex;align-items:flex-end;
          justify-content:center;pointer-events:auto;z-index:5;transition:opacity .2s}
@@ -112,10 +132,12 @@
   .card.locked{opacity:.72}
   .card .qm{font-weight:900;font-size:30px;color:var(--ink-soft);height:56px;line-height:56px}
   /* ── низкий экран (альбом 640x360): четвёртая кнопка не должна уезжать за край ── */
+  /* Кнопок в колонке может быть пять (рыбки, улучшения, ведро, пересадка,
+     коллекция) — на низком экране они обязаны поместиться целиком. */
   @media (max-height:520px){
-    #side{top:84px;gap:8px}
-    .rbtn{width:46px;height:46px}
-    .rbtn svg{width:24px;height:24px}
+    #side{top:74px;gap:6px}
+    .rbtn{width:42px;height:42px}
+    .rbtn svg{width:22px;height:22px}
   }
   /* ── скрытые элементы / гейт готовности (GameReady уходит раньше показа UI) ── */
   .gone{display:none!important}
@@ -158,6 +180,7 @@
   #tip.on{opacity:1}
   #tip.side{transform:translate(-100%,-50%)}
   .rbtn.ready{border-color:var(--accent-deep);box-shadow:0 0 0 3px rgba(242,193,78,.55),0 3px 0 rgba(35,58,78,.28)}
+  .abtn.ready{box-shadow:0 0 0 3px rgba(242,193,78,.7),0 3px 0 rgba(35,58,78,.28)}
   .tipTarget{position:relative;z-index:16;outline:3px solid var(--gold);outline-offset:2px;
              border-radius:16px;animation:tipPulse 1.2s ease-in-out infinite}
   @keyframes tipPulse{0%,100%{outline-color:var(--gold)}50%{outline-color:rgba(242,193,78,.35)}}
@@ -185,9 +208,9 @@
     </div>
     <div class="spacer"></div>
   </div>
-  <div id="goalBar">
-    <div class="gtop"><span class="gn" id="goalT"></span><span class="gr" id="goalR"></span></div>
-    <div class="gtrack"><div class="gfill" id="goalFill"></div></div>
+  <div id="routeBar">
+    <div class="gtop"><span class="gn" id="routeT"></span><span class="gr" id="routeR"></span></div>
+    <div class="pills" id="routePills"></div>
   </div>
   <div class="spacer"></div>
   <div class="bottom">
@@ -202,6 +225,9 @@
   </button>
   <button class="rbtn" id="upBtn" aria-label="Улучшения">
     <svg viewBox="0 0 27 27"><path d="M13.5 4l2.3 4.9 5.2.6-3.9 3.6 1.1 5.2-4.7-2.7-4.7 2.7 1.1-5.2L6 9.5l5.2-.6z" fill="#F2C14E" stroke="#233A4E" stroke-width="2.1" stroke-linejoin="round"/></svg>
+  </button>
+  <button class="rbtn gone" id="cleanBtn" aria-label="Почистить воду">
+    <svg viewBox="0 0 27 27"><path d="M7 21h13l-1.5-9H8.5z" fill="#7FD1AE" stroke="#233A4E" stroke-width="2.2" stroke-linejoin="round"/><path d="M10 12V7a3.5 3.5 0 017 0" fill="none" stroke="#233A4E" stroke-width="2.2" stroke-linecap="round"/><path d="M11 15l1 3M16 15l-1 3" stroke="#233A4E" stroke-width="2" stroke-linecap="round"/></svg>
   </button>
   <button class="rbtn gone" id="presBtn" aria-label="Пересадить аквариум">
     <svg viewBox="0 0 27 27"><path d="M13.5 23V10M13.5 15l-5-5M13.5 16l5-6M8.5 23h10" fill="none" stroke="#E0555F" stroke-width="2.4" stroke-linecap="round"/><circle cx="13.5" cy="7" r="3" fill="#FF9E5A" stroke="#233A4E" stroke-width="2.1"/></svg>
@@ -290,22 +316,48 @@ const STR = {
           en:"Put the tank on your home screen — one tap to come back. Here's some pearls for it."},
   scAdd:{ru:"Добавить",en:"Add"}, scNo:{ru:"Не сейчас",en:"Not now"},
   scGot:{ru:"Спасибо! +{n}",en:"Thanks! +{n}"},
-  // ── задания смотрителя ──
-  goalTake:{ru:"Забрать награду",en:"Claim reward"},
-  goalDone:{ru:"Задание выполнено!",en:"Goal complete!"},
-  gFish:{ru:"Завести {n} видов рыбок",en:"Keep {n} fish species"},
-  gFish2:{ru:"Завести вторую рыбку",en:"Add a second fish"},
-  gFeed:{ru:"Сытный корм до ур. {n}",en:"Rich food to Lv. {n}"},
-  gAer:{ru:"Аэратор до ур. {n}",en:"Aerator to Lv. {n}"},
-  gPlant:{ru:"Водоросли до ур. {n}",en:"Water plants to Lv. {n}"},
-  gIps:{ru:"Доход {n} ж/с",en:"Reach {n} p/s"},
-  gPres:{ru:"Пересадить аквариум",en:"Replant the tank"},
-  gAll:{ru:"Собрать все {n} видов",en:"Collect all {n} species"},
-  gLife:{ru:"Заработать {n} всего",en:"Earn {n} in total"},
+  // ── маршрут ──
+  mapTitle:{ru:"Путь до океана",en:"The road to the ocean"},
+  mapLoop:{ru:"Круг {n}",en:"Loop {n}"},
+  mapFog:{ru:"Неизвестное место",en:"Unknown place"},
+  mapFogD:{ru:"Сюда ещё рано заглядывать",en:"Too early to look this far"},
+  mapHere:{ru:"Ты здесь",en:"You are here"},
+  mapAll:{ru:"Остановка {a} из {b}",en:"Stop {a} of {b}"},
+  moveDo:{ru:"Переехать дальше",en:"Move on"},
+  moveSoon:{ru:"Закрой три пункта — и можно ехать дальше",
+            en:"Close all three and you can move on"},
+  moveKeep:{ru:"Переезд ничего не отнимает: рыбы, улучшения и жемчуг едут с тобой.",
+            en:"Moving takes nothing away: fish, upgrades and pearls come along."},
+  moved:{ru:"Новое место: {n}",en:"New place: {n}"},
+  moveBonus:{ru:"Прибавка к доходу навсегда: ×{n}",en:"Permanent income bonus: ×{n}"},
+  finTitle:{ru:"Открытый океан",en:"The open ocean"},
+  finWhat:{ru:"Ты довёл банку с подоконника до открытого океана. Рыбы, улучшения и жемчуг остаются с тобой — впереди тот же путь, но на новой глубине.",
+           en:"You took a jar from the windowsill all the way to the open ocean. Fish, upgrades and pearls stay with you — the same road lies ahead, at a new depth."},
+  finGo:{ru:"Второй круг",en:"Second loop"},
+  tFish:{ru:"Завести {n} видов",en:"Keep {n} species"},
+  tCoral:{ru:"Накопить {n} кораллов",en:"Hold {n} corals"},
+  tIps:{ru:"Доход {n} ж/с",en:"Income {n} p/s"},
+  tFeeds:{ru:"Покормить {n} раз",en:"Feed {n} times"},
+  tClean:{ru:"Почистить воду {n} раза",en:"Clean the water {n} times"},
+  tSchool:{ru:"Собрать стаю: 3 вида одной зоны",en:"One full school: 3 species of a zone"},
+  tGuests:{ru:"Принять {n} посетителей",en:"Welcome {n} visitors"},
+  tNight:{ru:"Покормить ночью {n} раз",en:"Feed at night {n} times"},
+  tWave:{ru:"Поймать волну {n} раз",en:"Catch the wave {n} times"},
+  pFish:{ru:"виды",en:"species"}, pCoral:{ru:"кораллы",en:"corals"},
+  pIps:{ru:"доход",en:"income"}, pAct:{ru:"дело",en:"task"},
+  cleanBtn:{ru:"Почистить",en:"Clean"},
+  cleanGot:{ru:"Вода чистая! +{n}",en:"Clean water! +{n}"},
+  night:{ru:"Ночь",en:"Night"}, day:{ru:"День",en:"Day"},
+  waveUp:{ru:"Волна!",en:"Wave!"},
+  guestCame:{ru:"Посетитель",en:"A visitor"},
   collLeft:{ru:"Осталось найти: {n}",en:"Left to find: {n}"},
   collAll:{ru:"Все виды собраны — аквариум полон!",en:"Every species found — the tank is complete!"},
-  tipGoal:{ru:"Задание выполнено — нажми и забери награду",
-           en:"Goal complete — tap the bar to claim it"},
+  tipRoute:{ru:"Здесь видно, куда ты идёшь и сколько осталось до следующего места",
+            en:"This shows where you are headed and how far the next place is"},
+  tipMove:{ru:"Все три пункта закрыты — можно переезжать",
+           en:"All three are done — time to move on"},
+  tipClean:{ru:"Вода мутнеет и режет доход. Почисти — получишь всплеск жемчуга",
+            en:"Cloudy water cuts income. Clean it for a burst of pearls"},
   // ── подсказки ──
   tipX2:{ru:"Короткий ролик — и доход удвоится на 5 минут",en:"Watch a short video — income doubles for 5 minutes"},
   tipOff:{ru:"Рыбки кормятся и без тебя. Загляни завтра — жемчуг будет ждать",
@@ -321,20 +373,24 @@ const nm = sp => lang()==="ru"? sp.ru : sp.en;
 // Кривая: доход ×1,6–1,75 за ступень, цена ×3,0–3,6. Цена держится в районе
 // 5–20 минут текущего дохода игрока, поэтому интервал между покупками растёт
 // плавно (30 с в начале → 10–30 мин в поздней игре), а не схлопывается.
+// stop — с какой остановки маршрута вид появляется в магазине (по два на место:
+// новая остановка = новые жители, это главная причина ехать дальше).
+// grp — зона: три вида одной зоны дают постоянную прибавку (твист «Ботанический сад»).
 const SPECIES = [
-  {id:'guppy', ru:'Пузырик', en:'Bubbly',   c1:'#F2A65A', c2:'#FFDDAF', shape:'guppy',  ips:1,    cost:0},
-  {id:'gold',  ru:'Персик',  en:'Peachy',   c1:'#FF8C42', c2:'#FFC38A', shape:'gold',   ips:2,    cost:40},
-  {id:'neon',  ru:'Нео',     en:'Neo',      c1:'#3BA7D6', c2:'#F25C69', shape:'neon',   ips:4,    cost:180},
-  {id:'clown', ru:'Пятныш',  en:'Spotty',   c1:'#FF7A2E', c2:'#FFFFFF', shape:'clown',  ips:7,    cost:700},
-  {id:'molly', ru:'Уголёк',  en:'Ember',    c1:'#4A4A57', c2:'#9AA0AC', shape:'molly',  ips:12,   cost:2600},
-  {id:'tang',  ru:'Небо',    en:'Sky',      c1:'#3E7CC4', c2:'#F2C14E', shape:'tang',   ips:20,   cost:9000},
-  {id:'cat',   ru:'Уса',     en:'Whiskers', c1:'#8A7358', c2:'#CBB89B', shape:'cat',    ips:34,   cost:30000},
-  {id:'angel', ru:'Королёк', en:'Regal',    c1:'#F0E6C4', c2:'#4A6377', shape:'angel',  ips:58,   cost:100000},
-  {id:'puffer',ru:'Пуфик',   en:'Puffy',    c1:'#C7D66B', c2:'#EEF5C6', shape:'puffer', ips:100,  cost:330000},
-  {id:'carm',  ru:'Кармин',  en:'Carmine',  c1:'#E0555F', c2:'#FFD5C2', shape:'tang',   ips:170,  cost:1100000},
-  {id:'lunar', ru:'Лунник',  en:'Lunar',    c1:'#DCE6F5', c2:'#8FA8CC', shape:'angel',  ips:290,  cost:3600000},
-  {id:'abyss', ru:'Глубик',  en:'Abyss',    c1:'#3A2E63', c2:'#7FE3E8', shape:'puffer', ips:500,  cost:12000000},
+  {id:'guppy', ru:'Пузырик', en:'Bubbly',   c1:'#F2A65A', c2:'#FFDDAF', shape:'guppy',  ips:1,    cost:0,        stop:0, grp:'sun'},
+  {id:'gold',  ru:'Персик',  en:'Peachy',   c1:'#FF8C42', c2:'#FFC38A', shape:'gold',   ips:2,    cost:40,       stop:0, grp:'sun'},
+  {id:'neon',  ru:'Нео',     en:'Neo',      c1:'#3BA7D6', c2:'#F25C69', shape:'neon',   ips:4,    cost:180,      stop:1, grp:'deep'},
+  {id:'clown', ru:'Пятныш',  en:'Spotty',   c1:'#FF7A2E', c2:'#FFFFFF', shape:'clown',  ips:7,    cost:700,      stop:1, grp:'sun'},
+  {id:'molly', ru:'Уголёк',  en:'Ember',    c1:'#4A4A57', c2:'#9AA0AC', shape:'molly',  ips:12,   cost:2600,     stop:2, grp:'sand'},
+  {id:'tang',  ru:'Небо',    en:'Sky',      c1:'#3E7CC4', c2:'#F2C14E', shape:'tang',   ips:20,   cost:9000,     stop:2, grp:'deep'},
+  {id:'cat',   ru:'Уса',     en:'Whiskers', c1:'#8A7358', c2:'#CBB89B', shape:'cat',    ips:34,   cost:30000,    stop:3, grp:'sand'},
+  {id:'angel', ru:'Королёк', en:'Regal',    c1:'#F0E6C4', c2:'#4A6377', shape:'angel',  ips:58,   cost:100000,   stop:3, grp:'reef'},
+  {id:'puffer',ru:'Пуфик',   en:'Puffy',    c1:'#C7D66B', c2:'#EEF5C6', shape:'puffer', ips:100,  cost:330000,   stop:4, grp:'sand'},
+  {id:'carm',  ru:'Кармин',  en:'Carmine',  c1:'#E0555F', c2:'#FFD5C2', shape:'tang',   ips:170,  cost:1100000,  stop:4, grp:'reef'},
+  {id:'lunar', ru:'Лунник',  en:'Lunar',    c1:'#DCE6F5', c2:'#8FA8CC', shape:'angel',  ips:290,  cost:3600000,  stop:5, grp:'deep'},
+  {id:'abyss', ru:'Глубик',  en:'Abyss',    c1:'#3A2E63', c2:'#7FE3E8', shape:'puffer', ips:500,  cost:12000000, stop:5, grp:'reef'},
 ];
+const GROUPS = ['sun','deep','sand','reef'];
 const SP = id => SPECIES.find(s=>s.id===id);
 const KNOWN = SPECIES.map(s=>s.id);
 
@@ -347,7 +403,9 @@ function fresh(){ return {
   best:1,                                   // рекорд числа видов (лидерборд)
   x2Until:0, lastGift:0,                    // таймеры rewarded
   dailyDay:"", streak:0,                    // ежедневная серия (по строке даты)
-  goal:0,                                   // номер текущего задания смотрителя
+  stop:0, loop:0, seenStop:1,               // маршрут: место, круг, докуда снят туман
+  acts:{},                                  // счётчики «сделать» текущей остановки
+  dirt:0, guestT:0,                         // муть воды и таймер посетителей (твисты)
   tips:{}, flags:{},                        // показанные подсказки / разовые события
   time:Date.now()
 };}
@@ -361,12 +419,16 @@ const aerMult    = () => 1 + 0.25*S.aer;
 const ipsBase    = () => S.fish.reduce((a,id)=>{ const s=SP(id); return a + (s?s.ips:0); }, 0);
 // ipsCalm — доход БЕЗ временных множителей. Всё, что считается «навсегда»
 // (офлайн, размер подарка, прогноз), берёт его, иначе ×2 за ролик размножается.
-const ipsCalm    = () => ipsBase() * aerMult() * prestigeMult();
-const ips        = () => Math.max(0, ipsCalm() * (x2On()?2:1));
-const tapGain    = () => Math.max(1+S.feed, ips() * (0.12 + 0.03*S.feed));
+// В ipsCalm входит только то, что держится «навсегда»: по нему считаются офлайн,
+// подарки и прогнозы. Твисты, которые дышат во времени (муть, ночь, волна), и
+// ролик ×2 живут в ips() — иначе прогноз обещает пик, а платит впадину.
+const ipsCalm    = () => ipsBase() * aerMult() * prestigeMult() * stopMult() * schoolMult() * guestMult();
+const ips        = () => Math.max(0, ipsCalm() * (x2On()?2:1) * cleanMult() * cycleMult() * waveMult());
+const tapGain    = () => Math.max(1+S.feed, ips() * (0.12 + 0.03*S.feed) * (isNight()?2.5:1) * (waveCrest()?3:1));
 const priceMult  = () => Math.max(0.6, 1 - 0.05*S.plant);
 const fishCost   = sp => Math.max(1, Math.floor(sp.cost * priceMult()));
-const nextFish   = () => SPECIES.find(s=> !S.fish.includes(s.id));
+const spOpen     = sp => sp.stop <= routeAt();                       // вид открыт маршрутом
+const nextFish   = () => SPECIES.find(s=> spOpen(s) && !S.fish.includes(s.id));
 const feedCost   = () => S.feed >=FEED_MAX  ? Infinity : Math.floor(25*Math.pow(2.2, S.feed));
 const aerCost    = () => Math.floor(60*Math.pow(1.7, S.aer));
 const plantCost  = () => S.plant>=PLANT_MAX ? Infinity : Math.floor(100*Math.pow(1.9, S.plant));
@@ -398,52 +460,118 @@ function doPrestige(){
   return true;
 }
 
-// ---------- Задания смотрителя ----------
-// Цель на экране всегда одна и всегда ближайшая: игрок видит, зачем он
-// копит жемчуг прямо сейчас, а не «когда-нибудь потом». Награда — grant:
-// задание не должно разгонять престиж, иначе петля замыкается сама на себя.
-// После списка идёт бесконечная ветка по суммарному заработку — цель не кончается.
-const goalCoins = sec => Math.max(120, Math.round(ipsCalm()*sec));
-const GOALS = [
-  { id:'f2',   text:()=>T('gFish2'),                      need:()=>2,  cur:()=>S.fish.length,  rew:()=>({coins:goalCoins(40)}) },
-  { id:'feed1',text:()=>T('gFeed',{n:1}),                 need:()=>1,  cur:()=>S.feed,         rew:()=>({coins:goalCoins(50)}) },
-  { id:'f3',   text:()=>T('gFish',{n:3}),                 need:()=>3,  cur:()=>S.fish.length,  rew:()=>({coins:goalCoins(60)}) },
-  { id:'aer2', text:()=>T('gAer',{n:2}),                  need:()=>2,  cur:()=>S.aer,          rew:()=>({coins:goalCoins(70)}) },
-  { id:'f5',   text:()=>T('gFish',{n:5}),                 need:()=>5,  cur:()=>S.fish.length,  rew:()=>({coins:goalCoins(90)}) },
-  { id:'ips50',text:()=>T('gIps',{n:50}),                 need:()=>50, cur:()=>ipsCalm(),      rew:()=>({coins:goalCoins(110)}) },
-  { id:'pl3',  text:()=>T('gPlant',{n:3}),                need:()=>3,  cur:()=>S.plant,        rew:()=>({coins:goalCoins(120)}) },
-  { id:'f7',   text:()=>T('gFish',{n:7}),                 need:()=>7,  cur:()=>S.fish.length,  rew:()=>({coins:goalCoins(140)}) },
-  { id:'ips5c',text:()=>T('gIps',{n:500}),                need:()=>500,cur:()=>ipsCalm(),      rew:()=>({coins:goalCoins(160)}) },
-  { id:'pres1',text:()=>T('gPres'),                       need:()=>1,  cur:()=>S.resets,       rew:()=>({coins:goalCoins(180), corals:1}) },
-  { id:'f9',   text:()=>T('gFish',{n:9}),                 need:()=>9,  cur:()=>S.fish.length,  rew:()=>({coins:goalCoins(200)}) },
-  { id:'all',  text:()=>T('gAll',{n:SPECIES.length}),     need:()=>SPECIES.length, cur:()=>S.seen.length, rew:()=>({coins:goalCoins(240), corals:2}) },
+// ---------- Маршрут: от банки до океана ----------
+// Дальний горизонт игры. Шесть остановок, каждая — своя сцена, свои жители и
+// ровно одно новое правило. Переезд ничего не отнимает: рыбы, улучшения и
+// жемчуг едут дальше, прошлое место продолжает работать. Шестая остановка —
+// псевдофинал: экран «ты дошёл» и второй круг с постоянной прибавкой.
+const STOPS = [
+  { id:'jar',   ru:'Банка на подоконнике', en:'Jar on the windowsill',
+    twRu:'Начало пути: корми рыб и копи жемчуг',
+    twEn:'The start: feed the fish and gather pearls',
+    water:['#8FD8E6','#57AFCF','#2F87AC','#17536F'], sand:['#F0DDAE','#D5B076'],
+    fish:2,  ips:5,     coral:1,  act:'feeds',  actN:25 },
+  { id:'home',  ru:'Домашний аквариум', en:'Home aquarium',
+    twRu:'Вода мутнеет и режет доход — чистка даёт всплеск жемчуга',
+    twEn:'Water clouds and cuts income — cleaning pays a burst',
+    water:['#7FCBDD','#3E96BC','#256E96','#123E5E'], sand:['#EAD7A6','#CDA86E'],
+    fish:4,  ips:30,    coral:2,  act:'clean',  actN:3 },
+  { id:'garden',ru:'Ботанический сад', en:'Botanical garden',
+    twRu:'Соседство: три вида одной зоны усиливают друг друга',
+    twEn:'Neighbours: three species of one zone boost each other',
+    water:['#A6E0C8','#5FBFA0','#2E8F80','#134F4E'], sand:['#E8DCA8','#C4B274'],
+    fish:6,  ips:150,   coral:4,  act:'school', actN:1 },
+  { id:'ocean', ru:'Городской океанариум', en:'City oceanarium',
+    twRu:'Посетители приходят сами и платят за редкость коллекции',
+    twEn:'Visitors come on their own and pay for a rare collection',
+    water:['#9FC7E8','#5E8FC9','#33578F','#1B2E55'], sand:['#DCD8CC','#B4AE9E'],
+    fish:8,  ips:800,   coral:7,  act:'guests', actN:30 },
+  { id:'reef',  ru:'Коралловый риф', en:'Coral reef',
+    twRu:'День и ночь: ночью доход тише, а кормление щедрее',
+    twEn:'Day and night: income dips at night, feeding pays more',
+    water:['#FFC49B','#E88A7D','#9C5C8C','#2E2A63'], sand:['#F2CDA0','#D09A68'],
+    fish:10, ips:4000,  coral:11, act:'night',  actN:10 },
+  { id:'open',  ru:'Открытый океан', en:'The open ocean',
+    twRu:'Течение: доход идёт волнами, кормление на гребне кормит втройне',
+    twEn:'Current: income rolls in waves, feeding on a crest pays triple',
+    water:['#6FD0D8','#2E93B4','#175C86','#06203C'], sand:['#CFC6A8','#9C9276'],
+    fish:12, ips:12000, coral:16, act:'wave',   actN:10 },
 ];
-const LIFE_BASE = 30000000;                 // первая бесконечная цель — чуть за первой пересадкой
-function goalDef(){
-  const i = S.goal;
-  if(i < GOALS.length) return GOALS[i];
-  // Кламп: на больших номерах степень уходит в Infinity, и цель перестаёт быть целью.
-  const n = Math.round(Math.min(Number.MAX_SAFE_INTEGER, LIFE_BASE * Math.pow(6, i - GOALS.length)));
-  return { id:'life'+(i-GOALS.length), endless:true,
-           text:()=>T('gLife',{n:fmt(n)}), need:()=>n, cur:()=>S.lifetime,
-           rew:()=>({coins:goalCoins(260), corals:1}) };
-}
-const goalReady = () => { const g=goalDef(); return g.cur() >= g.need(); };
-function claimGoal(){
-  const g=goalDef(); if(g.cur() < g.need()) return false;
-  const r=g.rew();
-  const c=grant(r.coins);                   // награда — подарок, не производство
-  if(r.corals) S.corals += r.corals;        // отдельный источник: coralsGiven не трогаем
-  S.goal++;
-  refreshHud(); persist(true); sfx('coin');
-  toast(T('goalDone')+" +"+fmt(c)+(r.corals?" +"+r.corals+" 🪸":""));
+const LAST_STOP = STOPS.length-1;
+const stopNm = d => lang()==="ru" ? d.ru : d.en;
+const stopTw = d => lang()==="ru" ? d.twRu : d.twEn;
+// Пройденное не запирается обратно: на втором круге все места уже открыты.
+const routeAt  = () => S.loop>0 ? LAST_STOP : Math.min(LAST_STOP, S.stop);
+const hasTwist = i => routeAt() >= i;
+
+// ── твисты остановок ──
+// Каждый — один множитель и одна строка объяснения. Постоянные сидят в ipsCalm,
+// дышащие — в ips(): см. комментарий у ipsCalm.
+const stopMult   = () => 1 + 0.10*(S.stop + STOPS.length*S.loop);          // прибавка за путь
+const fullSchools= () => !hasTwist(2) ? 0 :
+  GROUPS.filter(g => SPECIES.filter(sp=>sp.grp===g).every(sp=>S.fish.includes(sp.id))).length;
+const schoolMult = () => 1 + 0.20*fullSchools();
+const guestMult  = () => hasTwist(3) ? 1 + 0.03*S.seen.length : 1;
+const DIRT_FULL_S = 900;                                                   // 15 минут до полной мути
+const cleanMult  = () => hasTwist(1) ? 1 - 0.35*Math.min(1, S.dirt) : 1;
+const NIGHT_P = 180;
+const isNight    = () => hasTwist(4) && (Date.now()/1000 % NIGHT_P) >= NIGHT_P/2;
+const cycleMult  = () => !hasTwist(4) ? 1 : (isNight() ? 0.75 : 1.15);
+const WAVE_P = 12;
+const wavePhase  = () => Math.sin(Date.now()/1000 * 2*Math.PI / WAVE_P);
+const waveMult   = () => hasTwist(5) ? 1 + 0.6*wavePhase() : 1;
+const waveCrest  = () => hasTwist(5) && wavePhase() > 0.7;
+const GUEST_EVERY_S = 10;
+function act(key,n){ S.acts[key] = (S.acts[key]||0) + (n||1); }
+function doClean(){
+  if(!hasTwist(1) || S.dirt < 0.2) return false;
+  const got = grant(Math.round(ipsCalm()*45*Math.min(1,S.dirt)));   // всплеск — подарок, не производство
+  S.dirt = 0; act('clean');
+  refreshHud(); persist(true); sfx('coin'); toast(T('cleanGot',{n:fmt(got)}));
   return true;
 }
-// Старые сейвы: уже выполненное проматываем без наград — иначе действующий
-// игрок при первом запуске получит десяток наград подряд за старые заслуги.
-function skipDoneGoals(){
-  let guard=0;
-  while(goalReady() && guard++ < 64) S.goal++;
+
+// ── чек-лист остановки: собрать / достичь / сделать ──
+// Три пункта РАЗНОГО типа: одна большая цель — это стена, в которую игрок
+// упирается и закрывает игру, а три разнотипных гарантируют, что хотя бы
+// один сдвинется за текущий заход.
+function tasks(){
+  const d = STOPS[Math.min(LAST_STOP, S.stop)], sc = Math.pow(6, S.loop);
+  const first = S.loop===0
+    ? { id:'fish',  lab:T('pFish'),  text:T('tFish',{n:d.fish}),   cur:S.fish.length, need:d.fish }
+    : { id:'coral', lab:T('pCoral'), text:T('tCoral',{n:d.coral*S.loop}),
+        cur:S.corals, need:d.coral*S.loop };
+  const need = Math.round(d.ips*sc);
+  const actN = d.actN;
+  return [
+    first,
+    { id:'ips', lab:T('pIps'), text:T('tIps',{n:fmt(need)}), cur:ipsCalm(), need:need },
+    { id:d.act, lab:T('pAct'),
+      text:T({feeds:'tFeeds',clean:'tClean',school:'tSchool',guests:'tGuests',
+              night:'tNight',wave:'tWave'}[d.act], {n:actN}),
+      cur: d.act==='school' ? fullSchools() : (S.acts[d.act]||0), need:actN },
+  ];
+}
+const routeReady = () => tasks().every(t => t.cur >= t.need);
+function doMove(){
+  if(!routeReady()) return false;
+  const last = S.stop >= LAST_STOP;
+  const got = grant(Math.max(500, Math.round(ipsCalm()*120)));   // награда — подарок, не производство
+  S.corals += last ? 3 : 1;                 // отдельный источник: coralsGiven не трогаем
+  S.acts = {}; S.dirt = 0; S.guestT = 0;    // счётчики «сделать» — свои у каждой остановки
+  if(last){ S.loop++; S.stop = 0; S.seenStop = STOPS.length; }
+  else { S.stop++; S.seenStop = Math.max(S.seenStop, S.stop+1); }
+  buildBg(); refreshHud(); persist(true); sfx('buy');
+  if(last) openModal('finale');
+  else { toast(T('moved',{n:stopNm(STOPS[S.stop])})+" +"+fmt(got)); showInterstitial(); }
+  return true;
+}
+// Старый сейв без маршрута: место выводим из уже заведённых видов и НИЧЕГО не
+// платим — иначе действующий игрок при первом запуске соберёт полмаршрута наград.
+function estimateStop(fishCount){
+  let i = 0;
+  while(i < LAST_STOP && fishCount >= STOPS[i].fish) i++;
+  return i;
 }
 
 // ---------- Офлайн-доход ----------
@@ -507,7 +635,16 @@ function restore(raw){
   s.time     = numOr(d.time, Date.now());
   s.dailyDay = (typeof d.dailyDay==="string") ? d.dailyDay : "";
   s.streak   = intIn(d.streak, 0, 7, 0);
-  s.goal     = intIn(d.goal, 0, 999, 0);
+  s.stop     = intIn(d.stop, 0, STOPS.length-1, 0);
+  s.loop     = intIn(d.loop, 0, 999, 0);
+  s.seenStop = intIn(d.seenStop, 1, STOPS.length, 1);
+  s.dirt     = Math.max(0, Math.min(1, numOr(d.dirt, 0)));
+  s.guestT   = Math.max(0, Math.min(600, numOr(d.guestT, 0)));
+  // Счётчики «сделать»: только известные ключи и только конечные числа —
+  // сейв мог прийти из будущей версии или с чужого устройства.
+  s.acts = {};
+  if(d.acts && typeof d.acts==="object" && !Array.isArray(d.acts))
+    STOPS.forEach(st=>{ s.acts[st.act] = intIn(d.acts[st.act], 0, 1e9, 0); });
   s.tips     = (d.tips  && typeof d.tips ==="object" && !Array.isArray(d.tips))  ? d.tips  : {};
   s.flags    = (d.flags && typeof d.flags==="object" && !Array.isArray(d.flags)) ? d.flags : {};
   // Незнакомый id вида — это «ничего», а не «самый дорогой»: сейв мог прийти
@@ -535,7 +672,9 @@ function restore(raw){
     s.coralsGiven = coralsFor(est);
   }
   S = s;
-  if(!Number.isFinite(d.goal)) skipDoneGoals();
+  // Сейв до маршрута: место выводим из уже заведённых видов, наград не выдаём.
+  if(!Number.isFinite(d.stop)){ S.stop = estimateStop(S.fish.length); S.acts = {}; }
+  S.seenStop = Math.max(S.seenStop, Math.min(STOPS.length, S.stop+1));
 }
 
 // ---------- Реклама ----------
@@ -658,19 +797,30 @@ function refreshHud(){
   $("x2Btn").classList.toggle("off", on);
   $("presBtn").classList.toggle("gone", !(S.corals>0 || prestigeReady()));
   $("presBtn").classList.toggle("ready", prestigeReady());
-  refreshGoal();
+  // Ведро появляется, только когда есть что чистить: постоянная кнопка,
+  // которую нельзя нажать, читается как сломанная.
+  $("cleanBtn").classList.toggle("gone", !(hasTwist(1) && S.dirt>=0.2));
+  $("cleanBtn").classList.toggle("ready", S.dirt>=0.6);
+  refreshRoute();
   if(modalOpen==='fish' || modalOpen==='up') buildModal(modalOpen);  // живое обновление цен
 }
-function refreshGoal(){
-  const g=goalDef(), need=g.need(), cur=Math.min(need, g.cur()), done=cur>=need;
-  const bar=$("goalBar");
-  bar.classList.toggle("done", done);
-  $("goalT").textContent = done ? T('goalTake') : g.text();
-  const r=g.rew();
-  $("goalR").textContent = "+"+fmt(r.coins)+(r.corals?" +"+r.corals+" 🪸":"");
-  // Цель вроде «доход 500/с» начинается не с нуля, поэтому шкала — простое cur/need:
-  // честнее показать маленький хвостик, чем полосу «почти готово» на пустом месте.
-  $("goalFill").style.width = Math.max(0, Math.min(100, 100*cur/need)) + "%";
+// Средний горизонт на экране: где я, что осталось до переезда. Дальний
+// (вся карта) — в одно нажатие по этой же полосе.
+function refreshRoute(){
+  const d = STOPS[Math.min(LAST_STOP, S.stop)], ts = tasks(), ready = routeReady();
+  const bar = $("routeBar");
+  bar.classList.toggle("done", ready);
+  $("routeT").textContent = (S.stop+1)+"/"+STOPS.length+" · "+stopNm(d)
+                            + (S.loop>0 ? " · "+T('mapLoop',{n:S.loop+1}) : "");
+  $("routeR").textContent = ready ? T('moveDo') : "▸";
+  const pills = $("routePills"); pills.innerHTML="";
+  ts.forEach(t=>{
+    const el = document.createElement('div');
+    const done = t.cur >= t.need;
+    el.className = "pill"+(done?" ok":"");
+    el.textContent = done ? "✓ "+t.lab : t.lab+" "+fmtRate(Math.min(t.cur,t.need))+"/"+fmt(t.need);
+    pills.appendChild(el);
+  });
 }
 let toastT;
 function toast(msg){ const el=$("toast"); el.textContent=msg; el.classList.add("on");
@@ -689,6 +839,9 @@ function doFeed(x){
   if(now - lastFeed < FEED_MIN_MS) return false;
   lastFeed = now;
   earn(tapGain());
+  act('feeds');
+  if(isNight()) act('night');
+  if(waveCrest()){ act('wave'); toast(T('waveUp')); }
   spawnFood(x);
   refreshHud(); persist(); sfx("tap");
   return true;
@@ -775,14 +928,17 @@ function buildModal(kind){
   if(kind==='fish'){
     $("mTitle").textContent=T("fishTitle"); body.innerHTML="";
     SPECIES.forEach(sp=>{
-      const owned=S.fish.includes(sp.id);
+      const owned=S.fish.includes(sp.id), open=spOpen(sp);
       const row=document.createElement('div'); row.className="row";
       const th=fishThumb(sp); th.className="thumb"; row.appendChild(th);
       const info=document.createElement('div'); info.className="info";
-      info.innerHTML='<div class="nm">'+nm(sp)+'</div><div class="ds">+'+fmtRate(sp.ips)+' '+T("ipsUnit")+'</div>';
+      // Запертый вид показываем открыто: он и есть причина ехать дальше.
+      info.innerHTML='<div class="nm">'+(open?nm(sp):'???')+'</div><div class="ds">'
+        +(open ? '+'+fmtRate(sp.ips)+' '+T("ipsUnit") : stopNm(STOPS[sp.stop]))+'</div>';
       row.appendChild(info);
       const b=document.createElement('button');
-      if(owned){ b.className="buy owned"; b.textContent=T("owned"); }
+      if(!open){ b.className="buy can-not"; b.textContent="🔒"; }
+      else if(owned){ b.className="buy owned"; b.textContent=T("owned"); }
       else{ const c=fishCost(sp); b.className="buy"+(can(c)?"":" can-not");
         b.textContent=T("buy")+" · "+fmt(c);
         b.onclick=()=>{ if(buyFish(sp.id)) buildModal('fish'); }; }
@@ -889,6 +1045,49 @@ function buildModal(kind){
     const l=document.createElement('div'); l.className="hint warn"; l.textContent=T("presLose"); body.appendChild(l);
     if(prestigeReady()) actBtn(T('presDo'), "main", doPrestige);
     else { const p=document.createElement('div'); p.className="hint"; p.textContent=T("presSoon"); body.appendChild(p); }
+  } else if(kind==='map'){
+    // Карта с туманом: ближние места названы, дальние — силуэты. Игрок видит,
+    // что путь длинный и что у него есть конец, но не видит спойлеров.
+    $("mTitle").textContent=T("mapTitle")+(S.loop>0?" · "+T('mapLoop',{n:S.loop+1}):"");
+    body.innerHTML="";
+    const ts=tasks();
+    STOPS.forEach((d,i)=>{
+      const past=i<S.stop, now=i===S.stop, fog=i>Math.max(S.seenStop, S.stop+1);
+      const el=document.createElement('div');
+      el.className="mstop"+(past?" past":"")+(now?" now":"")+(fog?" fog":"");
+      const num=document.createElement('div'); num.className="num";
+      num.textContent = past ? "✓" : String(i+1); el.appendChild(num);
+      const mi=document.createElement('div'); mi.className="mi";
+      mi.innerHTML='<div class="mn">'+(fog?T('mapFog'):stopNm(d))+'</div>'
+                  +'<div class="md">'+(fog?T('mapFogD'):stopTw(d))+'</div>';
+      if(now){
+        const tw=document.createElement('div'); tw.className="tasks";
+        ts.forEach(t=>{
+          const done=t.cur>=t.need;
+          const r=document.createElement('div'); r.className="task"+(done?" ok":"");
+          r.innerHTML='<span class="bx">'+(done?"✓":"")+'</span><span>'+t.text+'</span>'
+                     +'<span class="tv">'+fmtRate(Math.min(t.cur,t.need))+"/"+fmt(t.need)+'</span>';
+          tw.appendChild(r);
+        });
+        mi.appendChild(tw);
+      }
+      el.appendChild(mi); body.appendChild(el);
+    });
+    const keep=document.createElement('div'); keep.className="hint";
+    keep.textContent=T('moveKeep'); body.appendChild(keep);
+    if(routeReady()) actBtn(T('moveDo'), "main", ()=>{ closeModal(); doMove(); });
+    else { const h=document.createElement('div'); h.className="hint warn";
+           h.textContent=T('moveSoon'); body.appendChild(h); }
+  } else if(kind==='finale'){
+    $("mTitle").textContent=T("finTitle"); body.innerHTML="";
+    const w=document.createElement('div'); w.className="hint"; w.textContent=T("finWhat"); body.appendChild(w);
+    const g=document.createElement('div'); g.className="orow total";
+    g.innerHTML='<span class="on">'+T('mapLoop',{n:S.loop+1})+'</span><span class="ov">×'
+      +stopMult().toFixed(2)+'</span>';
+    body.appendChild(g);
+    const m=document.createElement('div'); m.className="hint";
+    m.textContent=T('moveBonus',{n:stopMult().toFixed(2)}); body.appendChild(m);
+    actBtn(T('finGo'), "main", closeModal);
   } else if(kind==='shortcut'){
     $("mTitle").textContent=T("scTitle"); body.innerHTML="";
     const w=document.createElement('div'); w.className="hint"; w.textContent=T("scWhat"); body.appendChild(w);
@@ -917,9 +1116,15 @@ const TIPS = [
   { id:'off',  target:'ipsChip',  side:false,
     text:()=>T('tipOff'),
     when:()=> S.fish.length>=2 && ipsCalm()>0 && !S.flags.sawOffline },
-  { id:'goal', target:'goalBar',  side:false,
-    text:()=>T('tipGoal'),
-    when:()=> goalReady() && S.goal===0 },
+  { id:'route', target:'routeBar', side:false,
+    text:()=>T('tipRoute'),
+    when:()=> S.lifetime>0 && S.stop===0 && S.loop===0 },
+  { id:'move', target:'routeBar', side:false,
+    text:()=>T('tipMove'),
+    when:()=> routeReady() },
+  { id:'clean', target:'cleanBtn', side:true,
+    text:()=>T('tipClean'),
+    when:()=> hasTwist(1) && S.dirt>=0.35 },
   { id:'pres', target:'presBtn',  side:true,
     text:()=>T('tipPres'),
     when:()=> prestigeReady() && S.resets===0 },
@@ -982,8 +1187,12 @@ function buildBg(){
   bgCan=document.createElement('canvas'); bgCan.width=Math.max(1,W*DPR); bgCan.height=Math.max(1,H*DPR);
   const g=bgCan.getContext('2d'); g.setTransform(DPR,0,0,DPR,0,0);
   // вода — вертикальный градиент (светлее сверху, глубокая синь снизу)
+  // Палитра — своя у каждой остановки: прогресс должен быть виден глазом,
+  // а не только в цифрах.
+  const pal = STOPS[Math.min(LAST_STOP, S.stop)];
   const wg=g.createLinearGradient(0,0,0,H);
-  wg.addColorStop(0,'#7FCBDD'); wg.addColorStop(0.35,'#3E96BC'); wg.addColorStop(0.7,'#256E96'); wg.addColorStop(1,'#123E5E');
+  wg.addColorStop(0,pal.water[0]); wg.addColorStop(0.35,pal.water[1]);
+  wg.addColorStop(0.7,pal.water[2]); wg.addColorStop(1,pal.water[3]);
   g.fillStyle=wg; g.fillRect(0,0,W,H);
   // мягкое солнечное свечение сверху
   const sun=g.createRadialGradient(W*0.7,-H*0.1,10,W*0.7,-H*0.1,H*0.75);
@@ -1001,7 +1210,7 @@ function buildBg(){
   g.beginPath(); g.moveTo(0,H); g.lineTo(0,sandY);
   for(let x=0;x<=W;x+=40){ const y=sandY + Math.sin(x*0.03)*6; g.lineTo(x,y); }
   g.lineTo(W,H); g.closePath();
-  const sg=g.createLinearGradient(0,sandY-10,0,H); sg.addColorStop(0,'#EAD7A6'); sg.addColorStop(1,'#CDA86E');
+  const sg=g.createLinearGradient(0,sandY-10,0,H); sg.addColorStop(0,pal.sand[0]); sg.addColorStop(1,pal.sand[1]);
   g.fillStyle=sg; g.fill();
   g.strokeStyle=INK; g.lineWidth=3.5; g.beginPath();
   for(let x=0;x<=W;x+=40){ const y=sandY + Math.sin(x*0.03)*6; x===0?g.moveTo(x,y):g.lineTo(x,y); } g.stroke();
@@ -1015,6 +1224,21 @@ function buildBg(){
   g.strokeStyle='rgba(255,255,255,.16)'; g.lineWidth=6; g.strokeRect(3,3,W-6,H-6);
 }
 function drawBackground(){ if(bgCan) ctx.drawImage(bgCan,0,0,W,H); }
+// Твисты видно на экране, а не только в цифрах: ночь синит сцену, муть зеленит,
+// гребень волны подсвечивает кнопку кормления.
+function drawTwists(){
+  if(hasTwist(1) && S.dirt>0.05){
+    ctx.fillStyle='rgba(96,132,70,'+(0.30*Math.min(1,S.dirt)).toFixed(3)+')';
+    ctx.fillRect(0,0,W,H);
+  }
+  if(hasTwist(4) && isNight()){
+    ctx.fillStyle='rgba(12,22,58,.34)'; ctx.fillRect(0,0,W,H);
+  }
+  if(hasTwist(5)){
+    const a=0.10*Math.max(0,wavePhase());
+    if(a>0.004){ ctx.fillStyle='rgba(255,255,255,'+a.toFixed(3)+')'; ctx.fillRect(0,0,W,H); }
+  }
+}
 
 // лучи света (мерцают), водоросли (колышутся), пузыри, медуза, краб
 function drawRays(t){
@@ -1205,6 +1429,16 @@ function frame(now){
     const t=Math.floor(acc); acc-=t;
     const r=ips();
     if(r>0){ earn(r*t); refreshHud(); persist(); }
+    // Муть копится только пока игрок в игре: наказывать за отсутствие нечестно,
+    // офлайн и так считается по спокойному доходу.
+    if(hasTwist(1)) S.dirt = Math.min(1, S.dirt + t/DIRT_FULL_S);
+    if(hasTwist(3)){
+      S.guestT += t;
+      while(S.guestT >= GUEST_EVERY_S){
+        S.guestT -= GUEST_EVERY_S;
+        act('guests'); grant(ipsCalm()*4);   // посетитель платит — но это подарок, не производство
+      }
+    }
     S.time=Date.now();          // отметка времени для офлайн-досчёта
   }
   ctx.clearRect(0,0,W,H);
@@ -1217,6 +1451,8 @@ function frame(now){
   drawFood();
   drawBubbles(tSec,dt);
   drawCrab(tSec,dt);
+  drawTwists();
+  $("tapBtn").classList.toggle("ready", waveCrest());
   requestAnimationFrame(frame);
 }
 
@@ -1228,7 +1464,8 @@ window.render_game_to_text = () => JSON.stringify({
   lifetime:Math.floor(S.lifetime), corals:S.corals, coralsGiven:S.coralsGiven,
   resets:S.resets, pending:coralsPending(), streak:S.streak, dailyDay:S.dailyDay,
   giftLeft:Math.ceil(giftLeft()/1000), modal:modalOpen, tip:tipNow?tipNow.id:null,
-  goal:S.goal, goalReady:goalReady(),
+  stop:S.stop, loop:S.loop, seenStop:S.seenStop, routeReady:routeReady(),
+  stopMult:stopMult(), schools:fullSchools(), dirt:S.dirt, acts:Object.assign({},S.acts),
   tips:Object.keys(S.tips), muted:(typeof audioMuted==='function'?audioMuted():false)
 });
 window.advanceTime = ms => { earn(ips()*(ms/1000)); refreshHud(); };
@@ -1248,9 +1485,15 @@ window.__giftAmt = () => giftAmt();
 window.__ipsCalm = () => ipsCalm();
 window.__claimDaily = x2 => claimDaily(x2);
 window.__dailyPending = () => dailyPending();
-window.__goal = () => { const g=goalDef();
-  return JSON.stringify({ id:g.id, i:S.goal, cur:g.cur(), need:g.need(), ready:goalReady(), rew:g.rew() }); };
-window.__claimGoal = () => claimGoal();
+window.__route = () => JSON.stringify({
+  stop:S.stop, loop:S.loop, seen:S.seenStop, ready:routeReady(),
+  name:stopNm(STOPS[Math.min(LAST_STOP,S.stop)]),
+  tasks: tasks().map(t=>({id:t.id, cur:t.cur, need:t.need, done:t.cur>=t.need})) });
+window.__move = () => doMove();
+window.__act = (k,n) => { act(k, n==null?1:n); refreshHud(); };
+window.__setDirt = v => { S.dirt = v; refreshHud(); };
+window.__clean = () => doClean();
+window.__openSpecies = () => SPECIES.filter(spOpen).length;
 
 // ---------- Boot ----------
 let readySent=false;
@@ -1279,7 +1522,9 @@ function boot(raw){
   $("upBtn").onclick    = ()=>openModal('up');
   $("collBtn").onclick  = ()=>openModal('coll');
   $("presBtn").onclick  = ()=>openModal('prestige');
-  $("goalBar").onclick  = claimGoal;
+  $("cleanBtn").onclick = doClean;
+  // Готов переезд — одно нажатие едет; не готов — открывается карта целиком.
+  $("routeBar").onclick = ()=>{ if(routeReady()) doMove(); else openModal('map'); };
   $("mClose").onclick   = closeModal;
   $("modal").addEventListener('pointerdown', e=>{ if(e.target.id==='modal') closeModal(); });
   // тап по воде = кормление в точке касания

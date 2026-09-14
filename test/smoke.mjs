@@ -62,8 +62,8 @@ const SDK_MOCK = () => {
 };
 
 const errors = [];
-async function open({ save = null, mock = true } = {}) {
-  const page = await browser.newPage({ viewport: { width: 480, height: 900 } });
+async function open({ save = null, mock = true, viewport = { width: 480, height: 900 } } = {}) {
+  const page = await browser.newPage({ viewport });
   page.on('console', m => {
     if (m.type() !== 'error') return;
     const from = (m.location() && m.location().url) || '';
@@ -332,55 +332,127 @@ const day = off => new Date(Date.now() + off * 86400000).toISOString().slice(0, 
   await page.close();
 }
 
-// ── 13. задания смотрителя ─────────────────────────────────────
+// ── 13. маршрут: видимая цель на длинной дистанции ────────────
 {
   const page = await open();
-  const g0 = JSON.parse(await page.evaluate(() => window.__goal()));
-  assert(g0.i === 0 && g0.ready === false, 'a new player starts on the first goal, not completed');
-  assert(g0.rew.coins > 0, 'the current goal always shows a reward');
-  assert((await page.textContent('#goalT')).length > 0, 'the goal is written out on the HUD');
+  const r0 = JSON.parse(await page.evaluate(() => window.__route()));
+  assert(r0.stop === 0 && r0.loop === 0, 'a new player starts at the first stop of the route');
+  assert(r0.tasks.length === 3, 'a stop is opened by a three-item checklist');
+  assert(new Set(r0.tasks.map(t => t.id)).size === 3, 'the three items are of three different kinds');
+  assert(r0.tasks.every(t => !t.done), 'no checklist item closes itself for a new player');
+  assert(r0.ready === false, 'the move is not available before the checklist is closed');
+  assert((await page.textContent('#routeT')).includes('/'), 'the HUD says which stop of how many');
+  assert((await page.evaluate(() => document.querySelectorAll('#routePills .pill').length)) === 3,
+         'all three items are visible on the HUD without opening anything');
 
-  await page.evaluate(() => { window.__grant(100000); window.__buyNextFish(); });
-  const g1 = JSON.parse(await page.evaluate(() => window.__goal()));
-  assert(g1.ready === true, 'the goal turns claimable once its condition holds');
-  assert(await page.evaluate(() => document.getElementById('goalBar').classList.contains('done')),
-         'a claimable goal is marked on the bar itself');
+  // дальний горизонт — в одно нажатие, с туманом над дальними местами
+  await page.click('#routeBar');
+  assert((await page.state()).modal === 'map', 'one tap on the bar opens the whole route map');
+  const stops = await page.evaluate(() => document.querySelectorAll('.mstop').length);
+  assert(stops === 6, 'the map shows every stop, so the player sees the road is long');
+  const fog = await page.evaluate(() => document.querySelectorAll('.mstop.fog').length);
+  assert(fog > 0 && fog < stops, 'far stops stay in the fog, near ones are named');
+  await page.evaluate(() => window.__closeModal());
+  await page.close();
+}
+{
+  // переезд: три пункта закрыты → новое место, и ничего не отобрано
+  const page = await open();
+  await page.evaluate(() => {
+    window.__grant(1e6); window.__buyNextFish();
+    for (let i = 0; i < 3; i++) window.__buyUp('aer');
+    window.__act('feeds', 40);
+  });
+  const r1 = JSON.parse(await page.evaluate(() => window.__route()));
+  assert(r1.ready === true, 'closing all three items opens the move');
+  assert(await page.evaluate(() => document.getElementById('routeBar').classList.contains('done')),
+         'a ready move is marked on the bar itself');
 
   const before = await page.state();
-  await page.click('#goalBar');
+  await page.click('#routeBar');
   const after = await page.state();
-  assert(after.coins > before.coins, 'claiming the goal pays the reward');
-  assert(after.lifetime === before.lifetime, 'goal rewards do NOT move the progress metric (grant, not earn)');
-  assert(after.goal === 1, 'claiming advances the chain to the next goal');
+  assert(after.stop === 1, 'the move takes the player to the next stop');
+  assert(after.fish === before.fish && after.seen === before.seen && after.feed === before.feed
+         && after.aer === before.aer, 'the move takes nothing away: fish and upgrades come along');
+  assert(after.coins > before.coins, 'the move pays a reward');
+  assert(after.lifetime === before.lifetime,
+         'the move reward does NOT move the progress metric (grant, not earn)');
+  assert(after.stopMult > before.stopMult, 'each stop passed is a permanent income bonus');
+  assert(after.seenStop >= 2, 'the fog lifts one stop ahead');
 
-  const g2 = JSON.parse(await page.evaluate(() => window.__goal()));
-  assert(g2.i === 1 && g2.id !== g1.id, 'the next goal is a different one');
-  const c2 = (await page.state()).coins;
-  await page.click('#goalBar');
-  assert((await page.state()).coins === c2, 'an unfinished goal pays nothing');
+  const r2 = JSON.parse(await page.evaluate(() => window.__route()));
+  assert(r2.ready === false, 'the new stop starts with an unfinished checklist');
+  assert(r2.tasks.find(t => t.id === 'clean').cur === 0, 'per-stop counters start from zero');
   await page.close();
 }
 {
-  // цепочка не кончается: за списком идёт бесконечная ветка по заработку
+  // новое место — новые жители и новое правило
   const page = await open();
-  await page.evaluate(() => { window.__state().goal = 500; });
-  const g = JSON.parse(await page.evaluate(() => window.__goal()));
-  assert(g.need > 0 && Number.isFinite(g.need), 'past the hand-written list the goal chain keeps going');
-  assert(g.ready === false, 'the endless goal is not handed out for free');
+  const open0 = await page.evaluate(() => window.__openSpecies());
+  assert(open0 === 2, 'the first stop offers only its own species');
+  await page.evaluate(() => { window.__state().stop = 1; });
+  assert((await page.evaluate(() => window.__openSpecies())) === 4,
+         'every stop unlocks new residents — the reason to travel on');
+
+  // твист второго места: мутная вода режет доход, чистка даёт всплеск
+  await page.evaluate(() => { window.__grant(1e6); window.__buyNextFish(); window.__buyNextFish(); });
+  const clean = await page.state();
+  await page.evaluate(() => window.__setDirt(1));
+  const dirty = await page.state();
+  assert(dirty.ips < clean.ips, 'cloudy water really cuts the income');
+  assert(!(await page.evaluate(() => document.getElementById('cleanBtn').classList.contains('gone'))),
+         'the cleaning button appears exactly when there is something to clean');
+  const b = await page.state();
+  await page.click('#cleanBtn');
+  const a = await page.state();
+  assert(a.dirt === 0 && a.coins > b.coins, 'cleaning clears the water and pays a burst');
+  assert(a.lifetime === b.lifetime, 'the cleaning burst is a gift, not production');
+  assert(a.acts.clean === 1, 'cleaning counts towards the stop checklist');
   await page.close();
 }
 {
-  // старый сейв без поля goal: выполненное уже не должно превращаться в пачку наград
+  // псевдофинал: игра не кончается, но закрытие есть
+  const page = await open();
+  await page.evaluate(() => {
+    const S = window.__state();
+    S.stop = 5; S.loop = 0; S.corals = 50;
+    window.__grant(1e9);
+    for (let i = 0; i < 12; i++) window.__buyNextFish();
+    for (let i = 0; i < 8; i++) window.__buyUp('aer');
+    window.__act('wave', 20);
+  });
+  const r = JSON.parse(await page.evaluate(() => window.__route()));
+  assert(r.stop === 5, 'the route has exactly six stops');
+  assert(r.ready === true, 'the last stop is closed the same way as the others');
+  const before = await page.state();
+  await page.evaluate(() => window.__move());
+  const after = await page.state();
+  assert(after.modal === 'finale', 'finishing the route shows a real finale screen');
+  assert(after.loop === 1 && after.stop === 0, 'after the finale the route starts a second loop');
+  assert(after.fish === before.fish, 'the second loop takes nothing away either');
+  assert(after.stopMult > before.stopMult, 'the finished loop is a permanent bonus');
+  const r2 = JSON.parse(await page.evaluate(() => window.__route()));
+  assert(r2.tasks.every(t => Number.isFinite(t.need) && t.need > 0),
+         'the second loop has finite, real requirements');
+  assert(r2.tasks.find(t => t.id === 'coral'), 'on the second loop the collect item asks for something new');
+  assert(r2.ready === false, 'the second loop is not handed out for free');
+  assert((await page.evaluate(() => window.__openSpecies())) === 12,
+         'nothing is re-locked on the second loop');
+  await page.close();
+}
+{
+  // старый сейв без маршрута: правдоподобное место и никаких наград за прошлое
   const page = await open({ save: JSON.stringify({
-    v: 2, coins: 5000, fish: ['guppy', 'gold', 'neon'], seen: ['guppy', 'gold', 'neon'],
+    v: 2, coins: 5000, fish: ['guppy', 'gold', 'neon', 'clown'], seen: ['guppy', 'gold', 'neon', 'clown'],
     feed: 2, aer: 2, plant: 0, lifetime: 40000, coralsGiven: 0, corals: 0,
     dailyDay: day(0), streak: 1, time: Date.now(),
   }) });
   const s = await page.state();
-  assert(s.goal > 0, 'an old save skips the goals it has already satisfied');
-  const g = JSON.parse(await page.evaluate(() => window.__goal()));
-  assert(g.ready === false, 'after the skip the player is on a goal that still has to be earned');
-  assert(s.coins === 5000, 'skipped goals pay nothing');
+  assert(s.stop > 0, 'an old save lands on a stop that matches what it has already achieved');
+  assert(s.coins === 5000, 'the migration pays nothing for the past');
+  assert(s.acts.clean === undefined || s.acts.clean === 0, 'the migration does not pre-close the checklist');
+  const r = JSON.parse(await page.evaluate(() => window.__route()));
+  assert(r.ready === false, 'after the migration the player still has work to do on this stop');
   await page.close();
 }
 
@@ -414,6 +486,31 @@ const day = off => new Date(Date.now() + off * 86400000).toISOString().slice(0, 
   await page.evaluate(() => document.getElementById('cv').dispatchEvent(
     new PointerEvent('pointerdown', { clientX: 200, clientY: 400, pointerId: 9, isPrimary: false, bubbles: true })));
   assert((await page.state()).coins === c1, 'a secondary finger never feeds on its own');
+  await page.close();
+}
+
+// ── 15. вёрстка на узких и низких экранах ────────────────
+for (const vp of [{ width: 320, height: 568 }, { width: 640, height: 360 }]) {
+  // сейв с мутной водой и кораллами: в колонке все пять кнопок сразу
+  const page = await open({ viewport: vp, save: JSON.stringify({
+    v: 2, coins: 5000, fish: ['guppy', 'gold', 'neon'], seen: ['guppy', 'gold', 'neon'],
+    feed: 1, aer: 1, plant: 0, lifetime: 50000, coralsGiven: 2, corals: 2,
+    stop: 1, loop: 0, seenStop: 2, acts: {}, dirt: 0.9,
+    dailyDay: day(0), streak: 1, time: Date.now(),
+  }) });
+  const tag = vp.width + 'x' + vp.height;
+  assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1),
+    tag + ': the page never scrolls horizontally');
+  for (const id of ['tapBtn', 'giftBtn', 'x2Btn', 'fishBtn', 'upBtn', 'cleanBtn', 'presBtn', 'collBtn', 'routeBar']) {
+    const b = await page.locator('#' + id).boundingBox();
+    assert(b && b.x >= -0.5 && b.x + b.width <= vp.width + 0.5 && b.y + b.height <= vp.height + 0.5,
+      tag + ': #' + id + ' fits on screen');
+  }
+  await page.evaluate(() => window.__openModal('map'));
+  const card = await page.locator('#modal .sheet').boundingBox();
+  assert(card && card.width <= vp.width + 0.5 && card.height <= vp.height + 0.5,
+    tag + ': the route map fits the screen');
+  await page.evaluate(() => window.__closeModal());
   await page.close();
 }
 
