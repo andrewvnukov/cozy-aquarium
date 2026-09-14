@@ -1,0 +1,66 @@
+{
+  "title": {
+    "ru": "Тёплый Аквариум",
+    "en": "Cozy Aquarium"
+  },
+  "category": "Казуальные",
+  "age": "0+",
+  "orientation": "portrait",
+  "zip": "cozy-aquarium-yandex.zip",
+  "shortDescription": {
+    "ru": "Тапай рыбок, расти мальков и объединяй — 30 видов аквариума!",
+    "en": "Tap fish, grow fry and merge them — 30 aquarium species!"
+  },
+  "fullDescription": {
+    "ru": "Тёплый Аквариум — уютный мерж-кликер про домашний аквариум с тридцатью настоящими видами рыб.\n\nТапайте по рыбке — она приносит жемчуг, и над ней всплывает награда. Тап по воде рыбок не тревожит: по воде расходится рябь, а за пальцем тянется водяной след.\n\nНа жемчуг покупайте мальков. Малёк подрастает за несколько секунд, а когда становится взрослым — перетащите его на такую же взрослую рыбку, и они объединятся в рыбку следующего вида. Так гуппи и кардинал сменяются неоном, данио, барбусом, золотой рыбкой, гурами и петушком, а дальше ждут дискус, оскар, скалярия, рыба-клоун, мавританский идол, крылатка и иглобрюх.\n\nУ каждого вида свой характер: данио и барбус носятся по всему аквариуму, неоны и расборы держатся стайкой, дискусы и скалярии плывут величаво, петушок зависает на месте, а коридорас, анциструс и боция копошатся у самого дна.\n\nКорм покупается за жемчуг: хлопья тонут, рыбки едят их не спеша. Сытая рыбка платит вдвое больше за тап и быстрее растёт. Улучшайте аквариум и смотрите видео за мульти-тап. А по дну ходит краб: время от времени он выносит табличку «Доход ×2» — тапните по нему, и фоновый доход удвоится на пять минут. Пока игра закрыта, рыбки продолжают понемногу приносить жемчуг — вернётесь через час-другой и заберёте накопленное. Заходите каждый день за подарком. В настройках — громкость музыки и звуков, а также язык.",
+    "en": "Cozy Aquarium is a warm merge-clicker about a home fish tank with thirty real fish species.\n\nTap a fish and it pays out pearls, with the reward popping up above it. Tapping the water leaves your fish alone — it sends out a ripple, and a watery trail follows your finger.\n\nSpend pearls on fry. A fry grows up in seconds, and once it is an adult you can drag it onto a matching adult fish to merge them into the next species. Guppies and white clouds give way to neon tetras, danios, tiger barbs, goldfish, gouramis and bettas, and further on wait discus, oscars, angelfish, clownfish, moorish idols, lionfish and pufferfish.\n\nEvery species has its own character: danios and barbs dart across the whole tank, neons and rasboras keep to a school, discus and angelfish glide slowly, a betta hovers in place, while corydoras, plecos and loaches potter about on the bottom.\n\nFood costs pearls: the flakes sink and fish eat them unhurriedly. A well-fed fish pays double per tap and grows faster. Upgrade the tank and watch a video for multi-tap. A crab patrols the sand and now and then holds up an «Income ×2» sign — tap him to double your background income for five minutes. While the game is closed your fish keep earning a little, so you collect what piled up when you return. Come back daily for a gift. Settings let you adjust music and sound volume and switch the language."
+  },
+  "keywords": {
+    "ru": [
+      "аквариум",
+      "рыбки",
+      "мерж",
+      "кликер",
+      "30 видов",
+      "уютная игра",
+      "жемчуг",
+      "питомцы",
+      "объединяй"
+    ],
+    "en": [
+      "aquarium",
+      "fish",
+      "merge",
+      "clicker",
+      "30 species",
+      "cozy game",
+      "pearls",
+      "pets",
+      "idle"
+    ]
+  },
+  "assets": {
+    "icon": "store-assets/icon.png",
+    "cover": {
+      "ru": "store-assets/cover.png",
+      "en": "store-assets/cover-en.png"
+    },
+    "screenshots": {
+      "ru": [
+        "store-assets/d1-start.png",
+        "store-assets/d2-feeding.png",
+        "store-assets/d3-shop.png",
+        "store-assets/d4-upgrades.png",
+        "store-assets/d5-collection.png"
+      ],
+      "en": [
+        "store-assets/d1-start-en.png",
+        "store-assets/d2-feeding-en.png",
+        "store-assets/d3-shop-en.png",
+        "store-assets/d4-upgrades-en.png",
+        "store-assets/d5-collection-en.png"
+      ]
+    }
+  },
+  "aiUsage": "full"
+}
